@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from ..ir import Schema, Column, ColumnType
 
+from ._base import resolve_type, build_type_string, resolve_fn_default, format_literal_default
+
 
 class SQLAlchemyGenerator:
     """Convert Schema IR to SQLAlchemy declarative model Python format."""
@@ -87,30 +89,24 @@ class SQLAlchemyGenerator:
         lines: list[str] = []
         types_used: set[str] = set()
 
-        # Determine SQLAlchemy type
-        if col.type == ColumnType.CUSTOM and col.custom_type:
-            sa_type = col.custom_type
-            types_used.add(sa_type)
-        else:
-            sa_type = self._TYPE_MAP.get(col.type, "String")
-            types_used.add(sa_type)
+        # Build type string using shared helper
+        sa_type = build_type_string(col, self._TYPE_MAP,
+            string_fmt="{}({})",
+            string_default="String",
+            decimal_fmt="{}({}, {})",
+            decimal_default="Numeric",
+            decimal_precision=10,
+            decimal_scale=2,
+        )
+        types_used.add(sa_type.split("(")[0])
 
-        # Build type string with args
         type_str = sa_type
-        if col.type == ColumnType.STRING:
-            length = col.type_args.get("length", 255)
-            type_str = f"String({length})"
-        elif col.type == ColumnType.DECIMAL:
-            precision = col.type_args.get("precision", 10)
-            scale = col.type_args.get("scale", 2)
-            type_str = f"Numeric({precision}, {scale})"
 
         kwargs: list[str] = []
 
         # Primary key
         if col.primary_key:
             kwargs.append("primary_key=True")
-            # autoincrement=False for non-integer PKs or explicit setting
             if col.type != ColumnType.INTEGER:
                 kwargs.append("autoincrement=False")
             elif col.type_args.get("autoincrement") is False:
@@ -128,36 +124,20 @@ class SQLAlchemyGenerator:
         if col.type_args.get("index"):
             kwargs.append("index=True")
 
-        # Server default (func expressions)
-        if col.default is not None:
-            if isinstance(col.default, str) and col.default.startswith("fn:"):
-                fn_raw = col.default[3:]
-                fn_upper = fn_raw.upper().rstrip("()")
-                if fn_upper in ("NOW", "CURRENT_TIMESTAMP"):
-                    kwargs.append('server_default=func.now()')
-                elif fn_upper == "CURRENT_DATE":
-                    kwargs.append('server_default=func.current_date()')
-                elif fn_upper == "CURRENT_TIME":
-                    kwargs.append('server_default=func.current_time()')
-                elif fn_upper in ("RANDOM", "RAND"):
-                    kwargs.append('server_default=func.random()')
-                elif fn_upper == "GEN_RANDOM_UUID":
-                    kwargs.append('server_default=func.gen_random_uuid()')
-                elif fn_upper == "AUTO_NOW":
-                    kwargs.append('server_default=func.now()')
-                    kwargs.append("onupdate=func.now()")
-                elif fn_upper == "AUTO_NOW_ADD":
-                    kwargs.append('server_default=func.now()')
-                elif fn_raw.endswith("()"):
-                    kwargs.append(f"server_default=func.{fn_raw}")
-                else:
-                    kwargs.append(f"server_default=text('{fn_raw}')")
-            elif isinstance(col.default, bool):
-                kwargs.append(f"default={str(col.default).lower()}")
-            elif isinstance(col.default, str):
-                kwargs.append(f"default='{col.default}'")
+        # fn: defaults (server_default)
+        fn_default = resolve_fn_default(col, fn_wrapper="func.{}", expr_fallback="text('{}')")
+        if fn_default:
+            kwargs.append(f"server_default={fn_default}")
+
+        # Literal defaults
+        if col.default is not None and not (isinstance(col.default, str) and col.default.startswith("fn:")):
+            lit = format_literal_default(col)
+            if isinstance(col.default, bool):
+                kwargs.append(f"default={lit}")
             elif isinstance(col.default, (int, float)):
-                kwargs.append(f"default={col.default}")
+                kwargs.append(f"default={lit}")
+            elif isinstance(col.default, str):
+                kwargs.append(f"default={lit}")
 
         if kwargs:
             lines.append(f"    {col.name} = Column({type_str}, {', '.join(kwargs)})")

@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from ..ir import Schema, Column, ColumnType
 
+from ._base import resolve_type, build_type_string
+
 
 class TypeORMGenerator:
     """Convert Schema IR to TypeORM entity TypeScript format."""
@@ -125,10 +127,7 @@ class TypeORMGenerator:
         options: dict[str, str] = {}
 
         # Determine TypeORM type
-        if col.type == ColumnType.CUSTOM and col.custom_type:
-            col_type = col.custom_type
-        else:
-            col_type = self._TYPE_MAP.get(col.type, "varchar")
+        col_type = resolve_type(col, self._TYPE_MAP)
 
         # Primary key handling
         if col.primary_key:

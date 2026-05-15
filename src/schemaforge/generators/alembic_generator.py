@@ -5,8 +5,9 @@ for initial schema setup, deployable as Alembic revision scripts.
 """
 from __future__ import annotations
 
-from ..ir import Schema, Column, ColumnType, Table, Index
-from ..ir import EnumType  # noqa: F401 — used in signature type hints
+from ..ir import Schema, Column, ColumnType, Table
+
+from ._base import resolve_type, build_type_string, resolve_fn_default, format_literal_default
 
 
 class AlembicGenerator:
@@ -157,20 +158,15 @@ class AlembicGenerator:
 
     def _column_def(self, col: Column) -> str:
         """Generate a sa.Column() definition string."""
-        if col.type == ColumnType.CUSTOM and col.custom_type:
-            sa_type = col.custom_type
-        elif col.type == ColumnType.ENUM and col.type_args.get("values"):
-            values = ", ".join(f"'{v}'" for v in col.type_args["values"])
-            sa_type = f"sa.Enum({values})"
-        else:
-            sa_type = self._TYPE_MAP.get(col.type, "sa.String")
-            if col.type == ColumnType.STRING:
-                length = col.type_args.get("length", 255)
-                sa_type = f"sa.String({length})"
-            elif col.type == ColumnType.DECIMAL:
-                precision = col.type_args.get("precision", 10)
-                scale = col.type_args.get("scale", 2)
-                sa_type = f"sa.Numeric({precision}, {scale})"
+        sa_type = build_type_string(col, self._TYPE_MAP,
+            string_fmt="{}({})",
+            string_default="sa.String",
+            decimal_fmt="{}({}, {})",
+            decimal_default="sa.Numeric",
+            decimal_precision=10,
+            decimal_scale=2,
+            enum_fmt="{}({})",
+        )
 
         kwargs: list[str] = [sa_type]
 
@@ -181,28 +177,14 @@ class AlembicGenerator:
         if col.unique and not col.primary_key:
             kwargs.append("unique=True")
 
-        # Server default handling
-        if col.default is not None:
-            if isinstance(col.default, str) and col.default.startswith("fn:"):
-                fn_raw = col.default[3:]
-                fn_upper = fn_raw.upper().rstrip("()")
-                if fn_upper in ("NOW", "CURRENT_TIMESTAMP"):
-                    kwargs.append("server_default=sa.func.now()")
-                elif fn_upper == "CURRENT_DATE":
-                    kwargs.append("server_default=sa.func.current_date()")
-                elif fn_upper == "CURRENT_TIME":
-                    kwargs.append("server_default=sa.func.current_time()")
-                elif fn_upper == "GEN_RANDOM_UUID":
-                    kwargs.append("server_default=sa.func.gen_random_uuid()")
-                elif fn_raw.endswith("()"):
-                    kwargs.append(f"server_default=sa.func.{fn_raw}")
-                else:
-                    kwargs.append(f"server_default=sa.text('{fn_raw}')")
-            elif isinstance(col.default, bool):
-                kwargs.append(f"server_default={str(col.default).lower()}")
-            elif isinstance(col.default, str):
-                kwargs.append(f"server_default='{col.default}'")
-            elif isinstance(col.default, (int, float)):
-                kwargs.append(f"server_default={col.default}")
+        # fn: defaults (server_default)
+        fn_default = resolve_fn_default(col, fn_wrapper="sa.func.{}", expr_fallback="sa.text('{}')")
+        if fn_default:
+            kwargs.append(f"server_default={fn_default}")
+
+        # Literal defaults
+        if col.default is not None and not (isinstance(col.default, str) and col.default.startswith("fn:")):
+            lit = format_literal_default(col)
+            kwargs.append(f"server_default={lit}")
 
         return f"sa.Column('{col.name}', {', '.join(kwargs)})"

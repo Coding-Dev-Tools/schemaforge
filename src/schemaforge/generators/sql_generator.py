@@ -74,12 +74,10 @@ class SQLGenerator:
         if col.type == ColumnType.CUSTOM and col.custom_type:
             sql_type = col.custom_type
         elif col.type == ColumnType.ENUM and col.type_args.get("values"):
-            # Inline ENUM('a','b','c')
             values = ", ".join(f"'{v}'" for v in col.type_args["values"])
             sql_type = f"ENUM({values})"
         elif col.type in self._TYPE_REVERSE_MAP:
             sql_type = self._TYPE_REVERSE_MAP[col.type]
-            # Apply type args
             if col.type == ColumnType.STRING and "length" in col.type_args:
                 sql_type = f"VARCHAR({col.type_args['length']})"
             elif col.type == ColumnType.DECIMAL:

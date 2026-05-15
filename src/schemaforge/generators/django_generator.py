@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from ..ir import Schema, Column, ColumnType
 
+from ._base import resolve_type
+
 
 class DjangoGenerator:
     """Convert Schema IR to Django model Python format."""
@@ -96,12 +98,9 @@ class DjangoGenerator:
 
     def _field_def(self, col: Column) -> str:
         """Generate a Django model field definition."""
-        if col.type == ColumnType.CUSTOM and col.custom_type:
-            django_field = col.custom_type
-            if not django_field.endswith("Field"):
-                django_field = django_field + "Field"
-        else:
-            django_field = self._FIELD_MAP.get(col.type, "CharField")
+        django_field = resolve_type(col, self._FIELD_MAP)
+        if not django_field.endswith("Field"):
+            django_field = django_field + "Field"
 
         kwargs: list[str] = []
 

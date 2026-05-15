@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from ..ir import Schema, Table, Column, ColumnType, EnumType, Index
 
+from ._base import resolve_fn_default
+
 
 # ColumnType -> Drizzle type function mapping
 _TYPE_TO_DRIZZLE: dict[ColumnType, str] = {

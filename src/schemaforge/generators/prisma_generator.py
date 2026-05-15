@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from ..ir import Schema, Column, ColumnType
 
+from ._base import resolve_type, build_type_string, resolve_fn_default
+
 
 class PrismaGenerator:
     """Convert Schema IR to Prisma schema format."""
@@ -27,7 +29,10 @@ class PrismaGenerator:
         """Generate Prisma schema from IR."""
         parts: list[str] = []
         parts.append('generator client {\n  provider = "prisma-client-js"\n}')
-        parts.append('datasource db {\n  provider = "postgresql"\n  url      = env("DATABASE_URL")\n}')
+        parts.append(
+            'datasource db {\n  provider = "postgresql"\n'
+            '  url      = env("DATABASE_URL")\n}'
+        )
 
         # Generate enums
         for enum_type in schema.enums:
@@ -55,16 +60,13 @@ class PrismaGenerator:
 
     def _field_def(self, col: Column) -> str:
         """Generate a Prisma field definition."""
-        if col.type == ColumnType.CUSTOM and col.custom_type:
-            prisma_type = col.custom_type
-        else:
-            prisma_type = self._TYPE_MAP.get(col.type, "String")
+        prisma_type = resolve_type(col, self._TYPE_MAP)
 
-        # Handle type args for String length
+        # Handle String with length (Prisma uses @db.VarChar)
         if col.type == ColumnType.STRING and "length" in col.type_args:
             prisma_type = f"String @db.VarChar({col.type_args['length']})"
 
-        annotations = []
+        annotations: list[str] = []
         if col.primary_key:
             annotations.append("@id")
             if col.type == ColumnType.INTEGER:
@@ -73,31 +75,24 @@ class PrismaGenerator:
         if col.unique and not col.primary_key:
             annotations.append("@unique")
 
-        if col.default is not None:
-            if isinstance(col.default, bool):
-                annotations.append(f"@default({str(col.default).lower()})")
-            elif isinstance(col.default, str) and col.default.startswith("fn:"):
-                fn_expr = col.default[3:]
-                # Map common SQL functions to Prisma equivalents
-                fn_upper = fn_expr.upper().rstrip("()")
-                if fn_upper in ("CURRENT_TIMESTAMP", "NOW"):
-                    annotations.append("@default(now())")
-                elif fn_upper == "CURRENT_DATE":
-                    annotations.append("@default(now())")
-                elif fn_upper == "RANDOM":
-                    annotations.append("@default(autoincrement())")
-                elif fn_expr.endswith("()"):
-                    annotations.append(f"@default({fn_expr})")
+        # fn: defaults
+        fn_default = resolve_fn_default(col, fn_wrapper="@default({})")
+        if fn_default:
+            annotations.append(fn_default)
+
+        # Literal defaults (non-fn)
+        if (col.default is not None
+                and not (isinstance(col.default, str) and col.default.startswith("fn:"))):
+            if not col.primary_key:  # Skip if already has autoincrement
+                if isinstance(col.default, bool):
+                    annotations.append(f"@default({str(col.default).lower()})")
+                elif isinstance(col.default, str):
+                    if col.default.endswith("()"):
+                        annotations.append(f"@default({col.default})")
+                    else:
+                        annotations.append(f'@default("{col.default}")')
                 else:
-                    annotations.append(f"@default({fn_expr})")
-            elif isinstance(col.default, str):
-                # Check if it looks like a function call
-                if col.default.endswith("()"):
                     annotations.append(f"@default({col.default})")
-                else:
-                    annotations.append(f"@default(\"{col.default}\")")
-            else:
-                annotations.append(f"@default({col.default})")
 
         nullable_suffix = "?" if col.nullable else ""
 
