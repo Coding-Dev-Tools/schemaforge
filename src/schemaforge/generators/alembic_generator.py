@@ -8,10 +8,15 @@ from __future__ import annotations
 from ..ir import Schema, Column, ColumnType, Table
 
 from ._base import resolve_type, build_type_string, resolve_fn_default, format_literal_default
+from ..type_config import TypeConfig
 
 
 class AlembicGenerator:
     """Convert Schema IR to an Alembic migration script."""
+
+    def __init__(self, type_config: TypeConfig | None = None) -> None:
+        """Initialize with optional custom type overrides."""
+        self._type_config = type_config
 
     _TYPE_MAP: dict[ColumnType, str] = {
         ColumnType.STRING: "sa.String",
@@ -166,6 +171,8 @@ class AlembicGenerator:
             decimal_precision=10,
             decimal_scale=2,
             enum_fmt="{}({})",
+            fmt="alembic",
+            type_config=self._type_config,
         )
 
         kwargs: list[str] = [sa_type]

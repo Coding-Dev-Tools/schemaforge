@@ -4,10 +4,15 @@ from __future__ import annotations
 from ..ir import Schema, Column, ColumnType
 
 from ._base import resolve_type, build_type_string, resolve_fn_default, format_literal_default
+from ..type_config import TypeConfig
 
 
 class SQLAlchemyGenerator:
     """Convert Schema IR to SQLAlchemy declarative model Python format."""
+
+    def __init__(self, type_config: TypeConfig | None = None) -> None:
+        """Initialize with optional custom type overrides."""
+        self._type_config = type_config
 
     _TYPE_MAP: dict[ColumnType, str] = {
         ColumnType.STRING: "String",
@@ -97,6 +102,8 @@ class SQLAlchemyGenerator:
             decimal_default="Numeric",
             decimal_precision=10,
             decimal_scale=2,
+            fmt="sqlalchemy",
+            type_config=self._type_config,
         )
         types_used.add(sa_type.split("(")[0])
 

@@ -191,6 +191,48 @@ Each fixture demonstrates the same blog schema so you can compare ORM syntax sid
 - **Inline ENUM** — `ENUM('small', 'medium', 'large')` column types parsed and roundtripped
 - **Relation preservation** — indexes, unique constraints maintained across all conversions
 - **Custom type handling** — dialect-specific types (JSONB, etc.) pass through via CUSTOM type
+- **Custom type mapping overrides** — override type mappings per format with YAML/JSON config files
+
+## Custom Type Mappings
+
+Override the default type mappings with a YAML or JSON configuration file. This is useful when you need format-specific types not covered by the defaults.
+
+### Config file format
+
+```yaml
+# schemaforge-types.yaml
+overrides:
+  sql:
+    STRING: "VARCHAR({length})"
+    UUID: "UUID"
+  prisma:
+    STRING: "String @db.VarChar({length})"
+    UUID: "String @uuid"
+  sqlalchemy:
+    STRING: "Unicode({length})"
+    UUID: "Uuid"
+  django:
+    STRING: "CharField(max_length={length})"
+  typeorm:
+    UUID: "uuid"
+```
+
+**Placeholders:** `{length}`, `{precision}`, `{scale}`, `{values}` — these are replaced with the column's type arguments when generating.
+
+### Usage
+
+```bash
+schemaforge convert --from sql --to prisma --input schema.sql --type-map schemaforge-types.yaml
+schemaforge convert --from sql --to sqlalchemy --input schema.sql --type-map my-types.json
+```
+
+A sample config file is provided at `fixtures/sample-type-overrides.yaml`.
+
+### Override precedence
+
+1. Custom type overrides from `--type-map` config file take highest priority
+2. Built-in type mappings in each generator are the fallback
+3. `ColumnType.CUSTOM` with explicit `custom_type` always passes through directly
 
 ## Roadmap
 

@@ -4,10 +4,15 @@ from __future__ import annotations
 from ..ir import Schema, Column, ColumnType
 
 from ._base import resolve_type, build_type_string
+from ..type_config import TypeConfig
 
 
 class TypeORMGenerator:
     """Convert Schema IR to TypeORM entity TypeScript format."""
+
+    def __init__(self, type_config: TypeConfig | None = None) -> None:
+        """Initialize with optional custom type overrides."""
+        self._type_config = type_config
 
     _TYPE_MAP: dict[ColumnType, str] = {
         ColumnType.STRING: "varchar",
@@ -127,7 +132,7 @@ class TypeORMGenerator:
         options: dict[str, str] = {}
 
         # Determine TypeORM type
-        col_type = resolve_type(col, self._TYPE_MAP)
+        col_type = resolve_type(col, self._TYPE_MAP, fmt="typeorm", type_config=self._type_config)
 
         # Primary key handling
         if col.primary_key:

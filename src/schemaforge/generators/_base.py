@@ -5,18 +5,61 @@ and default value handling to reduce duplication across generators.
 """
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any
+
 from ..ir import Column, ColumnType
 
+if TYPE_CHECKING:
+    from ..type_config import TypeConfig
 
-def resolve_type(col: Column, type_map: dict[ColumnType, str]) -> str:
+
+def resolve_type(
+    col: Column,
+    type_map: dict[ColumnType, str],
+    *,
+    fmt: str = "",
+    type_config: TypeConfig | None = None,
+) -> str:
     """Resolve a column's base type string from the type map.
 
-    Handles CUSTOM types (drops through to col.custom_type)
-    and unknown types (falls back to "String").
+    Handles CUSTOM types (drops through to col.custom_type),
+    custom type overrides from TypeConfig, and unknown types
+    (falls back to "String").
+
+    Args:
+        col: The column to resolve.
+        type_map: Default ColumnType → format-specific type string mapping.
+        fmt: Format name for TypeConfig override lookup (e.g. 'sql').
+        type_config: Optional custom type overrides.
+
+    Returns:
+        Format-specific type string.
     """
+    # CUSTOM type takes priority
     if col.type == ColumnType.CUSTOM and col.custom_type:
         return col.custom_type
+
+    # Check TypeConfig overrides first (full resolution including type_args)
+    if type_config and fmt:
+        overridden = type_config.get_override(col, fmt)
+        if overridden:
+            return overridden
+
     return type_map.get(col.type, "String")
+
+
+def has_type_override(col: Column, fmt: str, type_config: TypeConfig | None) -> bool:
+    """Check if a column has a custom type override for a given format.
+
+    Generators can use this to skip their special-case formatting
+    when an override is active (e.g. String with @db.VarChar).
+    """
+    if not type_config or not fmt:
+        return False
+    fmt_overrides = type_config._overrides.get(fmt)  # type: ignore[union-attr]
+    if not fmt_overrides:
+        return False
+    return col.type.name in fmt_overrides
 
 
 def build_type_string(
@@ -30,6 +73,8 @@ def build_type_string(
     decimal_precision: int = 10,
     decimal_scale: int = 2,
     enum_fmt: str = "Enum({})",
+    fmt: str = "",
+    type_config: TypeConfig | None = None,
 ) -> str:
     """Build a full type string including type arguments.
 
@@ -49,11 +94,13 @@ def build_type_string(
         decimal_scale: Default scale when not in type_args.
         enum_fmt: Format for inline ENUM values (e.g. 'Enum({})' for
             'Enum(small, medium, large)').
+        fmt: Format name for TypeConfig override lookup (e.g. 'sql').
+        type_config: Optional custom type overrides.
 
     Returns:
         Full type string (e.g. 'VARCHAR(255)', 'Numeric(10, 2)').
     """
-    base = resolve_type(col, type_map)
+    base = resolve_type(col, type_map, fmt=fmt, type_config=type_config)
 
     if col.type == ColumnType.STRING and "length" in col.type_args:
         return string_fmt.format(base, col.type_args["length"])

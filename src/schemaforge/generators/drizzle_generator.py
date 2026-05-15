@@ -4,6 +4,7 @@ from __future__ import annotations
 from ..ir import Schema, Table, Column, ColumnType, EnumType, Index
 
 from ._base import resolve_fn_default
+from ..type_config import TypeConfig
 
 
 # ColumnType -> Drizzle type function mapping
@@ -28,9 +29,15 @@ _TYPE_TO_DRIZZLE: dict[ColumnType, str] = {
 class DrizzleGenerator:
     """Generate Drizzle ORM TypeScript schema from Schema IR."""
 
-    def __init__(self, dialect: str = "pg") -> None:
-        """Initialize with dialect (pg, mysql, or sqlite)."""
+    def __init__(self, dialect: str = "pg", type_config: TypeConfig | None = None) -> None:
+        """Initialize with dialect and optional custom type overrides.
+
+        Args:
+            dialect: Database dialect ('pg', 'mysql', or 'sqlite').
+            type_config: Optional custom type mapping overrides.
+        """
         self.dialect = dialect
+        self._type_config = type_config
 
     def generate(self, schema: Schema) -> str:
         lines: list[str] = []

@@ -3,9 +3,15 @@ from __future__ import annotations
 
 from ..ir import Schema, Column, ColumnType
 
+from ..type_config import TypeConfig
+
 
 class SQLGenerator:
     """Convert Schema IR to SQL DDL statements."""
+
+    def __init__(self, type_config: TypeConfig | None = None) -> None:
+        """Initialize with optional custom type overrides."""
+        self._type_config = type_config
 
     _TYPE_REVERSE_MAP: dict[ColumnType, str] = {
         ColumnType.INTEGER: "INTEGER",

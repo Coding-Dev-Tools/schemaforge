@@ -4,10 +4,15 @@ from __future__ import annotations
 from ..ir import Schema, Column, ColumnType
 
 from ._base import resolve_type
+from ..type_config import TypeConfig
 
 
 class DjangoGenerator:
     """Convert Schema IR to Django model Python format."""
+
+    def __init__(self, type_config: TypeConfig | None = None) -> None:
+        """Initialize with optional custom type overrides."""
+        self._type_config = type_config
 
     _FIELD_MAP: dict[ColumnType, str] = {
         ColumnType.STRING: "CharField",
@@ -98,7 +103,7 @@ class DjangoGenerator:
 
     def _field_def(self, col: Column) -> str:
         """Generate a Django model field definition."""
-        django_field = resolve_type(col, self._FIELD_MAP)
+        django_field = resolve_type(col, self._FIELD_MAP, fmt="django", type_config=self._type_config)
         if not django_field.endswith("Field"):
             django_field = django_field + "Field"
 

@@ -8,6 +8,7 @@ import click
 
 from .convert import convert_schema
 from .diff import diff_schemas
+from .type_config import TypeConfig
 
 
 @click.group()
@@ -15,8 +16,8 @@ from .diff import diff_schemas
 def main() -> None:
     """SchemaForge — bidirectional ORM schema converter.
 
-    Convert between SQL DDL, Prisma, Drizzle, TypeORM, and Django models
-    with zero-loss roundtripping.
+    Convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy models,
+    and Alembic migration scripts with zero-loss roundtripping.
     """
 
 
@@ -33,11 +34,24 @@ def main() -> None:
 @click.option("--output", "-o", "output_path",
               type=click.Path(writable=True),
               help="Output file path (default: stdout)")
-def convert(from_fmt: str, to_fmt: str, input_path: str, output_path: str | None) -> None:
+@click.option("--type-map", "type_map_path",
+              type=click.Path(exists=True, readable=True),
+              help="Custom type mapping config file (.yaml or .json)")
+def convert(from_fmt: str, to_fmt: str, input_path: str,
+            output_path: str | None, type_map_path: str | None) -> None:
     """Convert schema between formats."""
+    # Load custom type mapping if specified
+    type_config: TypeConfig | None = None
+    if type_map_path:
+        try:
+            type_config = TypeConfig.from_file(type_map_path)
+        except (FileNotFoundError, ValueError, ImportError) as e:
+            click.echo(f"Error loading type map: {e}", err=True)
+            sys.exit(1)
+
     input_text = Path(input_path).read_text(encoding="utf-8")
     try:
-        result = convert_schema(input_text, from_fmt, to_fmt)
+        result = convert_schema(input_text, from_fmt, to_fmt, type_config=type_config)
     except ValueError as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)

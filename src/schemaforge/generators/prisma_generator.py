@@ -3,11 +3,16 @@ from __future__ import annotations
 
 from ..ir import Schema, Column, ColumnType
 
-from ._base import resolve_type, build_type_string, resolve_fn_default
+from ._base import resolve_type, build_type_string, resolve_fn_default, has_type_override
+from ..type_config import TypeConfig
 
 
 class PrismaGenerator:
     """Convert Schema IR to Prisma schema format."""
+
+    def __init__(self, type_config: TypeConfig | None = None) -> None:
+        """Initialize with optional custom type overrides."""
+        self._type_config = type_config
 
     _TYPE_MAP = {
         ColumnType.STRING: "String",
@@ -60,10 +65,11 @@ class PrismaGenerator:
 
     def _field_def(self, col: Column) -> str:
         """Generate a Prisma field definition."""
-        prisma_type = resolve_type(col, self._TYPE_MAP)
+        prisma_type = resolve_type(col, self._TYPE_MAP, fmt="prisma", type_config=self._type_config)
 
-        # Handle String with length (Prisma uses @db.VarChar)
-        if col.type == ColumnType.STRING and "length" in col.type_args:
+        # Handle String with length (Prisma uses @db.VarChar) — skip if overridden
+        if col.type == ColumnType.STRING and "length" in col.type_args \
+                and not has_type_override(col, "prisma", self._type_config):
             prisma_type = f"String @db.VarChar({col.type_args['length']})"
 
         annotations: list[str] = []
