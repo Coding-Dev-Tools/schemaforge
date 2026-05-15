@@ -62,6 +62,29 @@ Detects added, removed, and modified tables, columns, indexes, and constraints.
 | TypeORM entities | ✓ | ✓ | ✓ |
 | Django models | ✓ | ✓ | ✓ |
 
+## Demo Fixtures
+
+Try SchemaForge immediately with our example blog schema. The `fixtures/` directory contains an equivalent schema (users, posts, categories with foreign keys, enums, and various data types) in all 5 supported formats:
+
+```bash
+# Convert SQL → Prisma
+schemaforge convert --from sql --to prisma --input fixtures/sample.sql
+
+# Convert Prisma → Django
+schemaforge convert --from prisma --to django --input fixtures/sample.prisma
+
+# Convert TypeORM → Drizzle
+schemaforge convert --from typeorm --to drizzle --input fixtures/sample.typeorm.ts
+
+# Batch convert all fixtures from SQL
+schemaforge convert --from sql --to prisma --dir fixtures/
+
+# Diff two format outputs
+schemaforge diff fixtures/sample.sql fixtures/sample.prisma --format prisma
+```
+
+Each fixture demonstrates the same blog schema so you can compare ORM syntax side-by-side and verify roundtrip consistency.
+
 ## Features
 
 - **Bidirectional conversion** — every supported format can convert to and from every other format
