@@ -85,7 +85,8 @@ class SQLGenerator:
             elif isinstance(col.default, (int, float)):
                 parts.append(f"DEFAULT {col.default}")
             elif isinstance(col.default, str) and col.default.startswith("fn:"):
-                pass  # Function defaults handled by DB (autoincrement, etc.)
+                fn_val = col.default[3:]
+                parts.append(f"DEFAULT {fn_val}")
             else:
                 parts.append(f"DEFAULT '{col.default}'")
 

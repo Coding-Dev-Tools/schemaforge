@@ -1,6 +1,11 @@
 """Tests for Drizzle ORM parser and generator."""
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
 from schemaforge.parsers.drizzle_parser import DrizzleParser
 from schemaforge.generators.drizzle_generator import DrizzleGenerator
 from schemaforge.convert import convert_schema

@@ -10,6 +10,15 @@ from ..ir import Schema, Table, Column, ColumnType, Index, EnumType
 class SQLParser:
     """Parse SQL DDL statements into a Schema IR."""
 
+    # SQL function keywords that should be stored as fn: prefixed defaults
+    _SQL_FN_KEYWORDS: set[str] = {
+        "CURRENT_TIMESTAMP", "CURRENT_DATE", "CURRENT_TIME",
+        "LOCALTIMESTAMP", "LOCALTIME",
+        "NOW", "RANDOM", "GEN_RANDOM_UUID", "UUID",
+        "RAND", "CURDATE", "CURTIME", "SYSDATE",
+        "UTC_TIMESTAMP", "UTC_DATE", "UTC_TIME",
+    }
+
     def parse(self, text: str) -> Schema:
         schema = Schema()
 
@@ -20,11 +29,12 @@ class SQLParser:
             stmt = stmt.strip()
             if not stmt:
                 continue
-            if stmt.upper().startswith("CREATE TABLE"):
+            upper = stmt.upper()
+            if upper.startswith("CREATE TABLE") or upper.startswith("CREATE TEMPORARY TABLE") or upper.startswith("CREATE OR REPLACE TABLE"):
                 table = self._parse_create_table(stmt)
                 if table:
                     schema.tables.append(table)
-            elif stmt.upper().startswith("CREATE TYPE") and "AS ENUM" in stmt.upper():
+            elif upper.startswith("CREATE TYPE") and "AS ENUM" in stmt.upper():
                 enum_type = self._parse_create_enum(stmt)
                 if enum_type:
                     schema.enums.append(enum_type)
@@ -62,16 +72,19 @@ class SQLParser:
 
     def _parse_create_table(self, stmt: str) -> Table | None:
         """Parse a CREATE TABLE statement."""
-        # Extract table name
+        # Extract table name — support quoted/backtick identifiers
         m = re.match(
-            r'CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?'
-            r'(?:(\w+)\.)?(\w+)',
+            r'CREATE\s+(?:TEMPORARY\s+)?(?:OR\s+REPLACE\s+)?'
+            r'TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?'
+            r'(?:`(\w+)`\.|"(\w+)"\.|(\w+)\.)?'
+            r'`?"?([\w-]+)"?`?',
             stmt, re.IGNORECASE
         )
         if not m:
             return None
-        schema_name = m.group(1)
-        table_name = m.group(2)
+        # Schema qualifier could be backtick, double-quote, or bare
+        schema_name = m.group(1) or m.group(2) or m.group(3)
+        table_name = m.group(4)
         if schema_name:
             table_name = f"{schema_name}.{table_name}"
 
@@ -252,13 +265,25 @@ class SQLParser:
             elif val.startswith("'") or val.startswith('"'):
                 col.default = val.strip("'\"")
             else:
-                try:
-                    col.default = int(val)
-                except ValueError:
+                # Strip trailing comma if accidentally included
+                val = val.rstrip(",")
+                # Check for SQL function calls like CURRENT_TIMESTAMP, now(), etc.
+                upper_val = val.upper().rstrip(")")
+                is_fn = (
+                    upper_val in self._SQL_FN_KEYWORDS
+                    or upper_val.rstrip("()") in self._SQL_FN_KEYWORDS
+                    or re.match(r'^\w+\(', val)  # Any function call: nextval(), now(), etc.
+                )
+                if is_fn:
+                    col.default = f"fn:{val}"
+                else:
                     try:
-                        col.default = float(val)
+                        col.default = int(val)
                     except ValueError:
-                        col.default = val
+                        try:
+                            col.default = float(val)
+                        except ValueError:
+                            col.default = val
 
         # Extract comment
         comment_m = re.search(r"COMMENT\s+'(.+?)'", constraints, re.IGNORECASE)

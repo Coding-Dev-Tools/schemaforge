@@ -76,6 +76,20 @@ class PrismaGenerator:
         if col.default is not None:
             if isinstance(col.default, bool):
                 annotations.append(f"@default({str(col.default).lower()})")
+            elif isinstance(col.default, str) and col.default.startswith("fn:"):
+                fn_expr = col.default[3:]
+                # Map common SQL functions to Prisma equivalents
+                fn_upper = fn_expr.upper().rstrip("()")
+                if fn_upper in ("CURRENT_TIMESTAMP", "NOW"):
+                    annotations.append("@default(now())")
+                elif fn_upper == "CURRENT_DATE":
+                    annotations.append("@default(now())")
+                elif fn_upper == "RANDOM":
+                    annotations.append("@default(autoincrement())")
+                elif fn_expr.endswith("()"):
+                    annotations.append(f"@default({fn_expr})")
+                else:
+                    annotations.append(f"@default({fn_expr})")
             elif isinstance(col.default, str):
                 # Check if it looks like a function call
                 if col.default.endswith("()"):

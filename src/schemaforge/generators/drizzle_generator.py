@@ -66,6 +66,7 @@ class DrizzleGenerator:
             import_path = "drizzle-orm/sqlite-core"
 
         # Collect type function names needed
+        has_fn_default = False
         for table in schema.tables:
             for col in table.columns:
                 drizzle_type = self._get_drizzle_type(col)
@@ -75,6 +76,14 @@ class DrizzleGenerator:
                 if col.primary_key and col.type == ColumnType.INTEGER and not col.default:
                     type_imports.add("serial")
                     type_imports.discard("integer")
+
+                # Track if any fn: defaults need sql import
+                if isinstance(col.default, str) and col.default.startswith("fn:"):
+                    has_fn_default = True
+
+        # Add sql import for function defaults
+        if has_fn_default:
+            type_imports.add("sql")
 
         # Add pgEnum if needed
         if self.dialect == "pg" and schema.enums:
@@ -147,7 +156,18 @@ class DrizzleGenerator:
                 chain.append(".unique()")
 
         if col.default is not None:
-            if col.default == "now()":
+            if isinstance(col.default, str) and col.default.startswith("fn:"):
+                fn_val = col.default[3:]
+                fn_upper = fn_val.upper().rstrip("()")
+                if fn_upper == "CURRENT_TIMESTAMP":
+                    chain.append(".default(sql`CURRENT_TIMESTAMP`)")
+                elif fn_upper == "NOW":
+                    chain.append(".defaultNow()")
+                elif fn_val.endswith("()"):
+                    chain.append(f".default(sql`{fn_val}`)")
+                else:
+                    chain.append(f".default(sql`{fn_val}`)")
+            elif col.default == "now()":
                 chain.append(".defaultNow()")
             elif isinstance(col.default, bool):
                 chain.append(f".default({str(col.default).lower()})")

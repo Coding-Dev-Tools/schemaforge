@@ -28,7 +28,7 @@ class SQLAlchemyGenerator:
         parts: list[str] = [
             "from sqlalchemy import Column, Integer, String, Boolean, DateTime,"
             " Text, Float, Numeric, JSON, LargeBinary, Date, Time, Enum, Uuid,"
-            " ForeignKey, Index, UniqueConstraint, func",
+            " ForeignKey, Index, UniqueConstraint, func, text",
             "from sqlalchemy.orm import declarative_base",
             "",
             "Base = declarative_base()",
@@ -131,16 +131,27 @@ class SQLAlchemyGenerator:
         # Server default (func expressions)
         if col.default is not None:
             if isinstance(col.default, str) and col.default.startswith("fn:"):
-                fn_name = col.default[3:]
-                if fn_name in ("now", "CURRENT_TIMESTAMP", "current_timestamp"):
+                fn_raw = col.default[3:]
+                fn_upper = fn_raw.upper().rstrip("()")
+                if fn_upper in ("NOW", "CURRENT_TIMESTAMP"):
                     kwargs.append('server_default=func.now()')
-                elif fn_name == "auto_now":
+                elif fn_upper == "CURRENT_DATE":
+                    kwargs.append('server_default=func.current_date()')
+                elif fn_upper == "CURRENT_TIME":
+                    kwargs.append('server_default=func.current_time()')
+                elif fn_upper in ("RANDOM", "RAND"):
+                    kwargs.append('server_default=func.random()')
+                elif fn_upper == "GEN_RANDOM_UUID":
+                    kwargs.append('server_default=func.gen_random_uuid()')
+                elif fn_upper == "AUTO_NOW":
                     kwargs.append('server_default=func.now()')
                     kwargs.append("onupdate=func.now()")
-                elif fn_name == "auto_now_add":
+                elif fn_upper == "AUTO_NOW_ADD":
                     kwargs.append('server_default=func.now()')
+                elif fn_raw.endswith("()"):
+                    kwargs.append(f"server_default=func.{fn_raw}")
                 else:
-                    kwargs.append(f"default=func.{fn_name}")
+                    kwargs.append(f"server_default=text('{fn_raw}')")
             elif isinstance(col.default, bool):
                 kwargs.append(f"default={str(col.default).lower()}")
             elif isinstance(col.default, str):

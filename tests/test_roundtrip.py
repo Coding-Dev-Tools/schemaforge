@@ -359,3 +359,191 @@ def test_sql_default_values():
     assert cols["enabled"].default is False
     assert cols["description"].default is None
     assert cols["description"].nullable is True
+
+
+# ── SQL Parser Edge Case Tests ──
+
+def test_sql_temporary_table():
+    """CREATE TEMPORARY TABLE should be parsed."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE TEMPORARY TABLE temp_users (
+            id INTEGER PRIMARY KEY,
+            name VARCHAR(100)
+        );
+    """)
+    assert len(schema.tables) == 1
+    assert schema.tables[0].name == "temp_users"
+
+
+def test_sql_create_or_replace_table():
+    """CREATE OR REPLACE TABLE should be parsed."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE OR REPLACE TABLE users (
+            id INTEGER PRIMARY KEY
+        );
+    """)
+    assert len(schema.tables) == 1
+    assert schema.tables[0].name == "users"
+
+
+def test_sql_backtick_quoted_table():
+    """Backtick-quoted table names should be parsed."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE TABLE `users` (
+            `id` INTEGER PRIMARY KEY,
+            `name` VARCHAR(100)
+        );
+    """)
+    assert len(schema.tables) == 1
+    assert schema.tables[0].name == "users"
+
+
+def test_sql_backtick_quoted_schema_table():
+    """Backtick-quoted schema.table should be parsed."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE TABLE `public`.`users` (
+            id INTEGER PRIMARY KEY
+        );
+    """)
+    assert len(schema.tables) == 1
+    assert "public" in schema.tables[0].name
+
+
+def test_sql_double_quoted_table():
+    """Double-quoted table names should be parsed."""
+    parser = SQLParser()
+    schema = parser.parse('''
+        CREATE TABLE "users" (
+            "id" INTEGER PRIMARY KEY
+        );
+    ''')
+    assert len(schema.tables) == 1
+    assert schema.tables[0].name == "users"
+
+
+def test_sql_current_timestamp_default():
+    """DEFAULT CURRENT_TIMESTAMP should be stored as fn:CURRENT_TIMESTAMP."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE TABLE events (
+            id INTEGER PRIMARY KEY,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+    assert len(schema.tables) == 1
+    cols = {c.name: c for c in schema.tables[0].columns}
+    assert cols["created_at"].default == "fn:CURRENT_TIMESTAMP"
+    assert cols["updated_at"].default == "fn:CURRENT_TIMESTAMP"
+
+
+def test_sql_now_default():
+    """DEFAULT NOW() should be stored as fn:NOW()."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE TABLE events (
+            id INTEGER PRIMARY KEY,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+    """)
+    assert len(schema.tables) == 1
+    cols = {c.name: c for c in schema.tables[0].columns}
+    assert cols["created_at"].default == "fn:NOW()"
+
+
+def test_sql_gen_random_uuid_default():
+    """DEFAULT gen_random_uuid() should be stored as fn:gen_random_uuid()."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE TABLE items (
+            id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+            name VARCHAR(100)
+        );
+    """)
+    assert len(schema.tables) == 1
+    cols = {c.name: c for c in schema.tables[0].columns}
+    assert cols["id"].default == "fn:gen_random_uuid()"
+
+
+def test_sql_current_date_default():
+    """DEFAULT CURRENT_DATE should be stored as fn:CURRENT_DATE."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE TABLE logs (
+            id INTEGER PRIMARY KEY,
+            log_date DATE DEFAULT CURRENT_DATE
+        );
+    """)
+    assert len(schema.tables) == 1
+    cols = {c.name: c for c in schema.tables[0].columns}
+    assert cols["log_date"].default == "fn:CURRENT_DATE"
+
+
+def test_sql_fn_default_generates_without_quotes():
+    """fn: prefixed defaults should generate without quotes in SQL DDL."""
+    from schemaforge.ir import Schema, Table, Column, ColumnType
+    schema = Schema(tables=[
+        Table(name="events", columns=[
+            Column(name="id", type=ColumnType.INTEGER, primary_key=True),
+            Column(name="created_at", type=ColumnType.DATETIME, default="fn:CURRENT_TIMESTAMP"),
+            Column(name="updated_at", type=ColumnType.DATETIME, default="fn:NOW()"),
+            Column(name="token", type=ColumnType.UUID, default="fn:gen_random_uuid()"),
+        ])
+    ])
+    gen = SQLGenerator()
+    output = gen.generate(schema)
+    assert "DEFAULT CURRENT_TIMESTAMP" in output
+    assert "DEFAULT NOW()" in output or "DEFAULT now()" in output
+    assert "DEFAULT gen_random_uuid()" in output
+    # Should NOT be quoted
+    assert "DEFAULT 'CURRENT_TIMESTAMP'" not in output
+    assert "DEFAULT 'NOW()'" not in output
+
+
+def test_fn_default_roundtrip_sql_to_prisma_to_sql():
+    """SQL with function defaults should survive Prisma roundtrip."""
+    sql = """
+CREATE TABLE events (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+"""
+    prisma = convert_schema(sql, "sql", "prisma")
+    # Prisma should have @default(now()) for CURRENT_TIMESTAMP
+    assert "@default(now())" in prisma
+    
+    sql2 = convert_schema(prisma, "prisma", "sql")
+    assert "CREATE TABLE events" in sql2
+    assert "DEFAULT" in sql2
+
+
+def test_prisma_now_default_roundtrip():
+    """Prisma @default(now()) should roundtrip through SQL."""
+    prisma = """generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+}
+"""
+    sql = convert_schema(prisma, "prisma", "sql")
+    assert "CREATE TABLE" in sql
+    assert "DEFAULT" in sql
+    
+    prisma2 = convert_schema(sql, "sql", "prisma")
+    assert "model Event" in prisma2
+    assert "@id" in prisma2
