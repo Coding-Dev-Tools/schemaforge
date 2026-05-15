@@ -22,10 +22,10 @@ def main() -> None:
 
 @main.command()
 @click.option("--from", "from_fmt", required=True,
-              type=click.Choice(["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy"]),
+              type=click.Choice(["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic"]),
               help="Source format")
 @click.option("--to", "to_fmt", required=True,
-              type=click.Choice(["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy"]),
+              type=click.Choice(["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic"]),
               help="Target format")
 @click.option("--input", "-i", "input_path", required=True,
               type=click.Path(exists=True, readable=True),
