@@ -1,6 +1,6 @@
 # SchemaForge
 
-**Bidirectional ORM schema converter — convert between SQL DDL, Prisma, Drizzle, TypeORM, and Django models with zero-loss roundtripping.**
+| SchemaForge **Bidirectional ORM schema converter — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, and SQLAlchemy models with zero-loss roundtripping.**
 
 [![PyPI](https://img.shields.io/pypi/v/schemaforge)](https://pypi.org/project/schemaforge/)
 [![Python](https://img.shields.io/pypi/pyversions/schemaforge)](https://pypi.org/project/schemaforge/)
@@ -15,7 +15,7 @@ SchemaForge fills this gap. Convert any schema to any format, verify equivalence
 
 ```bash
 pip install schemaforge
-
+```bash
 # Convert Prisma → Drizzle
 schemaforge convert --from prisma --to drizzle --input schema.prisma
 
@@ -37,6 +37,8 @@ schemaforge convert --from prisma --to drizzle --input schema.prisma
 schemaforge convert --from sql --to prisma --input schema.sql --output schema.prisma
 schemaforge convert --from typeorm --to django --input entities/
 schemaforge convert --from django --to drizzle --input models.py --output schema.drizzle.ts
+schemaforge convert --from sqlalchemy --to prisma --input models.py
+schemaforge convert --from sql --to sqlalchemy --input schema.sql
 ```
 
 All direction pairs are fully supported — every format can convert to every other format.
@@ -61,6 +63,7 @@ Detects added, removed, and modified tables, columns, indexes, and constraints.
 | Drizzle schema | ✓ | ✓ | ✓ |
 | TypeORM entities | ✓ | ✓ | ✓ |
 | Django models | ✓ | ✓ | ✓ |
+| SQLAlchemy models | ✓ | ✓ | ✓ |
 
 ## Demo Fixtures
 
@@ -138,7 +141,7 @@ SchemaForge is one of eight tools in the Revenue Holdings suite. One license cov
 | v0.2.0 | Drizzle support |
 | v0.3.0 | TypeORM support |
 | v0.4.0 | Django models support |
-| v0.5.0 | Diff mode, batch mode, custom type mappings |
+| v0.5.0 | SQLAlchemy support, diff mode, batch mode, custom type mappings |
 
 ### Planned
 

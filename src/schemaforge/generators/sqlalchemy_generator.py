@@ -28,7 +28,7 @@ class SQLAlchemyGenerator:
         parts: list[str] = [
             "from sqlalchemy import Column, Integer, String, Boolean, DateTime,"
             " Text, Float, Numeric, JSON, LargeBinary, Date, Time, Enum, Uuid,"
-            " ForeignKey, func",
+            " ForeignKey, Index, UniqueConstraint, func",
             "from sqlalchemy.orm import declarative_base",
             "",
             "Base = declarative_base()",
@@ -59,15 +59,20 @@ class SQLAlchemyGenerator:
             lines.extend(col_lines)
             needed_types.update(types_used)
 
-        # Indexes
+        # Indexes — collect all into a single __table_args__ tuple
+        table_args_entries: list[str] = []
         for idx in table.indexes:
-            lines.append(f"    __table_args__ = (")
             col_list = ", ".join(f"'{c}'" for c in idx.columns)
             if idx.unique:
-                lines.append(f"        db.UniqueConstraint({col_list}),")
+                table_args_entries.append(f"UniqueConstraint({col_list})")
             else:
-                lines.append(f"        db.Index({col_list}),")
-            lines.append(f"    )")
+                table_args_entries.append(f"Index({col_list})")
+
+        if table_args_entries:
+            lines.append("    __table_args__ = (")
+            for entry in table_args_entries:
+                lines.append(f"        {entry},")
+            lines.append("    )")
 
         if not table.columns:
             lines.append("    pass")
