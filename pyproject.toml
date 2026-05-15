@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "schemaforge"
+version = "0.1.0"
+description = "Bidirectional ORM schema converter — convert between SQL DDL, Prisma, Drizzle, TypeORM, and Django models with zero-loss roundtripping"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "Revenue Holdings"}]
+keywords = ["schema", "orm", "prisma", "drizzle", "typeorm", "django", "sql", "converter", "migration"]
+
+dependencies = [
+    "click>=8.1",
+    "rich>=13.0",
+    "pyyaml>=6.0",
+    "sqlparse>=0.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
+[project.scripts]
+schemaforge = "schemaforge.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Coding-Dev-Tools/schemaforge"
+Repository = "https://github.com/Coding-Dev-Tools/schemaforge"
+"Issue Tracker" = "https://github.com/Coding-Dev-Tools/schemaforge/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
