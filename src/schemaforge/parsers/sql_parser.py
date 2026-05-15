@@ -228,13 +228,16 @@ class SQLParser:
         # Parse constraints
         constraints = " ".join(tokens[type_start+1:]) if type_start + 1 < len(tokens) else ""
 
+        is_pk = "PRIMARY KEY" in constraints.upper()
+        is_not_null = "NOT NULL" in constraints.upper()
+
         col = Column(
             name=col_name,
             type=col_type,
             type_args=type_args,
-            nullable="NOT NULL" not in constraints.upper(),
-            unique="UNIQUE" in constraints.upper(),
-            primary_key="PRIMARY KEY" in constraints.upper(),
+            nullable=not (is_not_null or is_pk),
+            unique="UNIQUE" in constraints.upper() and not is_pk,
+            primary_key=is_pk,
         )
 
         # Extract default
