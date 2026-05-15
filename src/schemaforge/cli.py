@@ -10,6 +10,7 @@ from .convert import convert_schema
 from .diff import diff_schemas
 from .type_config import TypeConfig
 from .check import check_directory
+from .mcp_server import mcp_command
 
 # All supported format names (used for CLI choices and detection)
 _FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema", "graphql"]
@@ -116,6 +117,10 @@ def check(directory: str, canonical: str, type_map_path: str | None) -> None:
     except (NotADirectoryError, ValueError, FileNotFoundError) as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
+
+
+# Register the MCP server subcommand
+main.add_command(mcp_command)
 
 
 def _detect_format(path: str) -> str:

@@ -6,7 +6,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/schemaforge)](https://pypi.org/project/schemaforge/)
 [![License](https://img.shields.io/pypi/l/schemaforge)](https://github.com/Coding-Dev-Tools/schemaforge/blob/main/LICENSE)
 [![CI](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/test.yml/badge.svg)](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/tests-205%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
+[![Tests](https://img.shields.io/badge/tests-233%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
 
 **Why SchemaForge?** Every major ORM migration is a one-way street. Prisma introspects SQL but can't export back. Drizzle users manually rewrite schemas when switching ORMs. TypeORM developers are locked into decorator syntax. SchemaForge is the first tool to do **bidirectional, lossless conversion** between 9 schema formats — with a shared internal representation that guarantees roundtrip fidelity.
 
@@ -248,6 +248,57 @@ Each fixture demonstrates the same blog schema so you can compare ORM syntax sid
 - **Relation preservation** — indexes, unique constraints maintained across all conversions
 - **Custom type handling** — dialect-specific types (JSONB, etc.) pass through via CUSTOM type
 
+## MCP Server
+
+SchemaForge includes an **MCP (Model Context Protocol) server** that exposes all schema operations as tools for AI agents. This allows AI coding assistants like Claude Code, Cursor, and others to convert, diff, and check schemas directly.
+
+```bash
+# Install with MCP support
+pip install schemaforge[mcp]
+
+# Start the server (stdio mode — default for AI clients)
+schemaforge mcp
+
+# Start as SSE HTTP server
+schemaforge mcp --sse --port 8000
+```
+
+### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| `convert` | Convert a schema between any two of the 9 formats |
+| `diff` | Compare two schemas and show differences |
+| `check` | Verify schema consistency across a directory |
+| `formats` | List all supported formats with descriptions |
+| `detect_format` | Identify format from filename |
+
+### Configuration for AI Clients
+
+**Claude Desktop** (`claude_desktop_config.json`):
+```json
+{
+  "mcpServers": {
+    "schemaforge": {
+      "command": "schemaforge",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+**Cursor**: Add to `.cursor/mcp.json`:
+```json
+{
+  "mcpServers": {
+    "schemaforge": {
+      "command": "schemaforge",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
 ## Roadmap
 
 | Version | Features |
@@ -265,6 +316,7 @@ Each fixture demonstrates the same blog schema so you can compare ORM syntax sid
 | v1.1.0 | Custom type mapping configuration (YAML/JSON overrides) |
 | v1.2.0 | JSON Schema support (8th format) |
 | **v1.3.0** | **GraphQL SDL support (9th format)** |
+| v1.4.0 | Schema consistency check, CI/CD workflow, MCP server |
 
 ### Planned
 
@@ -297,6 +349,7 @@ SchemaForge is one of eight tools in the Revenue Holdings suite. One license cov
 | Alembic migration generation | — | ✓ | ✓ | ✓ | ✓ |
 | JSON Schema import/export | — | ✓ | ✓ | ✓ | ✓ |
 | GraphQL SDL import/export | — | ✓ | ✓ | ✓ | ✓ |
+| MCP server (AI agent tools) | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Custom type mappings | — | ✓ | ✓ | ✓ | ✓ |
 | Batch directory conversion | — | ✓ | ✓ | ✓ | ✓ |
 | Team shared type mappings | — | — | — | ✓ | ✓ |
