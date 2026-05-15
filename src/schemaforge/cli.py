@@ -9,6 +9,7 @@ import click
 from .convert import convert_schema
 from .diff import diff_schemas
 from .type_config import TypeConfig
+from .check import check_directory
 
 # All supported format names (used for CLI choices and detection)
 _FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema", "graphql"]
@@ -87,6 +88,34 @@ def diff(file_a: str, file_b: str, fmt: str) -> None:
         sys.exit(1)
 
     click.echo(result)
+
+
+@main.command()
+@click.option("--dir", "directory", required=True,
+              type=click.Path(exists=True, file_okay=False, readable=True),
+              help="Directory containing schema files to check")
+@click.option("--canonical", default="sql",
+              type=click.Choice([f for f in _FORMATS if f != "alembic"]),
+              help="Canonical format for comparison (default: sql)")
+@click.option("--type-map", "type_map_path",
+              type=click.Path(exists=True, readable=True),
+              help="Custom type mapping config file (.yaml or .json)")
+def check(directory: str, canonical: str, type_map_path: str | None) -> None:
+    """Verify all schema files in a directory produce equivalent schemas.
+
+    Converts every schema file to the canonical format and compares
+    them pairwise. Useful for CI/CD pipelines to ensure schema
+    consistency across format representations.
+    """
+    try:
+        result = check_directory(directory, canonical=canonical,
+                                 type_map_path=type_map_path)
+        click.echo(result)
+        if "FAIL" in result and "PASS" not in result:
+            sys.exit(1)
+    except (NotADirectoryError, ValueError, FileNotFoundError) as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
 
 
 def _detect_format(path: str) -> str:
