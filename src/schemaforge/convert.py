@@ -24,6 +24,8 @@ from .parsers.graphql_parser import GraphQLParser
 from .generators.graphql_generator import GraphQLGenerator
 from .parsers.ef_parser import EntityFrameworkParser
 from .generators.ef_generator import EntityFrameworkGenerator
+from .parsers.scala_parser import ScalaParser
+from .generators.scala_generator import ScalaGenerator
 
 if TYPE_CHECKING:
     from .type_config import TypeConfig
@@ -40,6 +42,7 @@ _registry: dict[str, tuple[type, type]] = {
     "json_schema": (JSONSchemaParser, JSONSchemaGenerator),
     "graphql": (GraphQLParser, GraphQLGenerator),
     "ef": (EntityFrameworkParser, EntityFrameworkGenerator),
+    "scala": (ScalaParser, ScalaGenerator),
 }
 
 

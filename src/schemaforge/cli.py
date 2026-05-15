@@ -13,7 +13,7 @@ from .check import check_directory
 from .mcp_server import mcp_command
 
 # All supported format names (used for CLI choices and detection)
-_FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema", "graphql", "ef"]
+_FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema", "graphql", "ef", "scala"]
 
 
 @click.group()

@@ -25,7 +25,7 @@ except ImportError:
 
 
 # All supported formats
-_FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema", "graphql", "ef"]
+_FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema", "graphql", "ef", "scala"]
 _FORMAT_DESCRIPTIONS = {
     "sql": "SQL DDL (Data Definition Language)",
     "prisma": "Prisma schema",
@@ -37,6 +37,7 @@ _FORMAT_DESCRIPTIONS = {
     "json_schema": "JSON Schema (draft 2020-12)",
     "graphql": "GraphQL SDL (Schema Definition Language)",
     "ef": "Entity Framework Core entities (C#)",
+    "scala": "Scala case classes (Doobie/Quill/Slick)",
 }
 
 
