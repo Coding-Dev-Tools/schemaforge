@@ -105,7 +105,10 @@ class SQLParser:
         if start < 0:
             return None
 
-        table = Table(name=table_name)
+        # Extract MySQL table options after the closing paren (e.g. ENGINE=InnoDB AUTO_INCREMENT=1)
+        table_options = self._parse_table_options(stmt[i+1:])
+
+        table = Table(name=table_name, options=table_options)
         # Split body into lines/definitions
         definitions = self._split_definitions(body)
 
@@ -211,7 +214,14 @@ class SQLParser:
         type_start = 1
         type_raw = tokens[type_start] if type_start < len(tokens) else "TEXT"
 
-        # Handle type with parameters: VARCHAR(255), DECIMAL(10,2)
+        # Handle type with parameters that may span multiple tokens (e.g. ENUM('a', 'b', 'c'))
+        if type_raw.startswith(('ENUM(', 'enum(')) or (
+            '(' in type_raw and ')' not in type_raw and type_start + 1 < len(tokens)
+        ):
+            while ')' not in type_raw and type_start + 1 < len(tokens):
+                type_start += 1
+                type_raw += " " + tokens[type_start]
+
         type_name = type_raw.split('(')[0].upper() if '(' in type_raw else type_raw.upper()
 
         col_type = self._TYPE_MAP.get(type_name, ColumnType.CUSTOM)
@@ -220,6 +230,9 @@ class SQLParser:
         type_args: dict[str, Any] = {}
         if '(' in type_raw:
             args_str = type_raw[type_raw.index('(')+1:type_raw.index(')')] if ')' in type_raw else ""
+            if type_name == "ENUM":
+                # Inline ENUM('a','b','c') — extract values via regex to handle multi-token args
+                type_args["values"] = re.findall(r"'([^']*)'", args_str)
             if type_name in ("VARCHAR", "CHAR"):
                 try:
                     type_args["length"] = int(args_str)
@@ -315,3 +328,65 @@ class SQLParser:
             values = re.findall(r"'([^']*)'", m.group(2))
             return EnumType(name=name, values=values)
         return None
+
+    def _parse_table_options(self, after_paren: str) -> dict[str, str]:
+        """Parse MySQL table options after the closing paren.
+
+        Handles: ENGINE=InnoDB, AUTO_INCREMENT=1, DEFAULT CHARSET=utf8mb4,
+        COLLATE=utf8mb4_unicode_ci, ROW_FORMAT=DYNAMIC, COMMENT='table comment'
+        """
+        text = after_paren.strip().rstrip(";").strip()
+        if not text:
+            return {}
+
+        options: dict[str, str] = {}
+        # Match table option key=value pairs (value may be quoted)
+        # Also handle "DEFAULT CHARSET" as a single key
+        i = 0
+        while i < len(text):
+            # Skip whitespace
+            while i < len(text) and text[i] in (' ', '\t', '\n', '\r'):
+                i += 1
+            if i >= len(text):
+                break
+
+            # Check for "DEFAULT CHARSET" or "DEFAULT COLLATE" two-word keys
+            remaining = text[i:]
+            default_m = re.match(r'DEFAULT\s+(CHARSET|CHARACTER\s+SET|COLLATE)\s*=\s*', remaining, re.IGNORECASE)
+            if default_m:
+                key = f"DEFAULT {default_m.group(1).upper()}"
+                val_start = i + default_m.end()
+            else:
+                # Single-word key: ENGINE, AUTO_INCREMENT, ROW_FORMAT, etc.
+                key_m = re.match(r'(\w+)\s*=\s*', remaining)
+                if not key_m:
+                    # Try COMMENT 'xxx' (no equals)
+                    comment_m = re.match(r"COMMENT\s+'([^']*)'", remaining, re.IGNORECASE)
+                    if comment_m:
+                        options["COMMENT"] = comment_m.group(1)
+                        i += comment_m.end()
+                        continue
+                    break
+                key = key_m.group(1).upper()
+                val_start = i + key_m.end()
+
+            # Extract value: could be quoted or unquoted
+            val_rest = text[val_start:].lstrip()
+            if val_rest and val_rest[0] in ("'", '"'):
+                quote = val_rest[0]
+                end = val_rest.find(quote, 1)
+                if end > 0:
+                    options[key] = val_rest[1:end]
+                    i = val_start + end + 1
+                else:
+                    break
+            else:
+                # Unquoted value — grab until next space, semicolon, or end
+                val_end = re.match(r'([^\s;]+)', val_rest)
+                if val_end:
+                    options[key] = val_end.group(1)
+                    i = val_start + val_end.end()
+                else:
+                    break
+
+        return options

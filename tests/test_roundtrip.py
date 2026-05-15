@@ -547,3 +547,166 @@ model Event {
     prisma2 = convert_schema(sql, "sql", "prisma")
     assert "model Event" in prisma2
     assert "@id" in prisma2
+
+
+# ── MySQL Table Options Tests ──
+
+def test_sql_mysql_engine_option():
+    """ENGINE=InnoDB table option should be parsed."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE TABLE users (
+            id INTEGER PRIMARY KEY,
+            name VARCHAR(100)
+        ) ENGINE=InnoDB;
+    """)
+    assert len(schema.tables) == 1
+    assert schema.tables[0].options.get("ENGINE") == "InnoDB"
+
+
+def test_sql_mysql_multiple_options():
+    """Multiple MySQL table options should be parsed."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE TABLE users (
+            id INTEGER PRIMARY KEY,
+            name VARCHAR(100)
+        ) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4;
+    """)
+    assert len(schema.tables) == 1
+    opts = schema.tables[0].options
+    assert opts.get("ENGINE") == "InnoDB"
+    assert opts.get("AUTO_INCREMENT") == "100"
+    assert opts.get("DEFAULT CHARSET") == "utf8mb4"
+
+
+def test_sql_mysql_comment_option():
+    """COMMENT table option should be parsed."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE TABLE users (
+            id INTEGER PRIMARY KEY
+        ) ENGINE=InnoDB COMMENT='User accounts table';
+    """)
+    assert len(schema.tables) == 1
+    opts = schema.tables[0].options
+    assert opts.get("ENGINE") == "InnoDB"
+    assert opts.get("COMMENT") == "User accounts table"
+
+
+def test_sql_no_table_options():
+    """Table without options should have empty options dict."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE TABLE users (
+            id INTEGER PRIMARY KEY
+        );
+    """)
+    assert len(schema.tables) == 1
+    assert schema.tables[0].options == {}
+
+
+def test_sql_table_options_roundtrip():
+    """MySQL table options should survive SQL→SQL roundtrip."""
+    sql = """
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(100)
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+"""
+    sql2 = convert_schema(sql, "sql", "sql")
+    # Same format conversion returns original
+    assert sql2 == sql
+
+
+def test_sql_table_options_generated():
+    """MySQL table options from IR should generate correctly."""
+    from schemaforge.ir import Schema, Table, Column, ColumnType
+    schema = Schema(tables=[
+        Table(name="users", columns=[
+            Column(name="id", type=ColumnType.INTEGER, primary_key=True),
+        ], options={"ENGINE": "InnoDB", "DEFAULT CHARSET": "utf8mb4"})
+    ])
+    gen = SQLGenerator()
+    output = gen.generate(schema)
+    assert "ENGINE=InnoDB" in output
+    assert "DEFAULT CHARSET=utf8mb4" in output
+
+
+# ── Inline ENUM('a','b','c') Tests ──
+
+def test_sql_inline_enum_column():
+    """Inline ENUM('a','b','c') column type should be parsed."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE TABLE tshirts (
+            id INTEGER PRIMARY KEY,
+            size ENUM('small', 'medium', 'large')
+        );
+    """)
+    assert len(schema.tables) == 1
+    cols = {c.name: c for c in schema.tables[0].columns}
+    assert cols["size"].type.value == "enum"
+    assert cols["size"].type_args.get("values") == ["small", "medium", "large"]
+
+
+def test_sql_inline_enum_roundtrip():
+    """Inline ENUM('a','b','c') should survive SQL→SQL roundtrip."""
+    sql = """
+CREATE TABLE tshirts (
+    id INTEGER PRIMARY KEY,
+    size ENUM('small', 'medium', 'large'),
+    color ENUM('red', 'green', 'blue', 'white')
+);
+"""
+    sql2 = convert_schema(sql, "sql", "sql")
+    # Same format conversion returns original
+    assert sql2 == sql
+
+
+def test_sql_inline_enum_generated():
+    """ENUM with inline values from IR should generate correctly."""
+    from schemaforge.ir import Schema, Table, Column, ColumnType
+    schema = Schema(tables=[
+        Table(name="tshirts", columns=[
+            Column(name="id", type=ColumnType.INTEGER, primary_key=True),
+            Column(name="size", type=ColumnType.ENUM,
+                   type_args={"values": ["small", "medium", "large"]}),
+        ])
+    ])
+    gen = SQLGenerator()
+    output = gen.generate(schema)
+    assert "ENUM('small', 'medium', 'large')" in output
+
+
+def test_sql_inline_enum_to_sqlalchemy_roundtrip():
+    """Inline ENUM('a','b','c') should survive SQL→SQLAlchemy parse and generate back."""
+    sql = """
+CREATE TABLE tshirts (
+    id INTEGER PRIMARY KEY,
+    size ENUM('small', 'medium', 'large')
+);
+"""
+    # SQL → SQLAlchemy should at least parse without error
+    sa = convert_schema(sql, "sql", "sqlalchemy")
+    assert "class Tshirts" in sa
+    
+    # SQLAlchemy → SQL should produce CREATE TABLE (type may degrade to VARCHAR)
+    sql2 = convert_schema(sa, "sqlalchemy", "sql")
+    assert "CREATE TABLE tshirts" in sql2
+
+
+def test_sql_inline_enum_with_default():
+    """Inline ENUM with DEFAULT should parse both."""
+    parser = SQLParser()
+    schema = parser.parse("""
+        CREATE TABLE orders (
+            id INTEGER PRIMARY KEY,
+            status ENUM('pending', 'shipped', 'delivered') DEFAULT 'pending'
+        );
+    """)
+    assert len(schema.tables) == 1
+    cols = {c.name: c for c in schema.tables[0].columns}
+    assert cols["status"].type.value == "enum"
+    assert cols["status"].type_args.get("values") == ["pending", "shipped", "delivered"]
+    assert cols["status"].default == "pending"

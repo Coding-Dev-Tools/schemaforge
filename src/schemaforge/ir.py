@@ -59,6 +59,8 @@ class Table:
     columns: list[Column] = field(default_factory=list)
     indexes: list[Index] = field(default_factory=list)
     comment: str = ""
+    options: dict[str, str] = field(default_factory=dict)
+    # MySQL table options: {"ENGINE": "InnoDB", "AUTO_INCREMENT": "1", "DEFAULT CHARSET": "utf8mb4"}
 
 
 @dataclass
