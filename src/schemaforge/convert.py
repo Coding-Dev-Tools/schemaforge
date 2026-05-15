@@ -14,6 +14,8 @@ from .parsers.django_parser import DjangoParser
 from .generators.django_generator import DjangoGenerator
 from .parsers.sqlalchemy_parser import SQLAlchemyParser
 from .generators.sqlalchemy_generator import SQLAlchemyGenerator
+from .parsers.alembic_parser import AlembicParser
+from .generators.alembic_generator import AlembicGenerator
 
 
 _registry: dict[str, tuple[type, type]] = {
@@ -23,6 +25,7 @@ _registry: dict[str, tuple[type, type]] = {
     "typeorm": (TypeORMParser, TypeORMGenerator),
     "django": (DjangoParser, DjangoGenerator),
     "sqlalchemy": (SQLAlchemyParser, SQLAlchemyGenerator),
+    "alembic": (AlembicParser, AlembicGenerator),
 }
 
 

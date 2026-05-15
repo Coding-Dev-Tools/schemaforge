@@ -4,6 +4,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from schemaforge.convert import convert_schema
@@ -518,3 +520,216 @@ def test_sqlalchemy_to_drizzle_roundtrip():
     drizzle = convert_schema(SIMPLE_SQLALCHEMY, "sqlalchemy", "drizzle")
     assert "export" in drizzle or "pgTable" in drizzle or "sqliteTable" in drizzle or "defineTable" in drizzle
     assert "users" in drizzle.lower()
+
+
+# ── Alembic Migration Generator Tests ──
+
+SIMPLE_SQL_FOR_ALEMBIC = """
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TYPE user_role AS ENUM ('admin', 'editor', 'viewer');
+
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    content TEXT,
+    author_id INTEGER NOT NULL,
+    status VARCHAR(20) DEFAULT 'draft',
+    INDEX idx_posts_author (author_id)
+);
+"""
+
+
+def test_alembic_generate_simple():
+    """Alembic generator should produce valid migration script."""
+    from schemaforge.parsers.sql_parser import SQLParser
+    from schemaforge.generators.alembic_generator import AlembicGenerator
+
+    parser = SQLParser()
+    schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
+
+    gen = AlembicGenerator()
+    output = gen.generate(schema)
+
+    # Core structure checks
+    assert "\"\"\"" in output  # docstring
+    assert "Revision ID:" in output
+    assert "revision = 'initial'" in output
+    assert "down_revision = None" in output
+    assert "from alembic import op" in output
+    assert "import sqlalchemy as sa" in output
+    assert "def upgrade() -> None:" in output
+    assert "def downgrade() -> None:" in output
+
+
+def test_alembic_create_table():
+    """Alembic should generate op.create_table calls."""
+    from schemaforge.parsers.sql_parser import SQLParser
+    from schemaforge.generators.alembic_generator import AlembicGenerator
+
+    parser = SQLParser()
+    schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
+
+    gen = AlembicGenerator()
+    output = gen.generate(schema)
+
+    assert "op.create_table('users'" in output
+    assert "op.create_table('posts'" in output
+    assert "sa.Column('id'" in output
+    assert "sa.Column('name'" in output
+    assert "sa.Column('email'" in output
+
+
+def test_alembic_create_index():
+    """Alembic should generate op.create_index calls for table indexes."""
+    from schemaforge.parsers.sql_parser import SQLParser
+    from schemaforge.generators.alembic_generator import AlembicGenerator
+
+    parser = SQLParser()
+    schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
+
+    gen = AlembicGenerator()
+    output = gen.generate(schema)
+
+    assert "op.create_index(" in output
+    assert "idx_posts_author" in output
+
+
+def test_alembic_downgrade():
+    """Alembic downgrade should drop tables/indexes in reverse order."""
+    from schemaforge.parsers.sql_parser import SQLParser
+    from schemaforge.generators.alembic_generator import AlembicGenerator
+
+    parser = SQLParser()
+    schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
+
+    gen = AlembicGenerator()
+    output = gen.generate(schema)
+
+    # Downgrade drops indexes first, then tables, then enums
+    downgrade_idx = output.index("def downgrade() -> None:")
+    downgrade_section = output[downgrade_idx:]
+
+    assert "op.drop_index('idx_posts_author'" in downgrade_section
+    assert "op.drop_table('posts'" in downgrade_section
+    assert "op.drop_table('users'" in downgrade_section
+    assert "DROP TYPE user_role" in downgrade_section
+
+
+def test_alembic_enum_types():
+    """Alembic should generate op.execute for enum types."""
+    from schemaforge.parsers.sql_parser import SQLParser
+    from schemaforge.generators.alembic_generator import AlembicGenerator
+
+    parser = SQLParser()
+    schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
+
+    gen = AlembicGenerator()
+    output = gen.generate(schema)
+
+    assert "CREATE TYPE user_role AS ENUM" in output
+    assert "'admin', 'editor', 'viewer'" in output
+
+
+def test_alembic_default_values():
+    """Alembic should handle server_default for boolean and fn defaults."""
+    from schemaforge.parsers.sql_parser import SQLParser
+    from schemaforge.generators.alembic_generator import AlembicGenerator
+
+    parser = SQLParser()
+    schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
+
+    gen = AlembicGenerator()
+    output = gen.generate(schema)
+
+    assert "server_default=true" in output  # is_active DEFAULT TRUE
+    assert "sa.func.now()" in output  # created_at DEFAULT CURRENT_TIMESTAMP
+    assert "server_default='draft'" in output  # status DEFAULT 'draft'
+
+
+def test_alembic_primary_key():
+    """Alembic should mark primary_key=True on PK columns."""
+    from schemaforge.parsers.sql_parser import SQLParser
+    from schemaforge.generators.alembic_generator import AlembicGenerator
+
+    parser = SQLParser()
+    schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
+
+    gen = AlembicGenerator()
+    output = gen.generate(schema)
+
+    assert "primary_key=True" in output
+
+
+def test_alembic_not_null():
+    """Alembic should set nullable=False for NOT NULL columns."""
+    from schemaforge.parsers.sql_parser import SQLParser
+    from schemaforge.generators.alembic_generator import AlembicGenerator
+
+    parser = SQLParser()
+    schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
+
+    gen = AlembicGenerator()
+    output = gen.generate(schema)
+
+    assert "nullable=False" in output
+
+
+def test_alembic_custom_revision():
+    """Alembic generator should accept custom revision_id and down_revision."""
+    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.generators.alembic_generator import AlembicGenerator
+
+    schema = Schema(tables=[
+        Table(name="items", columns=[
+            Column(name="id", type=ColumnType.INTEGER, primary_key=True),
+        ])
+    ])
+
+    gen = AlembicGenerator()
+    output = gen.generate(
+        schema,
+        revision_id="abc123def456",
+        down_revision="prev_rev",
+        message="Add items table",
+    )
+
+    assert "Add items table" in output
+    assert "revision = 'abc123def456'" in output
+    assert "down_revision = 'prev_rev'" in output
+
+
+def test_alembic_empty_schema():
+    """Alembic should handle empty schema gracefully."""
+    from schemaforge.ir import Schema
+    from schemaforge.generators.alembic_generator import AlembicGenerator
+
+    schema = Schema()
+    gen = AlembicGenerator()
+    output = gen.generate(schema)
+
+    assert "def upgrade() -> None:" in output
+    assert "    pass" in output
+    assert "def downgrade() -> None:" in output
+    assert "    pass" in output
+
+
+def test_alembic_via_convert_api():
+    """Alembic should be accessible via the convert_schema API (generator-only)."""
+    sql = """
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+);
+"""
+    output = convert_schema(sql, "sql", "alembic")
+    assert "def upgrade() -> None:" in output
+    assert "op.create_table('users'" in output
+    with pytest.raises(NotImplementedError):
+        convert_schema(output, "alembic", "sql")

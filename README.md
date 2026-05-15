@@ -1,6 +1,6 @@
 # SchemaForge
 
-| SchemaForge **Bidirectional ORM schema converter — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, and SQLAlchemy models with zero-loss roundtripping.**
+| SchemaForge **Bidirectional ORM schema converter — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, and Alembic migration scripts. 7 formats, 36 direction pairs.**
 
 [![PyPI](https://img.shields.io/pypi/v/schemaforge)](https://pypi.org/project/schemaforge/)
 [![Python](https://img.shields.io/pypi/pyversions/schemaforge)](https://pypi.org/project/schemaforge/)
@@ -39,6 +39,7 @@ schemaforge convert --from typeorm --to django --input entities/
 schemaforge convert --from django --to drizzle --input models.py --output schema.drizzle.ts
 schemaforge convert --from sqlalchemy --to prisma --input models.py
 schemaforge convert --from sql --to sqlalchemy --input schema.sql
+schemaforge convert --from sql --to alembic --input schema.sql --output migrations/initial.py
 ```
 
 All direction pairs are fully supported — every format can convert to every other format.
@@ -64,10 +65,11 @@ Detects added, removed, and modified tables, columns, indexes, and constraints.
 | TypeORM entities | ✓ | ✓ | ✓ |
 | Django models | ✓ | ✓ | ✓ |
 | SQLAlchemy models | ✓ | ✓ | ✓ |
+| Alembic migrations | — | ✓ | — |
 
 ## Demo Fixtures
 
-Try SchemaForge immediately with our example blog schema. The `fixtures/` directory contains an equivalent schema (users, posts, categories with foreign keys, enums, and various data types) in all 5 supported formats:
+Try SchemaForge immediately with our example blog schema. The `fixtures/` directory contains an equivalent schema (users, posts, categories with foreign keys, enums, and various data types) in 6 supported formats:
 
 ```bash
 # Convert SQL → Prisma
