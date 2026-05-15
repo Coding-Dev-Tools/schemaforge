@@ -6,11 +6,14 @@ from .parsers.sql_parser import SQLParser
 from .generators.sql_generator import SQLGenerator
 from .parsers.prisma_parser import PrismaParser
 from .generators.prisma_generator import PrismaGenerator
+from .parsers.drizzle_parser import DrizzleParser
+from .generators.drizzle_generator import DrizzleGenerator
 
 
 _registry: dict[str, tuple[type, type]] = {
     "sql": (SQLParser, SQLGenerator),
     "prisma": (PrismaParser, PrismaGenerator),
+    "drizzle": (DrizzleParser, DrizzleGenerator),
 }
 
 
