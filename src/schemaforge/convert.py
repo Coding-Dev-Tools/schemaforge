@@ -22,6 +22,8 @@ from .parsers.json_schema_parser import JSONSchemaParser
 from .generators.json_schema_generator import JSONSchemaGenerator
 from .parsers.graphql_parser import GraphQLParser
 from .generators.graphql_generator import GraphQLGenerator
+from .parsers.ef_parser import EntityFrameworkParser
+from .generators.ef_generator import EntityFrameworkGenerator
 
 if TYPE_CHECKING:
     from .type_config import TypeConfig
@@ -37,6 +39,7 @@ _registry: dict[str, tuple[type, type]] = {
     "alembic": (AlembicParser, AlembicGenerator),
     "json_schema": (JSONSchemaParser, JSONSchemaGenerator),
     "graphql": (GraphQLParser, GraphQLGenerator),
+    "ef": (EntityFrameworkParser, EntityFrameworkGenerator),
 }
 
 

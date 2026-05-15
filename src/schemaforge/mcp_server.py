@@ -25,7 +25,7 @@ except ImportError:
 
 
 # All supported formats
-_FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema", "graphql"]
+_FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema", "graphql", "ef"]
 _FORMAT_DESCRIPTIONS = {
     "sql": "SQL DDL (Data Definition Language)",
     "prisma": "Prisma schema",
@@ -36,6 +36,7 @@ _FORMAT_DESCRIPTIONS = {
     "alembic": "Alembic migration scripts (Python, generator-only)",
     "json_schema": "JSON Schema (draft 2020-12)",
     "graphql": "GraphQL SDL (Schema Definition Language)",
+    "ef": "Entity Framework Core entities (C#)",
 }
 
 
