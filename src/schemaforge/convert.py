@@ -18,6 +18,8 @@ from .parsers.sqlalchemy_parser import SQLAlchemyParser
 from .generators.sqlalchemy_generator import SQLAlchemyGenerator
 from .parsers.alembic_parser import AlembicParser
 from .generators.alembic_generator import AlembicGenerator
+from .parsers.json_schema_parser import JSONSchemaParser
+from .generators.json_schema_generator import JSONSchemaGenerator
 
 if TYPE_CHECKING:
     from .type_config import TypeConfig
@@ -31,6 +33,7 @@ _registry: dict[str, tuple[type, type]] = {
     "django": (DjangoParser, DjangoGenerator),
     "sqlalchemy": (SQLAlchemyParser, SQLAlchemyGenerator),
     "alembic": (AlembicParser, AlembicGenerator),
+    "json_schema": (JSONSchemaParser, JSONSchemaGenerator),
 }
 
 

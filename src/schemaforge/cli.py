@@ -10,6 +10,9 @@ from .convert import convert_schema
 from .diff import diff_schemas
 from .type_config import TypeConfig
 
+# All supported format names (used for CLI choices and detection)
+_FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema"]
+
 
 @click.group()
 @click.version_option()
@@ -23,10 +26,10 @@ def main() -> None:
 
 @main.command()
 @click.option("--from", "from_fmt", required=True,
-              type=click.Choice(["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic"]),
+              type=click.Choice(_FORMATS),
               help="Source format")
 @click.option("--to", "to_fmt", required=True,
-              type=click.Choice(["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic"]),
+              type=click.Choice(_FORMATS),
               help="Target format")
 @click.option("--input", "-i", "input_path", required=True,
               type=click.Path(exists=True, readable=True),
@@ -67,7 +70,7 @@ def convert(from_fmt: str, to_fmt: str, input_path: str,
 @click.argument("file_a", type=click.Path(exists=True, readable=True))
 @click.argument("file_b", type=click.Path(exists=True, readable=True))
 @click.option("--format", "fmt", default="auto",
-              type=click.Choice(["auto", "sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy"]),
+              type=click.Choice(["auto"] + _FORMATS),
               help="Schema format (auto = detect from extension)")
 def diff(file_a: str, file_b: str, fmt: str) -> None:
     """Show differences between two schema files."""
