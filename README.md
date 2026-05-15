@@ -1,16 +1,16 @@
 # SchemaForge
 
-> **Bidirectional ORM schema converter** — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic migrations, JSON Schema, and GraphQL SDL. **9 formats, 72 direction pairs.**
+> **Bidirectional ORM schema converter** — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic migrations, JSON Schema, GraphQL SDL, EF Core (C#), and Scala case classes. **11 formats, 110 direction pairs.**
 
 [![PyPI](https://img.shields.io/pypi/v/schemaforge)](https://pypi.org/project/schemaforge/)
 [![Python](https://img.shields.io/pypi/pyversions/schemaforge)](https://pypi.org/project/schemaforge/)
 [![License](https://img.shields.io/pypi/l/schemaforge)](https://github.com/Coding-Dev-Tools/schemaforge/blob/main/LICENSE)
 [![CI](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/test.yml/badge.svg)](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/tests-233%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
+[![Tests](https://img.shields.io/badge/tests-270%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
 
 **Why SchemaForge?** Every major ORM migration is a one-way street. Prisma introspects SQL but can't export back. Drizzle users manually rewrite schemas when switching ORMs. TypeORM developers are locked into decorator syntax. SchemaForge is the first tool to do **bidirectional, lossless conversion** between 9 schema formats — with a shared internal representation that guarantees roundtrip fidelity.
 
-Convert any schema to any format, verify equivalence with the diff command, generate Alembic migrations, produce JSON Schema definitions, create GraphQL SDL types, and batch-process entire directories. Whether you're migrating from Prisma to Drizzle, sharing a schema with a Django backend, or exposing your data model as GraphQL — SchemaForge handles it.
+Convert any schema to any format, verify equivalence with the diff command, generate Alembic migrations, produce JSON Schema definitions, create GraphQL SDL types, convert Entity Framework (C#) entities, generate Scala case classes, and batch-process entire directories. Whether you're migrating from Prisma to Drizzle, sharing a schema with a Django backend, exposing your data model as GraphQL, translating C# entities to Scala, or working with the SchemaForge VS Code extension for live preview — SchemaForge handles it.
 
 ## Quick Start
 
@@ -111,6 +111,8 @@ Detects added, removed, and modified tables, columns, indexes, and constraints.
 | Alembic migrations | — | ✓ | — |
 | JSON Schema | ✓ | ✓ | ✓ |
 | GraphQL SDL | ✓ | ✓ | ✓ |
+| EF Core (C#) | ✓ | ✓ | ✓ |
+| Scala case class | ✓ | ✓ | ✓ |
 
 **Alembic** is generator-only: you can create migration scripts from any format, but parsing existing migrations back to IR is not yet supported.
 
@@ -127,6 +129,8 @@ Detects added, removed, and modified tables, columns, indexes, and constraints.
 | `alembic` | Alembic migration scripts |
 | `json_schema` | JSON Schema (draft 2020-12) |
 | `graphql` | GraphQL SDL |
+| `ef` | Entity Framework Core (C#) |
+| `scala` | Scala case classes (Doobie/Quill/Slick) |
 
 ## How It Works
 
@@ -137,15 +141,17 @@ SchemaForge uses a **shared Internal Representation (IR)** — all formats conve
 - **Extensibility**: adding a new format requires only a parser and a generator — no pairwise converters
 
 ```
-    SQL DDL ───┐
-    Prisma ────┤
-    Drizzle ───┤
-    TypeORM ───┼──▶ Shared IR ──▶ Any Format
-    Django ────┤
- SQLAlchemy ───┤
-   Alembic ────┤
- JSON Schema ──┤
-   GraphQL ────┘
+|    SQL DDL ───┐
+|    Prisma ────┤
+|    Drizzle ───┤
+|    TypeORM ───┤
+|    Django ────┤
+| SQLAlchemy ───┤
+|   Alembic ────┤
+| JSON Schema ──┤
+|   GraphQL ────┤
+|  EF Core ─────┤
+|    Scala ─────┤
 ```
 
 Each parser reads format-specific syntax and builds a schema IR. Each generator takes the same IR and produces format-native output. The `fn:` prefix convention preserves SQL function defaults (CURRENT_TIMESTAMP, NOW(), gen_random_uuid()) across format boundaries.
@@ -233,15 +239,18 @@ Each fixture demonstrates the same blog schema so you can compare ORM syntax sid
 
 ## Features
 
-- **Bidirectional conversion** — all 9 formats convert to and from every other format (72 direction pairs)
+- **Bidirectional conversion** — all 11 formats convert to and from every other format
 - **Zero-loss roundtripping** — `sql → prisma → sql` reproduces the original schema exactly
 - **Custom type mappings** — YAML/JSON config files to override any type mapping with template variables
+- **VS Code extension** — live preview, schema diff, and one-click conversion from VS Code
 - **Alembic migration generation** — create database migration scripts from any schema format
 - **JSON Schema** — import/export schema definitions as JSON Schema (draft 2020-12)
 - **GraphQL SDL** — generate or consume GraphQL type definitions with enums, directives, and scalars
+- **EF Core (C#) support** — import/export Entity Framework entity classes with data annotations
+- **Scala case class support** — generate case classes targeting Doobie/Quill/Slick
 - **Diff mode** — compare two schemas in the same format with line-level differences
 - **Batch mode** — convert entire directories of schema files with one command
-- **Intelligent type mapping** — types map correctly across all 9 formats
+- **Intelligent type mapping** — types map correctly across all 11 formats
 - **Function default preservation** — `CURRENT_TIMESTAMP`, `NOW()`, `gen_random_uuid()` survive roundtrips
 - **MySQL support** — ENGINE=InnoDB, AUTO_INCREMENT, DEFAULT CHARSET, COMMENT table options
 - **Inline ENUM** — `ENUM('small', 'medium', 'large')` column types parsed and roundtripped
@@ -267,7 +276,7 @@ schemaforge mcp --sse --port 8000
 
 | Tool | Description |
 |------|-------------|
-| `convert` | Convert a schema between any two of the 9 formats |
+| `convert` | Convert a schema between any two of the 11 formats |
 | `diff` | Compare two schemas and show differences |
 | `check` | Verify schema consistency across a directory |
 | `formats` | List all supported formats with descriptions |
@@ -299,6 +308,45 @@ schemaforge mcp --sse --port 8000
 }
 ```
 
+## VS Code Extension
+
+The **SchemaForge VS Code extension** provides live schema preview, quick conversion, and schema diffing directly from your editor.
+
+### Features
+
+- **Live Preview** — opens a side panel showing your active schema file converted to all other formats (tabbed interface for quick comparison)
+- **Quick Convert** — `Ctrl+Alt+S` / `Cmd+Alt+S` to convert the active editor's schema to your configured default target format
+- **Format Detection** — `Ctrl+Alt+D` / `Cmd+Alt+D` to detect and display the format of the active schema file
+- **Diff Two Schemas** — select two schema files to diff them side-by-side in VS Code's native diff editor
+- **Right-Click Conversion** — right-click any schema file in the explorer to convert it
+- **Custom Editor** — open `.schemaforge` files for a rich conversion preview
+- **Auto-Refresh** — preview panel updates when you save a schema file or switch tabs
+
+### Installation
+
+1. Install SchemaForge: `pip install schemaforge`
+2. Install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=revenue-holdings.vscode-schemaforge)
+3. Open a `.sql`, `.prisma`, `.graphql`, `.cs`, or `.scala` file
+4. Run `SchemaForge: Show Preview` from the command palette
+
+### Configuration
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `schemaforge.cliPath` | `schemaforge` | Path to the schemaforge CLI executable |
+| `schemaforge.defaultTargetFormat` | `prisma` | Default target format for quick conversions |
+| `schemaforge.livePreview.enabled` | `true` | Enable live preview panel when editing schema files |
+
+### Development
+
+```bash
+git clone https://github.com/Coding-Dev-Tools/vscode-schemaforge.git
+cd vscode-schemaforge
+npm install
+npm run compile
+# Press F5 in VS Code to launch extension host
+```
+
 ## Roadmap
 
 | Version | Features |
@@ -317,13 +365,17 @@ schemaforge mcp --sse --port 8000
 | v1.2.0 | JSON Schema support (8th format) |
 | **v1.3.0** | **GraphQL SDL support (9th format)** |
 | v1.4.0 | Schema consistency check, CI/CD workflow, MCP server |
+| **v1.5.0** | **Entity Framework Core (C#) support (10th format)** |
+| **v1.6.0** | **Scala case class support (11th format)** |
+| **v1.7.0** | **VS Code extension — live preview, diff, quick convert** |
 
 ### Planned
 
-- [ ] VS Code extension with live diff
-- [ ] MCP server for AI-assisted schema operations
-- [ ] CI/CD check: enforce schema consistency across branches
-- [ ] Additional formats: Doobie/Quill (Scala), Entity Framework (C#)
+- [ ] VS Code extension: in-editor syntax highlighting for all 11 schema formats
+- [ ] Live schema watch mode for automatic re-conversion on file change
+- [ ] Mermaid/ERD diagram generation from schema IR
+- [ ] Terraform/OpenTofu provider for schema drift detection
+- [ ] Web dashboard with schema diff history
 
 ## Pricing
 
@@ -391,4 +443,4 @@ MIT — see [LICENSE](LICENSE)
 
 ---
 
-<sub>Part of [Revenue Holdings](https://coding-dev-tools.github.io/revenueholdings.dev/) — a suite of 10 developer CLI tools built by autonomous AI agents. Also check out [API Contract Guardian](https://github.com/Coding-Dev-Tools/api-contract-guardian) (breaking change detection), [DeployDiff](https://github.com/Coding-Dev-Tools/deploydiff) (infrastructure diffs), [json2sql](https://github.com/Coding-Dev-Tools/json2sql) (JSON → SQL), [ConfigDrift](https://github.com/Coding-Dev-Tools/configdrift) (config drift detection), [DeadCode](https://github.com/Coding-Dev-Tools/deadcode) (dead code cleanup), [APIAuth](https://github.com/Coding-Dev-Tools/apiauth) (API key management), [APIGhost](https://github.com/Coding-Dev-Tools/apighost) (mock API server), [Envault](https://github.com/Coding-Dev-Tools/envault) (env sync), and [click-to-mcp](https://github.com/Coding-Dev-Tools/click-to-mcp) (CLI → MCP server).</sub>
+<sub>Part of [Revenue Holdings](https://coding-dev-tools.github.io/revenueholdings.dev/) — a suite of 10 developer CLI tools built by autonomous AI agents. Also check out the [SchemaForge VS Code extension](https://github.com/Coding-Dev-Tools/vscode-schemaforge), [API Contract Guardian](https://github.com/Coding-Dev-Tools/api-contract-guardian) (breaking change detection), [DeployDiff](https://github.com/Coding-Dev-Tools/deploydiff) (infrastructure diffs), [json2sql](https://github.com/Coding-Dev-Tools/json2sql) (JSON → SQL), [ConfigDrift](https://github.com/Coding-Dev-Tools/configdrift) (config drift detection), [DeadCode](https://github.com/Coding-Dev-Tools/deadcode) (dead code cleanup), [APIAuth](https://github.com/Coding-Dev-Tools/apiauth) (API key management), [APIGhost](https://github.com/Coding-Dev-Tools/apighost) (mock API server), [Envault](https://github.com/Coding-Dev-Tools/envault) (env sync), and [click-to-mcp](https://github.com/Coding-Dev-Tools/click-to-mcp) (CLI → MCP server).</sub>
