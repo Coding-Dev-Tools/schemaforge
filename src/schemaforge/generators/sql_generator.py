@@ -9,7 +9,7 @@ class SQLGenerator:
 
     _TYPE_REVERSE_MAP: dict[ColumnType, str] = {
         ColumnType.INTEGER: "INTEGER",
-        ColumnType.STRING: "VARCHAR(255)",
+        ColumnType.STRING: "TEXT",
         ColumnType.TEXT: "TEXT",
         ColumnType.BOOLEAN: "BOOLEAN",
         ColumnType.FLOAT: "FLOAT",
@@ -84,6 +84,8 @@ class SQLGenerator:
                 parts.append(f"DEFAULT {'TRUE' if col.default else 'FALSE'}")
             elif isinstance(col.default, (int, float)):
                 parts.append(f"DEFAULT {col.default}")
+            elif isinstance(col.default, str) and col.default.startswith("fn:"):
+                pass  # Function defaults handled by DB (autoincrement, etc.)
             else:
                 parts.append(f"DEFAULT '{col.default}'")
 

@@ -75,33 +75,70 @@ class PrismaParser:
                 continue
 
             field_name = parts[0]
-            field_type = parts[1]
+            field_type_raw = parts[1]
+
+            # Handle nullable shorthand (e.g., "String?")
+            is_nullable = field_type_raw.endswith("?")
+            field_type_clean = field_type_raw.rstrip("?")
+            if not field_type_clean:
+                field_type_clean = field_type_raw
 
             constraints = " ".join(parts[2:]) if len(parts) > 2 else ""
 
             # Map Prisma type to ColumnType
-            col_type = self._TYPE_MAP.get(field_type, ColumnType.CUSTOM)
+            col_type = self._TYPE_MAP.get(field_type_clean, ColumnType.CUSTOM)
+
+            type_args = {}
+            if col_type == ColumnType.STRING and "@db.VarChar" in constraints:
+                # Only capture length if explicitly constrained
+                db_match = __import__("re").search(r"@db\.VarChar\((\d+)\)", constraints)
+                if db_match:
+                    type_args["length"] = int(db_match.group(1))
 
             col = Column(
                 name=field_name,
                 type=col_type,
+                type_args=type_args,
                 primary_key="@id" in constraints or "id" in constraints.lower(),
                 unique="@unique" in constraints,
-                nullable="?" in field_type or "optional" in constraints.lower(),
+                nullable=is_nullable or "optional" in constraints.lower(),
             )
 
-            # Check for default values
+            # Check for default values (handle nested parens)
             if "@default" in constraints:
-                default_m = __import__("re").search(r"@default\(([^)]+)\)", constraints)
-                if default_m:
-                    col.default = default_m.group(1)
-
-            # Check for relation
-            if "@relation" in constraints:
-                pass  # Relations are skipped for now
-
+                import re as _re
+                idx = constraints.index("@default(")
+                rest = constraints[idx + len("@default("):]
+                depth = 1
+                default_val = ""
+                for ch in rest:
+                    if ch == '(':
+                        depth += 1
+                    elif ch == ')':
+                        depth -= 1
+                        if depth == 0:
+                            break
+                    default_val += ch
+                if default_val:
+                    # Skip function-like defaults for scalar types
+                    if default_val.endswith("()") or "(" in default_val:
+                        # It's a function (autoincrement, uuid, etc.) — handle as special
+                        if "autoincrement" in default_val:
+                            col.default = None  # auto-increment, not a real default
+                        elif "uuid" in default_val:
+                            col.default = None
+                        else:
+                            col.default = f"fn:{default_val}"
+                    elif default_val.isdigit():
+                        col.default = int(default_val)
+                    elif default_val.lower() in ("true", "false"):
+                        col.default = default_val.lower() == "true"
+                    elif default_val.lower() == "now()":
+                        col.default = None  # handled by DB
+                    else:
+                        col.default = default_val.strip('"\'')
             if col_type == ColumnType.CUSTOM:
-                col.custom_type = field_type
+                col.custom_type = field_type_clean
 
             table.columns.append(col)
 
