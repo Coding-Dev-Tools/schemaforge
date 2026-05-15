@@ -12,6 +12,8 @@ from .parsers.typeorm_parser import TypeORMParser
 from .generators.typeorm_generator import TypeORMGenerator
 from .parsers.django_parser import DjangoParser
 from .generators.django_generator import DjangoGenerator
+from .parsers.sqlalchemy_parser import SQLAlchemyParser
+from .generators.sqlalchemy_generator import SQLAlchemyGenerator
 
 
 _registry: dict[str, tuple[type, type]] = {
@@ -20,6 +22,7 @@ _registry: dict[str, tuple[type, type]] = {
     "drizzle": (DrizzleParser, DrizzleGenerator),
     "typeorm": (TypeORMParser, TypeORMGenerator),
     "django": (DjangoParser, DjangoGenerator),
+    "sqlalchemy": (SQLAlchemyParser, SQLAlchemyGenerator),
 }
 
 

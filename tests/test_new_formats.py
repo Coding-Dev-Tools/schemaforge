@@ -1,4 +1,4 @@
-"""Tests for SchemaForge — TypeORM and Django parsers/generators."""
+"""Tests for SchemaForge — TypeORM, Django, and SQLAlchemy parsers/generators."""
 from __future__ import annotations
 
 import sys
@@ -11,6 +11,8 @@ from schemaforge.parsers.typeorm_parser import TypeORMParser
 from schemaforge.parsers.django_parser import DjangoParser
 from schemaforge.generators.typeorm_generator import TypeORMGenerator
 from schemaforge.generators.django_generator import DjangoGenerator
+from schemaforge.parsers.sqlalchemy_parser import SQLAlchemyParser
+from schemaforge.generators.sqlalchemy_generator import SQLAlchemyGenerator
 
 
 # ── TypeORM Entity Samples ──
@@ -312,3 +314,207 @@ def test_sql_to_django_roundtrip():
     django = convert_schema(SQL_SAMPLE, "sql", "django")
     assert "models.Model" in django
     assert "articles" in django.lower() or "Articles" in django
+
+
+# ── SQLAlchemy Model Samples ──
+
+SIMPLE_SQLALCHEMY = """
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.sql import func
+
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
+    bio = Column(Text, nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())
+"""
+
+SQLALCHEMY_WITH_DECIMAL = """
+from sqlalchemy import Column, Integer, String, Numeric, Boolean, Text, Uuid, Float, JSON
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String(200))
+    price = Column(Numeric(10, 2), default=0)
+    rating = Column(Float, nullable=True)
+    in_stock = Column(Boolean, default=True)
+    description = Column(Text, nullable=True)
+    sku = Column(Uuid, unique=True)
+    metadata = Column(JSON, nullable=True)
+"""
+
+SQLALCHEMY_WITH_DATE_TIME = """
+from sqlalchemy import Column, Integer, String, Date, DateTime, Time, Boolean
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
+
+class Event(Base):
+    __tablename__ = "events"
+
+    id = Column(Integer, primary_key=True)
+    event_date = Column(Date, nullable=False)
+    start_time = Column(Time, nullable=True)
+    created_at = Column(DateTime, server_default=func.now())
+    published = Column(Boolean, default=False)
+"""
+
+
+# ═══════════════════════════════════════════════
+# SQLAlchemy Parser Tests
+# ═══════════════════════════════════════════════
+
+def test_sqlalchemy_parse_simple():
+    parser = SQLAlchemyParser()
+    schema = parser.parse(SIMPLE_SQLALCHEMY)
+    assert len(schema.tables) == 1
+    assert schema.tables[0].name == "users"
+
+
+def test_sqlalchemy_parse_columns():
+    parser = SQLAlchemyParser()
+    schema = parser.parse(SIMPLE_SQLALCHEMY)
+    table = schema.tables[0]
+    assert table.name == "users"
+    cols = {c.name: c for c in table.columns}
+    assert "id" in cols
+    assert cols["id"].primary_key is True
+    assert "name" in cols
+    assert cols["name"].type.value == "string"
+    assert cols["name"].type_args.get("length") == 100
+    assert cols["name"].nullable is False
+    assert "email" in cols
+    assert cols["email"].unique is True
+    assert cols["email"].nullable is False
+    assert "bio" in cols
+    assert cols["bio"].nullable is True
+    assert "is_active" in cols
+    assert cols["is_active"].type.value == "boolean"
+    assert cols["is_active"].default is True
+    assert "created_at" in cols
+    assert cols["created_at"].type.value == "datetime"
+
+
+def test_sqlalchemy_parse_empty():
+    """Empty input produces empty schema."""
+    parser = SQLAlchemyParser()
+    schema = parser.parse("")
+    assert len(schema.tables) == 0
+
+
+def test_sqlalchemy_parse_no_models():
+    """File with no model classes produces empty schema."""
+    parser = SQLAlchemyParser()
+    schema = parser.parse("from sqlalchemy import Column\n# just a comment\n")
+    assert len(schema.tables) == 0
+
+
+def test_sqlalchemy_generate_simple():
+    """Generate SQLAlchemy from parsed schema."""
+    parser = SQLAlchemyParser()
+    gen = SQLAlchemyGenerator()
+    schema = parser.parse(SIMPLE_SQLALCHEMY)
+    output = gen.generate(schema)
+    # Table name "users" gets PascalCased to "Users"
+    assert "class Users(Base):" in output
+    assert '__tablename__ = "users"' in output
+    assert "Column(String(100)" in output
+    assert "nullable=False" in output
+    assert "unique=True" in output
+
+
+def test_sqlalchemy_complex_types():
+    """SQLAlchemy with all type variations."""
+    parser = SQLAlchemyParser()
+    schema = parser.parse(SQLALCHEMY_WITH_DECIMAL)
+    assert len(schema.tables) == 1
+    table = schema.tables[0]
+    cols = {c.name: c for c in table.columns}
+    assert cols["price"].type.value == "decimal"
+    assert cols["rating"].type.value == "float"
+    assert cols["in_stock"].type.value == "boolean"
+    assert cols["description"].type.value == "text"
+    assert cols["sku"].type.value == "uuid"
+    assert cols["sku"].unique is True
+    assert cols["metadata"].type.value == "json"
+
+
+def test_sqlalchemy_generate_complex():
+    """Generate SQLAlchemy from complex schema."""
+    parser = SQLAlchemyParser()
+    gen = SQLAlchemyGenerator()
+    schema = parser.parse(SQLALCHEMY_WITH_DECIMAL)
+    output = gen.generate(schema)
+    # Table name "products" gets PascalCased to "Products"
+    assert "class Products(Base):" in output
+    assert '__tablename__ = "products"' in output
+    assert "Numeric(10, 2)" in output
+    assert "Uuid" in output or "UUID" in output or "uuid" in output
+
+
+def test_sqlalchemy_date_time_types():
+    """SQLAlchemy with date/time types."""
+    parser = SQLAlchemyParser()
+    schema = parser.parse(SQLALCHEMY_WITH_DATE_TIME)
+    assert len(schema.tables) == 1
+    table = schema.tables[0]
+    cols = {c.name: c for c in table.columns}
+    assert cols["event_date"].type.value == "date"
+    assert cols["start_time"].type.value == "time"
+    assert cols["created_at"].type.value == "datetime"
+    assert cols["published"].type.value == "boolean"
+
+
+# ═══════════════════════════════════════════════
+# SQLAlchemy Roundtrip Tests
+# ═══════════════════════════════════════════════
+
+def test_sqlalchemy_to_sql_roundtrip():
+    """Parse SQLAlchemy, convert to SQL, check elements survive."""
+    sql = convert_schema(SIMPLE_SQLALCHEMY, "sqlalchemy", "sql")
+    assert "CREATE TABLE" in sql
+    assert "users" in sql.lower()
+    assert "INTEGER" in sql or "INT" in sql
+    assert "VARCHAR" in sql
+
+
+def test_sqlalchemy_to_prisma_roundtrip():
+    """Parse SQLAlchemy, convert to Prisma."""
+    prisma = convert_schema(SIMPLE_SQLALCHEMY, "sqlalchemy", "prisma")
+    assert "model" in prisma
+    assert "User" in prisma or "users" in prisma.lower()
+
+
+def test_sqlalchemy_to_django_roundtrip():
+    """Cross-format: SQLAlchemy -> Django."""
+    django = convert_schema(SIMPLE_SQLALCHEMY, "sqlalchemy", "django")
+    assert "models.Model" in django
+    assert "User" in django or "users" in django.lower()
+    assert "CharField" in django
+
+
+def test_sqlalchemy_to_typeorm_roundtrip():
+    """Cross-format: SQLAlchemy -> TypeORM."""
+    typeorm = convert_schema(SIMPLE_SQLALCHEMY, "sqlalchemy", "typeorm")
+    assert "Entity" in typeorm
+    assert "User" in typeorm or "users" in typeorm.lower()
+    assert "Column" in typeorm
+
+
+def test_sqlalchemy_to_drizzle_roundtrip():
+    """Cross-format: SQLAlchemy -> Drizzle."""
+    drizzle = convert_schema(SIMPLE_SQLALCHEMY, "sqlalchemy", "drizzle")
+    assert "export" in drizzle or "pgTable" in drizzle or "sqliteTable" in drizzle or "defineTable" in drizzle
+    assert "users" in drizzle.lower()

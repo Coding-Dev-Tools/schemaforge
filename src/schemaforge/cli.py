@@ -22,10 +22,10 @@ def main() -> None:
 
 @main.command()
 @click.option("--from", "from_fmt", required=True,
-              type=click.Choice(["sql", "prisma", "drizzle", "typeorm", "django"]),
+              type=click.Choice(["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy"]),
               help="Source format")
 @click.option("--to", "to_fmt", required=True,
-              type=click.Choice(["sql", "prisma", "drizzle", "typeorm", "django"]),
+              type=click.Choice(["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy"]),
               help="Target format")
 @click.option("--input", "-i", "input_path", required=True,
               type=click.Path(exists=True, readable=True),
@@ -53,7 +53,7 @@ def convert(from_fmt: str, to_fmt: str, input_path: str, output_path: str | None
 @click.argument("file_a", type=click.Path(exists=True, readable=True))
 @click.argument("file_b", type=click.Path(exists=True, readable=True))
 @click.option("--format", "fmt", default="auto",
-              type=click.Choice(["auto", "sql", "prisma", "drizzle", "typeorm", "django"]),
+              type=click.Choice(["auto", "sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy"]),
               help="Schema format (auto = detect from extension)")
 def diff(file_a: str, file_b: str, fmt: str) -> None:
     """Show differences between two schema files."""
