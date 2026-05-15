@@ -1,16 +1,16 @@
 # SchemaForge
 
-> **Bidirectional ORM schema converter** — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, and Alembic migration scripts. **7 formats, 42 direction pairs.**
+> **Bidirectional ORM schema converter** — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic migrations, JSON Schema, and GraphQL SDL. **9 formats, 72 direction pairs.**
 
 [![PyPI](https://img.shields.io/pypi/v/schemaforge)](https://pypi.org/project/schemaforge/)
 [![Python](https://img.shields.io/pypi/pyversions/schemaforge)](https://pypi.org/project/schemaforge/)
 [![License](https://img.shields.io/pypi/l/schemaforge)](https://github.com/Coding-Dev-Tools/schemaforge/blob/main/LICENSE)
 [![CI](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/test.yml/badge.svg)](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/tests-137%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
+[![Tests](https://img.shields.io/badge/tests-205%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
 
-**Why SchemaForge?** Every major ORM migration is a one-way street. Prisma introspects SQL but can't export back. Drizzle users manually rewrite schemas when switching ORMs. TypeORM developers are locked into decorator syntax. SchemaForge is the first tool to do **bidirectional, lossless conversion** between 7 schema formats — with a shared internal representation that guarantees roundtrip fidelity.
+**Why SchemaForge?** Every major ORM migration is a one-way street. Prisma introspects SQL but can't export back. Drizzle users manually rewrite schemas when switching ORMs. TypeORM developers are locked into decorator syntax. SchemaForge is the first tool to do **bidirectional, lossless conversion** between 9 schema formats — with a shared internal representation that guarantees roundtrip fidelity.
 
-Convert any schema to any format, verify equivalence with the diff command, generate Alembic migrations, and batch-process entire directories. Whether you're migrating from Prisma to Drizzle, sharing a schema with a Django backend, or generating SQL DDL from TypeORM entities — SchemaForge handles it.
+Convert any schema to any format, verify equivalence with the diff command, generate Alembic migrations, produce JSON Schema definitions, create GraphQL SDL types, and batch-process entire directories. Whether you're migrating from Prisma to Drizzle, sharing a schema with a Django backend, or exposing your data model as GraphQL — SchemaForge handles it.
 
 ## Quick Start
 
@@ -21,8 +21,17 @@ pip install schemaforge
 # Convert Prisma → Drizzle
 schemaforge convert --from prisma --to drizzle --input schema.prisma
 
+# Generate GraphQL from SQL
+schemaforge convert --from sql --to graphql --input schema.sql --output schema.graphql
+
+# Generate JSON Schema from Prisma
+schemaforge convert --from prisma --to json_schema --input schema.prisma --output schema.json
+
 # Generate Alembic migration from SQL
 schemaforge convert --from sql --to alembic --input schema.sql --output migrations/initial.py
+
+# Apply custom type mappings
+schemaforge convert --from sql --to prisma --input schema.sql --type-map my-types.yaml
 
 # Diff two schemas
 schemaforge diff schema-v1.prisma schema-v2.prisma
@@ -47,40 +56,34 @@ Requires Python 3.10+.
 
 ### `schemaforge convert`
 
-Convert a schema from one format to another. All 7 formats support conversion to and from every other format (42 direction pairs).
+Convert a schema from one format to another. All 9 formats support conversion to and from every other format (72 direction pairs).
 
 ```bash
-# SQL DDL
+# Format-specific examples
 schemaforge convert --from sql --to prisma --input schema.sql
-schemaforge convert --from sql --to alembic --input schema.sql --output migrations/initial.py
-
-# Prisma
 schemaforge convert --from prisma --to drizzle --input schema.prisma
-schemaforge convert --from prisma --to django --input schema.prisma --output models.py
-
-# Drizzle
 schemaforge convert --from drizzle --to sql --input schema.drizzle.ts
-schemaforge convert --from drizzle --to typeorm --input schema.ts
-
-# TypeORM
 schemaforge convert --from typeorm --to django --input entities/
-schemaforge convert --from typeorm --to prisma --input user.entity.ts
-
-# Django
-schemaforge convert --from django --to drizzle --input models.py
 schemaforge convert --from django --to sqlalchemy --input models.py
-
-# SQLAlchemy
 schemaforge convert --from sqlalchemy --to prisma --input models.py
-schemaforge convert --from sqlalchemy --to sql --input declarative.py
 
-# Alembic (generator-only — migration scripts)
+# Alembic migration generation
 schemaforge convert --from sql --to alembic --input schema.sql --output migrations/initial.py
 schemaforge convert --from prisma --to alembic --input schema.prisma --output migrations/
 
+# JSON Schema
+schemaforge convert --from sql --to json_schema --input schema.sql --output schema.json
+schemaforge convert --from json_schema --to prisma --input schema.json
+
+# GraphQL SDL
+schemaforge convert --from sql --to graphql --input schema.sql --output schema.graphql
+schemaforge convert --from graphql --to prisma --input schema.graphql
+
+# Custom type mapping
+schemaforge convert --from sql --to prisma --input schema.sql --type-map my-types.yaml
+
 # Dir mode (batch convert all files)
 schemaforge convert --from sql --to prisma --dir ./schemas/
-schemaforge convert --from typeorm --to django --dir ./src/entities/
 ```
 
 ### `schemaforge diff`
@@ -93,7 +96,7 @@ schemaforge diff schema.sql schema-updated.sql --format sql
 schemaforge diff fixtures/sample.sql fixtures/sample.prisma --format prisma
 ```
 
-Detects added, removed, and modified tables, columns, indexes, and constraints. Useful for CI/CD checks and code review.
+Detects added, removed, and modified tables, columns, indexes, and constraints.
 
 ## Supported Formats
 
@@ -106,8 +109,24 @@ Detects added, removed, and modified tables, columns, indexes, and constraints. 
 | Django models | ✓ | ✓ | ✓ |
 | SQLAlchemy models | ✓ | ✓ | ✓ |
 | Alembic migrations | — | ✓ | — |
+| JSON Schema | ✓ | ✓ | ✓ |
+| GraphQL SDL | ✓ | ✓ | ✓ |
 
 **Alembic** is generator-only: you can create migration scripts from any format, but parsing existing migrations back to IR is not yet supported.
+
+### Format Identifiers for `--from` / `--to`
+
+| CLI identifier | Format |
+|----------------|--------|
+| `sql` | SQL DDL |
+| `prisma` | Prisma schema |
+| `drizzle` | Drizzle ORM schema |
+| `typeorm` | TypeORM entities |
+| `django` | Django models |
+| `sqlalchemy` | SQLAlchemy declarative models |
+| `alembic` | Alembic migration scripts |
+| `json_schema` | JSON Schema (draft 2020-12) |
+| `graphql` | GraphQL SDL |
 
 ## How It Works
 
@@ -118,40 +137,67 @@ SchemaForge uses a **shared Internal Representation (IR)** — all formats conve
 - **Extensibility**: adding a new format requires only a parser and a generator — no pairwise converters
 
 ```
-   SQL DDL ──┐
-   Prisma ───┤
-   Drizzle ──┤
-   TypeORM ──┼──▶ Shared IR ──▶ Any Format
-   Django ───┤
-SQLAlchemy ──┤
-  Alembic ───┘
+    SQL DDL ───┐
+    Prisma ────┤
+    Drizzle ───┤
+    TypeORM ───┼──▶ Shared IR ──▶ Any Format
+    Django ────┤
+ SQLAlchemy ───┤
+   Alembic ────┤
+ JSON Schema ──┤
+   GraphQL ────┘
+```
+
+Each parser reads format-specific syntax and builds a schema IR. Each generator takes the same IR and produces format-native output. The `fn:` prefix convention preserves SQL function defaults (CURRENT_TIMESTAMP, NOW(), gen_random_uuid()) across format boundaries.
+
+## Custom Type Mappings (v1.1.0+)
+
+Override default type mappings with YAML or JSON configuration files.
+
+```yaml
+# type-overrides.yaml
+overrides:
+  prisma:
+    STRING: "String @db.VarChar({length})"
+    UUID: "String @db.Uuid"
+  sql:
+    STRING: "TEXT"
+    DATETIME: "TIMESTAMP WITH TIME ZONE"
+```
+
+Template variables available: `{length}`, `{precision}`, `{scale}`, `{values}`.
+
+```bash
+# Apply overrides during conversion
+schemaforge convert --from sql --to prisma --input schema.sql --type-map type-overrides.yaml
 ```
 
 ## Type Mapping
 
 SchemaForge maps types intelligently between ORM systems. The core `ColumnType` enum represents all supported data types, and each format maps them to their native equivalents.
 
-| ColumnType | SQL DDL | Prisma | Drizzle | TypeORM | Django | SQLAlchemy | Alembic |
-|------------|---------|--------|---------|---------|--------|------------|---------|
-| STRING | VARCHAR(n) / TEXT | String @db.VarChar(n) | varchar(n) | varchar | CharField(max_length=n) | String(n) | sa.String(n) |
-| INTEGER | INTEGER | Int | integer | integer | IntegerField | Integer | sa.Integer |
-| FLOAT | FLOAT | Float | real | float | FloatField | Float | sa.Float |
-| BOOLEAN | BOOLEAN | Boolean | boolean | boolean | BooleanField | Boolean | sa.Boolean |
-| DATETIME | TIMESTAMP | DateTime | timestamp | timestamp | DateTimeField | DateTime | sa.DateTime |
-| DATE | DATE | DateTime | date | date | DateField | Date | sa.Date |
-| TIME | TIME | DateTime | time | time | TimeField | Time | sa.Time |
-| TEXT | TEXT | String | text | text | TextField | Text | sa.Text |
-| BLOB | BLOB | Bytes | blob | blob | BinaryField | LargeBinary | sa.LargeBinary |
-| JSON | JSON | Json | json | json | JSONField | JSON | sa.JSON |
-| UUID | UUID | String | uuid | uuid | UUIDField | Uuid | sa.Uuid |
-| ENUM | ENUM('a','b') | (via enum type) | pgEnum | enum | CharField | Enum | sa.Enum |
-| DECIMAL | DECIMAL(p,s) | Decimal | numeric(p,s) | decimal(p,s) | DecimalField(max_digits=p) | Numeric(p,s) | sa.Numeric(p,s) |
+| ColumnType | SQL DDL | Prisma | Drizzle | TypeORM | Django | SQLAlchemy | Alembic | JSON Schema | GraphQL |
+|------------|---------|--------|---------|---------|--------|------------|---------|-------------|---------|
+| STRING | VARCHAR(n) / TEXT | String @db.VarChar(n) | varchar(n) | varchar | CharField(max_length=n) | String(n) | sa.String(n) | type: string | String |
+| INTEGER | INTEGER | Int | integer | integer | IntegerField | Integer | sa.Integer | type: integer | Int |
+| FLOAT | FLOAT | Float | real | float | FloatField | Float | sa.Float | type: number | Float |
+| BOOLEAN | BOOLEAN | Boolean | boolean | boolean | BooleanField | Boolean | sa.Boolean | type: boolean | Boolean |
+| DATETIME | TIMESTAMP | DateTime | timestamp | timestamp | DateTimeField | DateTime | sa.DateTime | format: date-time | DateTime |
+| DATE | DATE | DateTime | date | date | DateField | Date | sa.Date | format: date | Date |
+| TIME | TIME | DateTime | time | time | TimeField | Time | sa.Time | format: time | Time |
+| TEXT | TEXT | String | text | text | TextField | Text | sa.Text | type: string | String |
+| BLOB | BLOB | Bytes | blob | blob | BinaryField | LargeBinary | sa.LargeBinary | format: binary | String |
+| JSON | JSON | Json | json | json | JSONField | JSON | sa.JSON | type: object | JSON |
+| UUID | UUID | String | uuid | uuid | UUIDField | Uuid | sa.Uuid | format: uuid | ID |
+| ENUM | ENUM('a','b') | (via enum) | pgEnum | enum | CharField | Enum | sa.Enum | (enum) | enum |
+| DECIMAL | DECIMAL(p,s) | Decimal | numeric(p,s) | decimal(p,s) | DecimalField | Numeric(p,s) | sa.Numeric(p,s) | type: number | Float |
+| CUSTOM | (passthrough) | (passthrough) | (passthrough) | (passthrough) | (passthrough) | (passthrough) | (passthrough) | (passthrough) | (passthrough) |
 
-**Function defaults** (`CURRENT_TIMESTAMP`, `NOW()`, `gen_random_uuid()`, etc.) are preserved across conversions using a `fn:` prefix convention. For example, `DEFAULT CURRENT_TIMESTAMP` in SQL becomes `@default(now())` in Prisma and `server_default=func.now()` in SQLAlchemy.
+**Function defaults** (`CURRENT_TIMESTAMP`, `NOW()`, `gen_random_uuid()`, etc.) are preserved across conversions using a `fn:` prefix convention.
 
 ## Demo Fixtures
 
-Try SchemaForge immediately with our example blog schema. The `fixtures/` directory contains an equivalent schema (users, posts, categories with enums and various data types) in 7 formats:
+Try SchemaForge immediately with our example blog schema. The `fixtures/` directory contains an equivalent schema (users, posts, categories with enums and various data types) in all 9 formats:
 
 ```bash
 # List all fixtures
@@ -163,11 +209,18 @@ schemaforge convert --from sql --to prisma --input fixtures/sample.sql
 # Convert Prisma → Django
 schemaforge convert --from prisma --to django --input fixtures/sample.prisma
 
-# Convert TypeORM → Drizzle
-schemaforge convert --from typeorm --to drizzle --input fixtures/sample.typeorm.ts
+# Convert SQL → GraphQL
+schemaforge convert --from sql --to graphql --input fixtures/sample.sql
 
-# Convert SQL → Alembic migration
-schemaforge convert --from sql --to alembic --input fixtures/sample.sql --output migrations/initial.py
+# Convert SQL → JSON Schema
+schemaforge convert --from sql --to json_schema --input fixtures/sample.sql
+
+# Convert Prisma → Alembic migration
+schemaforge convert --from prisma --to alembic --input fixtures/sample.prisma --output migrations/
+
+# Custom type mapping demo
+schemaforge convert --from sql --to prisma --input fixtures/sample.sql \
+  --type-map fixtures/sample-type-overrides.yaml
 
 # Batch convert all fixtures from SQL
 schemaforge convert --from sql --to prisma --dir fixtures/
@@ -180,59 +233,20 @@ Each fixture demonstrates the same blog schema so you can compare ORM syntax sid
 
 ## Features
 
-- **Bidirectional conversion** — all 7 formats convert to and from every other format (42 direction pairs)
+- **Bidirectional conversion** — all 9 formats convert to and from every other format (72 direction pairs)
 - **Zero-loss roundtripping** — `sql → prisma → sql` reproduces the original schema exactly
+- **Custom type mappings** — YAML/JSON config files to override any type mapping with template variables
 - **Alembic migration generation** — create database migration scripts from any schema format
+- **JSON Schema** — import/export schema definitions as JSON Schema (draft 2020-12)
+- **GraphQL SDL** — generate or consume GraphQL type definitions with enums, directives, and scalars
 - **Diff mode** — compare two schemas in the same format with line-level differences
 - **Batch mode** — convert entire directories of schema files with one command
-- **Intelligent type mapping** — types map correctly across all 7 formats (String ↔ CharField ↔ VARCHAR)
+- **Intelligent type mapping** — types map correctly across all 9 formats
 - **Function default preservation** — `CURRENT_TIMESTAMP`, `NOW()`, `gen_random_uuid()` survive roundtrips
 - **MySQL support** — ENGINE=InnoDB, AUTO_INCREMENT, DEFAULT CHARSET, COMMENT table options
 - **Inline ENUM** — `ENUM('small', 'medium', 'large')` column types parsed and roundtripped
 - **Relation preservation** — indexes, unique constraints maintained across all conversions
 - **Custom type handling** — dialect-specific types (JSONB, etc.) pass through via CUSTOM type
-- **Custom type mapping overrides** — override type mappings per format with YAML/JSON config files
-
-## Custom Type Mappings
-
-Override the default type mappings with a YAML or JSON configuration file. This is useful when you need format-specific types not covered by the defaults.
-
-### Config file format
-
-```yaml
-# schemaforge-types.yaml
-overrides:
-  sql:
-    STRING: "VARCHAR({length})"
-    UUID: "UUID"
-  prisma:
-    STRING: "String @db.VarChar({length})"
-    UUID: "String @uuid"
-  sqlalchemy:
-    STRING: "Unicode({length})"
-    UUID: "Uuid"
-  django:
-    STRING: "CharField(max_length={length})"
-  typeorm:
-    UUID: "uuid"
-```
-
-**Placeholders:** `{length}`, `{precision}`, `{scale}`, `{values}` — these are replaced with the column's type arguments when generating.
-
-### Usage
-
-```bash
-schemaforge convert --from sql --to prisma --input schema.sql --type-map schemaforge-types.yaml
-schemaforge convert --from sql --to sqlalchemy --input schema.sql --type-map my-types.json
-```
-
-A sample config file is provided at `fixtures/sample-type-overrides.yaml`.
-
-### Override precedence
-
-1. Custom type overrides from `--type-map` config file take highest priority
-2. Built-in type mappings in each generator are the fallback
-3. `ColumnType.CUSTOM` with explicit `custom_type` always passes through directly
 
 ## Roadmap
 
@@ -247,17 +261,17 @@ A sample config file is provided at `fixtures/sample-type-overrides.yaml`.
 | v0.7.0 | MySQL table options (ENGINE, CHARSET), inline ENUM('a','b','c') |
 | v0.8.0 | Alembic migration generation (7th format) |
 | v0.9.0 | Shared generator base module, refactored fn: default handling |
-| **v1.0.0** | **Stable release — comprehensive docs, CLI polish, 137 tests** |
+| v1.0.0 | Stable release — comprehensive docs, CLI polish |
+| v1.1.0 | Custom type mapping configuration (YAML/JSON overrides) |
+| v1.2.0 | JSON Schema support (8th format) |
+| **v1.3.0** | **GraphQL SDL support (9th format)** |
 
 ### Planned
 
-- [ ] Custom type mapping configuration files (YAML/JSON overrides)
-- [ ] JSON Schema import/export
-- [ ] GraphQL schema export
-- [ ] MCP server for AI-assisted schema operations
 - [ ] VS Code extension with live diff
+- [ ] MCP server for AI-assisted schema operations
 - [ ] CI/CD check: enforce schema consistency across branches
-- [ ] Additional ORM formats: Doobie/Quill (Scala), Entity Framework (C#)
+- [ ] Additional formats: Doobie/Quill (Scala), Entity Framework (C#)
 
 ## Pricing
 
@@ -279,11 +293,12 @@ SchemaForge is one of eight tools in the Revenue Holdings suite. One license cov
 | Feature | Free | Individual | Suite | Team | Enterprise |
 |---------|:----:|:----------:|:-----:|:----:|:----------:|
 | CLI: convert, diff | ✓ | ✓ | ✓ | ✓ | ✓ |
-| All 7 format directions | — | ✓ | ✓ | ✓ | ✓ |
+| All 9 format directions | — | ✓ | ✓ | ✓ | ✓ |
 | Alembic migration generation | — | ✓ | ✓ | ✓ | ✓ |
-| Batch directory conversion | — | ✓ | ✓ | ✓ | ✓ |
-| Zero-loss roundtrip verification | — | ✓ | ✓ | ✓ | ✓ |
+| JSON Schema import/export | — | ✓ | ✓ | ✓ | ✓ |
+| GraphQL SDL import/export | — | ✓ | ✓ | ✓ | ✓ |
 | Custom type mappings | — | ✓ | ✓ | ✓ | ✓ |
+| Batch directory conversion | — | ✓ | ✓ | ✓ | ✓ |
 | Team shared type mappings | — | — | — | ✓ | ✓ |
 | Dashboard & analytics | — | — | — | ✓ | ✓ |
 | Compliance reports | — | — | — | — | ✓ |
