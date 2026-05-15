@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "schemaforge"
-version = "1.0.0"
-description = "Bidirectional ORM schema converter — convert between SQL DDL, Prisma, Drizzle, TypeORM, and Django models with zero-loss roundtripping"
+version = "1.3.0"
+description = "Bidirectional ORM schema converter — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic, JSON Schema, and GraphQL SDL with zero-loss roundtripping"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"

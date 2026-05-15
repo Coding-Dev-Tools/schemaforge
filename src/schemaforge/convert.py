@@ -20,6 +20,8 @@ from .parsers.alembic_parser import AlembicParser
 from .generators.alembic_generator import AlembicGenerator
 from .parsers.json_schema_parser import JSONSchemaParser
 from .generators.json_schema_generator import JSONSchemaGenerator
+from .parsers.graphql_parser import GraphQLParser
+from .generators.graphql_generator import GraphQLGenerator
 
 if TYPE_CHECKING:
     from .type_config import TypeConfig
@@ -34,6 +36,7 @@ _registry: dict[str, tuple[type, type]] = {
     "sqlalchemy": (SQLAlchemyParser, SQLAlchemyGenerator),
     "alembic": (AlembicParser, AlembicGenerator),
     "json_schema": (JSONSchemaParser, JSONSchemaGenerator),
+    "graphql": (GraphQLParser, GraphQLGenerator),
 }
 
 

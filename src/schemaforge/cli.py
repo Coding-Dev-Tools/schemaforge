@@ -11,7 +11,7 @@ from .diff import diff_schemas
 from .type_config import TypeConfig
 
 # All supported format names (used for CLI choices and detection)
-_FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema"]
+_FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema", "graphql"]
 
 
 @click.group()
@@ -20,7 +20,7 @@ def main() -> None:
     """SchemaForge — bidirectional ORM schema converter.
 
     Convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy models,
-    and Alembic migration scripts with zero-loss roundtripping.
+    Alembic migrations, JSON Schema, and GraphQL SDL with zero-loss roundtripping.
     """
 
 
