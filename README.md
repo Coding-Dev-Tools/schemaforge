@@ -8,10 +8,11 @@
 [![License](https://img.shields.io/pypi/l/schemaforge)](https://github.com/Coding-Dev-Tools/schemaforge/blob/main/LICENSE)
 [![CI](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/test.yml/badge.svg)](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/test.yml)
 [![Tests](https://img.shields.io/badge/tests-270%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
+[![VS Code](https://img.shields.io/badge/VS%20Code-extension-blue)](https://marketplace.visualstudio.com/items?itemName=revenue-holdings.vscode-schemaforge)
 
 > ⭐ **Star this repo** if you work with multiple ORMs — it helps other developers find SchemaForge!
 
-**Why SchemaForge?** Every major ORM migration is a one-way street. Prisma introspects SQL but can't export back. Drizzle users manually rewrite schemas when switching ORMs. TypeORM developers are locked into decorator syntax. SchemaForge is the first tool to do **bidirectional, lossless conversion** between 9 schema formats — with a shared internal representation that guarantees roundtrip fidelity.
+**Why SchemaForge?** Every major ORM migration is a one-way street. Prisma introspects SQL but can't export back. Drizzle users manually rewrite schemas when switching ORMs. TypeORM developers are locked into decorator syntax. SchemaForge is the first tool to do **bidirectional, lossless conversion** between 11 schema formats — with a shared internal representation that guarantees roundtrip fidelity.
 
 Convert any schema to any format, verify equivalence with the diff command, generate Alembic migrations, produce JSON Schema definitions, create GraphQL SDL types, convert Entity Framework (C#) entities, generate Scala case classes, and batch-process entire directories. Whether you're migrating from Prisma to Drizzle, sharing a schema with a Django backend, exposing your data model as GraphQL, translating C# entities to Scala, or working with the SchemaForge VS Code extension for live preview — SchemaForge handles it.
 
