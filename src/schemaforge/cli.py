@@ -6,6 +6,8 @@ from pathlib import Path
 
 import click
 
+from revenueholdings_license import require_license
+
 from .convert import convert_schema
 from .diff import diff_schemas
 from .type_config import TypeConfig
@@ -24,6 +26,7 @@ def main() -> None:
     Convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy models,
     Alembic migrations, JSON Schema, and GraphQL SDL with zero-loss roundtripping.
     """
+    require_license("schemaforge")
 
 
 @main.command()
