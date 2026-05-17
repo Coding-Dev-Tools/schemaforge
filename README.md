@@ -24,8 +24,22 @@ Convert any schema to any format, verify equivalence with the diff command, gene
 ```bash
 # Install
 pip install schemaforge
+```
 
-# Convert Prisma â†’ Drizzle
+Or install via Homebrew (macOS/Linux):
+```bash
+brew tap Coding-Dev-Tools/tap
+brew install schemaforge
+```
+
+Or install via Scoop (Windows):
+```bash
+scoop bucket add Coding-Dev-Tools https://github.com/Coding-Dev-Tools/scoop-bucket
+scoop install schemaforge
+```
+
+```bash
+# Convert Prisma → Drizzle
 schemaforge convert --from prisma --to drizzle --input schema.prisma
 
 # Generate GraphQL from SQL
