@@ -24,9 +24,9 @@ license = ["revenueholdings-license>=0.1.0"]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
-    "mcp>=1.0",
+    "mcp>=1.27.1",
 ]
-mcp = ["mcp>=1.0"]
+mcp = ["mcp>=1.27.1"]
 
 [project.scripts]
 schemaforge = "schemaforge.cli:main"
