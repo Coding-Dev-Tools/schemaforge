@@ -8,8 +8,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from ..ir import Schema, Table, Column, ColumnType
-
+from ..ir import Column, ColumnType, Schema, Table
 
 # Regex: extract case class
 _CASE_CLASS_RE = re.compile(

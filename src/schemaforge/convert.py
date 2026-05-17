@@ -3,29 +3,28 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .ir import Schema
-from .parsers.sql_parser import SQLParser
-from .generators.sql_generator import SQLGenerator
-from .parsers.prisma_parser import PrismaParser
-from .generators.prisma_generator import PrismaGenerator
-from .parsers.drizzle_parser import DrizzleParser
-from .generators.drizzle_generator import DrizzleGenerator
-from .parsers.typeorm_parser import TypeORMParser
-from .generators.typeorm_generator import TypeORMGenerator
-from .parsers.django_parser import DjangoParser
-from .generators.django_generator import DjangoGenerator
-from .parsers.sqlalchemy_parser import SQLAlchemyParser
-from .generators.sqlalchemy_generator import SQLAlchemyGenerator
-from .parsers.alembic_parser import AlembicParser
 from .generators.alembic_generator import AlembicGenerator
-from .parsers.json_schema_parser import JSONSchemaParser
-from .generators.json_schema_generator import JSONSchemaGenerator
-from .parsers.graphql_parser import GraphQLParser
-from .generators.graphql_generator import GraphQLGenerator
-from .parsers.ef_parser import EntityFrameworkParser
+from .generators.django_generator import DjangoGenerator
+from .generators.drizzle_generator import DrizzleGenerator
 from .generators.ef_generator import EntityFrameworkGenerator
-from .parsers.scala_parser import ScalaParser
+from .generators.graphql_generator import GraphQLGenerator
+from .generators.json_schema_generator import JSONSchemaGenerator
+from .generators.prisma_generator import PrismaGenerator
 from .generators.scala_generator import ScalaGenerator
+from .generators.sql_generator import SQLGenerator
+from .generators.sqlalchemy_generator import SQLAlchemyGenerator
+from .generators.typeorm_generator import TypeORMGenerator
+from .parsers.alembic_parser import AlembicParser
+from .parsers.django_parser import DjangoParser
+from .parsers.drizzle_parser import DrizzleParser
+from .parsers.ef_parser import EntityFrameworkParser
+from .parsers.graphql_parser import GraphQLParser
+from .parsers.json_schema_parser import JSONSchemaParser
+from .parsers.prisma_parser import PrismaParser
+from .parsers.scala_parser import ScalaParser
+from .parsers.sql_parser import SQLParser
+from .parsers.sqlalchemy_parser import SQLAlchemyParser
+from .parsers.typeorm_parser import TypeORMParser
 
 if TYPE_CHECKING:
     from .type_config import TypeConfig

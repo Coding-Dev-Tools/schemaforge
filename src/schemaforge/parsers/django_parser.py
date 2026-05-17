@@ -1,9 +1,10 @@
 """Parser: Django model schema → SchemaForge IR."""
 from __future__ import annotations
 
+import contextlib
 import re
 
-from ..ir import Schema, Table, Column, ColumnType, Index
+from ..ir import Column, ColumnType, Schema, Table
 
 
 class DjangoParser:
@@ -98,8 +99,6 @@ class DjangoParser:
         table = Table(name=name)
 
         # Track fields for index generation
-        unique_together: list[list[str]] = []
-        ordering: list[str] = []
 
         # Parse field declarations
         for line in body.split("\n"):
@@ -144,20 +143,14 @@ class DjangoParser:
 
             type_args: dict[str, int] = {}
             if "max_length" in kwargs:
-                try:
+                with contextlib.suppress(ValueError, TypeError):
                     type_args["length"] = int(kwargs["max_length"])
-                except (ValueError, TypeError):
-                    pass
             if "max_digits" in kwargs:
-                try:
+                with contextlib.suppress(ValueError, TypeError):
                     type_args["precision"] = int(kwargs["max_digits"])
-                except (ValueError, TypeError):
-                    pass
             if "decimal_places" in kwargs:
-                try:
+                with contextlib.suppress(ValueError, TypeError):
                     type_args["scale"] = int(kwargs["decimal_places"])
-                except (ValueError, TypeError):
-                    pass
 
             is_pk = kwargs.get("primary_key", "false").lower() == "true"
             nullable = kwargs.get("null", "false").lower() == "true"

@@ -1,7 +1,7 @@
 """Parser: Prisma schema → SchemaForge IR."""
 from __future__ import annotations
 
-from ..ir import Schema, Table, Column, ColumnType, EnumType
+from ..ir import Column, ColumnType, EnumType, Schema, Table
 
 
 class PrismaParser:
@@ -34,12 +34,12 @@ class PrismaParser:
                 model_lines = []
                 i += 1
                 while i < len(lines):
-                    l = lines[i].strip()
-                    if l == "}":
+                    line = lines[i].strip()
+                    if line == "}":
                         break
-                    if l and not l.startswith("//") and not l.startswith("#"):
-                        model_lines.append(l)
-                    i += 1
+                    if line and not line.startswith("//") and not line.startswith("#"):
+                        model_lines.append(line)
+                        i += 1
                 table = self._parse_model(model_name, model_lines)
                 if table:
                     schema.tables.append(table)
@@ -48,12 +48,12 @@ class PrismaParser:
                 enum_values = []
                 i += 1
                 while i < len(lines):
-                    l = lines[i].strip()
-                    if l == "}":
+                    line = lines[i].strip()
+                    if line == "}":
                         break
-                    if l and not l.startswith("//") and not l.startswith("#"):
-                        enum_values.append(l.rstrip(",").strip())
-                    i += 1
+                    if line and not line.startswith("//") and not line.startswith("#"):
+                        enum_values.append(line.rstrip(",").strip())
+                        i += 1
                 schema.enums.append(EnumType(name=enum_name, values=enum_values))
             i += 1
 
@@ -106,7 +106,6 @@ class PrismaParser:
 
             # Check for default values (handle nested parens)
             if "@default" in constraints:
-                import re as _re
                 idx = constraints.index("@default(")
                 rest = constraints[idx + len("@default("):]
                 depth = 1

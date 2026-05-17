@@ -1,10 +1,9 @@
 """Generator: SchemaForge IR → SQLAlchemy declarative model schema."""
 from __future__ import annotations
 
-from ..ir import Schema, Column, ColumnType
-
-from ._base import resolve_type, build_type_string, resolve_fn_default, format_literal_default
+from ..ir import Column, ColumnType, Schema
 from ..type_config import TypeConfig
+from ._base import build_type_string, format_literal_default, resolve_fn_default
 
 
 class SQLAlchemyGenerator:
@@ -114,9 +113,7 @@ class SQLAlchemyGenerator:
         # Primary key
         if col.primary_key:
             kwargs.append("primary_key=True")
-            if col.type != ColumnType.INTEGER:
-                kwargs.append("autoincrement=False")
-            elif col.type_args.get("autoincrement") is False:
+            if col.type != ColumnType.INTEGER or col.type_args.get("autoincrement") is False:
                 kwargs.append("autoincrement=False")
 
         # Nullable — SQLAlchemy defaults to True, so only emit when False
@@ -139,11 +136,7 @@ class SQLAlchemyGenerator:
         # Literal defaults
         if col.default is not None and not (isinstance(col.default, str) and col.default.startswith("fn:")):
             lit = format_literal_default(col)
-            if isinstance(col.default, bool):
-                kwargs.append(f"default={lit}")
-            elif isinstance(col.default, (int, float)):
-                kwargs.append(f"default={lit}")
-            elif isinstance(col.default, str):
+            if isinstance(col.default, (bool, int, float, str)):
                 kwargs.append(f"default={lit}")
 
         if kwargs:

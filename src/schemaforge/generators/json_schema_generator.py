@@ -8,10 +8,8 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from ..ir import Schema, Table, Column, ColumnType
+from ..ir import Column, ColumnType, Schema, Table
 from ..type_config import EMPTY_CONFIG, TypeConfig
-from ._base import resolve_type
-
 
 # JSON Schema 2020-12 draft
 _JSON_SCHEMA_VERSION = "https://json-schema.org/draft/2020-12/schema"

@@ -4,8 +4,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from ..ir import Schema, Table, Column, ColumnType, Index, EnumType
-
+from ..ir import Column, ColumnType, EnumType, Schema, Table
 
 # Drizzle type name -> ColumnType mapping
 _DRIZZLE_TYPE_MAP: dict[str, ColumnType] = {
@@ -82,14 +81,14 @@ class DrizzleParser:
         )
 
         for m in enum_pattern.finditer(text):
-            var_name = m.group(1)
+            m.group(1)
             enum_name = m.group(2)
             values_str = m.group(3)
             values = [v.strip().strip("'\"") for v in values_str.split(",") if v.strip()]
             schema.enums.append(EnumType(name=enum_name, values=values))
 
         for m in table_pattern.finditer(text):
-            var_name = m.group(1)
+            m.group(1)
             factory = m.group(2)
             table_name = m.group(3)
             start_pos = m.end()
@@ -111,7 +110,7 @@ class DrizzleParser:
 
     def _extract_columns_block(self, text: str, start_pos: int) -> str | None:
         """Extract the text between the opening { and its matching closing }.
-        
+
         Note: start_pos points to the character right after the regex match,
         which ended right after the opening { was consumed. So the block
         starts at start_pos.

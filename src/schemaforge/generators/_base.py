@@ -5,7 +5,7 @@ and default value handling to reduce duplication across generators.
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ..ir import Column, ColumnType
 

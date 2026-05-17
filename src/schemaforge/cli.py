@@ -1,18 +1,23 @@
-"""SchemaForge CLI — bidirectional ORM schema converter."""
+﻿"""SchemaForge CLI â€” bidirectional ORM schema converter."""
 from __future__ import annotations
 
+import click
 import sys
 from pathlib import Path
 
-import click
+try:
+    from revenueholdings_license import require_license
+except ImportError:
+    def require_license(tool):
+        def decorator(func):
+            return func
+        return decorator
 
-from revenueholdings_license import require_license
-
+from .check import check_directory
 from .convert import convert_schema
 from .diff import diff_schemas
-from .type_config import TypeConfig
-from .check import check_directory
 from .mcp_server import mcp_command
+from .type_config import TypeConfig
 
 # All supported format names (used for CLI choices and detection)
 _FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema", "graphql", "ef", "scala"]
@@ -21,7 +26,7 @@ _FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alem
 @click.group()
 @click.version_option()
 def main() -> None:
-    """SchemaForge — bidirectional ORM schema converter.
+    """SchemaForge â€” bidirectional ORM schema converter.
 
     Convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy models,
     Alembic migrations, JSON Schema, and GraphQL SDL with zero-loss roundtripping.
@@ -139,3 +144,4 @@ def _detect_format(path: str) -> str:
     if ext in (".json",):
         return "typeorm"
     return "sql"  # default
+

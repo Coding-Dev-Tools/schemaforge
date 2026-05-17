@@ -1,10 +1,11 @@
 """Parser: TypeORM entity schema → SchemaForge IR."""
 from __future__ import annotations
 
+import contextlib
 import re
 from typing import Any
 
-from ..ir import Schema, Table, Column, ColumnType, Index
+from ..ir import Column, ColumnType, Index, Schema, Table
 
 
 class TypeORMParser:
@@ -90,12 +91,11 @@ class TypeORMParser:
             for line in text.split("\n"):
                 stripped = line.strip()
                 # Detect @Entity, @ViewEntity, or bare class extends pattern
-                if stripped.startswith("@") or stripped.startswith("export class"):
-                    if stripped.startswith("export class") or "class " in stripped:
-                        in_class = True
-                        current = line + "\n"
-                        brace_depth = 0
-                        continue
+                if (stripped.startswith("@") or stripped.startswith("export class")) and (stripped.startswith("export class") or "class " in stripped):
+                    in_class = True
+                    current = line + "\n"
+                    brace_depth = 0
+                    continue
                 if not in_class:
                     continue
                 current += line + "\n"
@@ -205,7 +205,7 @@ class TypeORMParser:
 
         col_name = field_m.group(1)
         ts_type = (field_m.group(2) or "").lower()
-        default_val = (field_m.group(3) or "").strip()
+        (field_m.group(3) or "").strip()
 
         # Extract from decorator options
         options = self._parse_decorator_options(decorator)
@@ -230,10 +230,8 @@ class TypeORMParser:
 
         type_args: dict[str, Any] = {}
         if "length" in options:
-            try:
+            with contextlib.suppress(ValueError, TypeError):
                 type_args["length"] = int(options["length"])
-            except (ValueError, TypeError):
-                pass
 
         if col_type == ColumnType.DECIMAL:
             if "precision" in options:
@@ -436,9 +434,6 @@ class TypeORMParser:
         else:
             # Single field index — name is in quotes
             name_match = re.search(r'["\'](\w+)["\']', inner)
-            if name_match:
-                columns = [name_match.group(1)]
-            else:
-                columns = []
+            columns = [name_match.group(1)] if name_match else []
 
         return Index(columns=columns)

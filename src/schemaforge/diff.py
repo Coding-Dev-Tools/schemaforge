@@ -4,7 +4,6 @@ Uses the IR directly to compare schemas structurally.
 """
 from __future__ import annotations
 
-from . import ir
 from .convert import _registry
 
 

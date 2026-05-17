@@ -1,8 +1,7 @@
 """Generator: SchemaForge IR → SQL DDL."""
 from __future__ import annotations
 
-from ..ir import Schema, Column, ColumnType
-
+from ..ir import Column, ColumnType, Schema
 from ..type_config import TypeConfig
 
 

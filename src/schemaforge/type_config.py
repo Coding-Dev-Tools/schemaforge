@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from .ir import Column, ColumnType
+from .ir import Column
 
 # Supported config file extensions
 _CONFIG_EXTENSIONS = {".yaml", ".yml", ".json"}
@@ -134,7 +134,7 @@ class TypeConfig:
                 raise ImportError(
                     "PyYAML is required for YAML type config files. "
                     "Install it with: pip install pyyaml"
-                )
+                ) from None
             with open(path) as f:
                 raw = yaml.safe_load(f) or {}
         else:

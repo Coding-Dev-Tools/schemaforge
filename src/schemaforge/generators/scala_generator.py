@@ -5,7 +5,7 @@ or Slick. Handles Option[T] for nullable columns.
 """
 from __future__ import annotations
 
-from ..ir import Schema, Column, ColumnType
+from ..ir import Column, ColumnType, Schema
 from ._base import resolve_type
 
 
@@ -90,10 +90,7 @@ class ScalaGenerator:
         sa_type = resolve_type(col, self._TYPE_MAP)
 
         # Handle nullable → Option[T]
-        if col.nullable:
-            scala_type = f"Option[{sa_type}]"
-        else:
-            scala_type = sa_type
+        scala_type = f"Option[{sa_type}]" if col.nullable else sa_type
 
         # Default value
         default_str = ""

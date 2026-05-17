@@ -1,11 +1,8 @@
 """Generator for Drizzle ORM TypeScript schema from SchemaForge IR."""
 from __future__ import annotations
 
-from ..ir import Schema, Table, Column, ColumnType, EnumType, Index
-
-from ._base import resolve_fn_default
+from ..ir import Column, ColumnType, EnumType, Schema, Table
 from ..type_config import TypeConfig
-
 
 # ColumnType -> Drizzle type function mapping
 _TYPE_TO_DRIZZLE: dict[ColumnType, str] = {
@@ -64,7 +61,6 @@ class DrizzleGenerator:
         """Generate the import statements."""
         table_func = f"{self.dialect}Table"
         type_imports: set[str] = {table_func}
-        dialect_prefix = self.dialect
 
         # Determine dialect-specific import path
         if self.dialect == "pg":

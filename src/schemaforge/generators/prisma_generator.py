@@ -1,10 +1,9 @@
 """Generator: SchemaForge IR → Prisma schema."""
 from __future__ import annotations
 
-from ..ir import Schema, Column, ColumnType
-
-from ._base import resolve_type, build_type_string, resolve_fn_default, has_type_override
+from ..ir import Column, ColumnType, Schema
 from ..type_config import TypeConfig
+from ._base import has_type_override, resolve_fn_default, resolve_type
 
 
 class PrismaGenerator:
@@ -88,8 +87,8 @@ class PrismaGenerator:
 
         # Literal defaults (non-fn)
         if (col.default is not None
-                and not (isinstance(col.default, str) and col.default.startswith("fn:"))):
-            if not col.primary_key:  # Skip if already has autoincrement
+                and not (isinstance(col.default, str) and col.default.startswith("fn:"))
+                and not col.primary_key):
                 if isinstance(col.default, bool):
                     annotations.append(f"@default({str(col.default).lower()})")
                 elif isinstance(col.default, str):

@@ -1,10 +1,9 @@
 """Generator: SchemaForge IR → TypeORM entity schema."""
 from __future__ import annotations
 
-from ..ir import Schema, Column, ColumnType
-
-from ._base import resolve_type, build_type_string
+from ..ir import Column, ColumnType, Schema
 from ..type_config import TypeConfig
+from ._base import resolve_type
 
 
 class TypeORMGenerator:
@@ -58,7 +57,7 @@ class TypeORMGenerator:
         )
         if has_pk:
             imports.append("PrimaryGeneratedColumn")
-        has_column = any(
+        any(
             any(not c.primary_key for c in t.columns) for t in schema.tables
         ) or any(
             any(c.primary_key for c in t.columns and not any(

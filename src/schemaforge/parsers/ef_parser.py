@@ -5,11 +5,11 @@ into the internal schema representation.
 """
 from __future__ import annotations
 
+import contextlib
 import re
 from typing import Any
 
-from ..ir import Schema, Table, Column, ColumnType, Index
-
+from ..ir import Column, ColumnType, Schema, Table
 
 # Regex: extract class declaration and body
 _CLASS_RE = re.compile(
@@ -81,7 +81,6 @@ class EntityFrameworkParser:
     def parse(self, text: str) -> Schema:
         """Parse C# source text into a Schema IR."""
         schema = Schema()
-        tables: dict[str, Table] = {}
 
         # Remove single-line comments for cleaner parsing
         text = re.sub(r"//.*$", "", text, flags=re.MULTILINE)
@@ -178,18 +177,14 @@ class EntityFrameworkParser:
             elif ann_name == "Required":
                 has_required = True
             elif ann_name == "MaxLength":
-                try:
+                with contextlib.suppress(ValueError, TypeError):
                     max_length = int(ann_args)
-                except (ValueError, TypeError):
-                    pass
             elif ann_name == "StringLength":
-                try:
+                with contextlib.suppress(ValueError, TypeError):
                     max_length = int(ann_args.split(",")[0].strip())
-                except (ValueError, TypeError):
-                    pass
             elif ann_name == "Column":
                 # Parse Column arguments like Column("name") or Column(TypeName="jsonb")
-                if ann_args and not "=" in ann_args:
+                if ann_args and "=" not in ann_args:
                     pass  # Column name override — skip for now
             elif ann_name == "Index":
                 is_unique = "Unique" in ann_args or "IsUnique=true" in ann_args.replace(" ", "")

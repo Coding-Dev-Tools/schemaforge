@@ -1,9 +1,8 @@
 """Generator: SchemaForge IR → C# Entity Framework Core entity classes."""
 from __future__ import annotations
 
-from ..ir import Schema, Column, ColumnType
-
-from ._base import resolve_type, build_type_string
+from ..ir import Column, ColumnType, Schema
+from ._base import resolve_type
 
 
 class EntityFrameworkGenerator:

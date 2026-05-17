@@ -5,10 +5,9 @@ for initial schema setup, deployable as Alembic revision scripts.
 """
 from __future__ import annotations
 
-from ..ir import Schema, Column, ColumnType, Table
-
-from ._base import resolve_type, build_type_string, resolve_fn_default, format_literal_default
+from ..ir import Column, ColumnType, Schema, Table
 from ..type_config import TypeConfig
+from ._base import build_type_string, format_literal_default, resolve_fn_default
 
 
 class AlembicGenerator:

@@ -5,9 +5,7 @@ type definitions with enums, directives, and nullable/required annotations.
 """
 from __future__ import annotations
 
-from typing import Any
-
-from ..ir import Schema, Table, Column, ColumnType
+from ..ir import Column, ColumnType, Schema, Table
 from ..type_config import EMPTY_CONFIG, TypeConfig
 
 # ColumnType → GraphQL type mapping

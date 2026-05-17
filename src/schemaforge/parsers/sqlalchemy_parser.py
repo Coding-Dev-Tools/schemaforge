@@ -1,9 +1,10 @@
 """Parser: SQLAlchemy declarative model schema → SchemaForge IR."""
 from __future__ import annotations
 
+import contextlib
 import re
 
-from ..ir import Schema, Table, Column, ColumnType, Index
+from ..ir import Column, ColumnType, Schema, Table
 
 
 class SQLAlchemyParser:
@@ -216,10 +217,8 @@ class SQLAlchemyParser:
 
         type_args: dict = {}
         if col_type == ColumnType.STRING and type_params:
-            try:
+            with contextlib.suppress(ValueError, TypeError):
                 type_args["length"] = int(type_params[0])
-            except (ValueError, TypeError):
-                pass
         elif col_type == ColumnType.DECIMAL and type_params:
             try:
                 if len(type_params) >= 1:
@@ -260,9 +259,7 @@ class SQLAlchemyParser:
                 # SQL function defaults: func.now(), text('...')
                 fn_name = raw.replace("func.", "").replace("text(", "").strip("'\"")
                 col.default = f"fn:{fn_name}"
-            elif raw.isdigit():
-                col.default = int(raw)
-            elif raw.startswith("-") and raw[1:].isdigit():
+            elif raw.isdigit() or raw.startswith("-") and raw[1:].isdigit():
                 col.default = int(raw)
             else:
                 try:

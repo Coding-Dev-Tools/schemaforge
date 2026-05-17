@@ -9,8 +9,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from ..ir import Schema, Table, Column, ColumnType, EnumType, Index
-
+from ..ir import Column, ColumnType, Schema, Table
 
 # Mapping from JSON Schema types (+ format) to ColumnType
 _TYPE_MAP: dict[str, dict[str, ColumnType]] = {

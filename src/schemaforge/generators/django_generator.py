@@ -1,10 +1,9 @@
 """Generator: SchemaForge IR → Django model schema."""
 from __future__ import annotations
 
-from ..ir import Schema, Column, ColumnType
-
-from ._base import resolve_type
+from ..ir import Column, ColumnType, Schema
 from ..type_config import TypeConfig
+from ._base import resolve_type
 
 
 class DjangoGenerator:
@@ -154,10 +153,8 @@ class DjangoGenerator:
             elif isinstance(col.default, (int, float)):
                 kwargs.append(f"default={col.default}")
 
-        if not kwargs:
-            # For fields that need at least one arg (CharField)
-            if django_field == "CharField":
-                kwargs.append("max_length=255")
+        if not kwargs and django_field == "CharField":
+            kwargs.append("max_length=255")
 
         if kwargs:
             return f"    {col.name} = models.{django_field}({', '.join(kwargs)})"

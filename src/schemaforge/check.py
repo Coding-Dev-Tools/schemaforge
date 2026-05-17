@@ -4,10 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from .convert import convert_schema
-from .parsers.sql_parser import SQLParser
 from .diff import diff_schemas
 from .type_config import TypeConfig
-
 
 # Format extensions for auto-detection
 _FORMAT_EXTENSIONS: dict[str, str] = {
@@ -57,9 +55,7 @@ def check_directory(
             schema_files.append((str(fpath), fmt, fpath.name))
 
     if len(schema_files) < 2:
-        return "Need at least 2 schema files to compare (found {})".format(
-            len(schema_files)
-        )
+        return f"Need at least 2 schema files to compare (found {len(schema_files)})"
 
     # Convert all to canonical format
     converted: list[tuple[str, str, str]] = []
@@ -116,7 +112,7 @@ def check_directory(
             lines.append(m)
         lines.append("FAIL: Schema files are not equivalent")
     else:
-        lines.append(f"  Mismatches: 0")
+        lines.append("  Mismatches: 0")
         if not failures:
             lines.append("PASS: All schema files are equivalent")
 

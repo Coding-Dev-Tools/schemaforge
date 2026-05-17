@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from ..ir import Schema, Table, Column, ColumnType, EnumType
+from ..ir import Column, ColumnType, EnumType, Schema, Table
 
 # Regex to strip GraphQL comments
 _COMMENT_RE = re.compile(r"#.*$", re.MULTILINE)
@@ -128,7 +128,7 @@ class GraphQLParser:
             # and some are 'enum Name { VAL1 VAL2 }'
             if kind == "enum" and not body:
                 # Try to find scalar values right after the name
-                rest = text[match.end():].strip()
+                text[match.end():].strip()
                 # Fallback: try matching enum values on the same line or next
                 val_match = re.match(r"\s*\{([^}]+)\}", text[match.start():])
                 if val_match:

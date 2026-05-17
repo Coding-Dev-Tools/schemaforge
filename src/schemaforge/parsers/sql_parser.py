@@ -1,10 +1,11 @@
 """Parser for SQL DDL into SchemaForge IR."""
 from __future__ import annotations
 
+import contextlib
 import re
 from typing import Any
 
-from ..ir import Schema, Table, Column, ColumnType, Index, EnumType
+from ..ir import Column, ColumnType, EnumType, Index, Schema, Table
 
 
 class SQLParser:
@@ -130,9 +131,7 @@ class SQLParser:
                 pass  # PK handled via column constraints
             elif upper.startswith("CONSTRAINT"):
                 pass  # Foreign keys, etc.
-            elif upper.startswith("FOREIGN KEY"):
-                pass
-            elif upper.startswith("CHECK"):
+            elif upper.startswith("FOREIGN KEY") or upper.startswith("CHECK"):
                 pass
             else:
                 col = self._parse_column_def(defn)
@@ -197,9 +196,9 @@ class SQLParser:
         """Parse a column definition."""
         # Skip table constraints
         upper = defn.upper()
-        if any(kw in upper for kw in ["PRIMARY KEY", "FOREIGN KEY", "INDEX", "KEY", "CHECK", "UNIQUE", "CONSTRAINT"]):
-            if not defn.split()[0].isidentifier() or defn.split()[0].upper() in ("PRIMARY", "FOREIGN", "INDEX", "KEY", "CHECK", "UNIQUE", "CONSTRAINT"):
-                return None
+        if (any(kw in upper for kw in ["PRIMARY KEY", "FOREIGN KEY", "INDEX", "KEY", "CHECK", "UNIQUE", "CONSTRAINT"])
+                and (not defn.split()[0].isidentifier() or defn.split()[0].upper() in ("PRIMARY", "FOREIGN", "INDEX", "KEY", "CHECK", "UNIQUE", "CONSTRAINT"))):
+            return None
 
         # Parse: column_name TYPE [(args)] [constraints...]
         tokens = defn.split()
@@ -234,22 +233,16 @@ class SQLParser:
                 # Inline ENUM('a','b','c') — extract values via regex to handle multi-token args
                 type_args["values"] = re.findall(r"'([^']*)'", args_str)
             if type_name in ("VARCHAR", "CHAR"):
-                try:
+                with contextlib.suppress(ValueError):
                     type_args["length"] = int(args_str)
-                except ValueError:
-                    pass
             elif type_name in ("DECIMAL", "NUMERIC"):
                 parts = args_str.split(',')
                 if len(parts) >= 1:
-                    try:
+                    with contextlib.suppress(ValueError):
                         type_args["precision"] = int(parts[0])
-                    except ValueError:
-                        pass
                 if len(parts) >= 2:
-                    try:
+                    with contextlib.suppress(ValueError):
                         type_args["scale"] = int(parts[1])
-                    except ValueError:
-                        pass
 
         # Parse constraints
         constraints = " ".join(tokens[type_start+1:]) if type_start + 1 < len(tokens) else ""
