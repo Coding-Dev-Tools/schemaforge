@@ -13,7 +13,7 @@ authors = [{name = "Revenue Holdings"}]
 keywords = ["schema", "orm", "prisma", "drizzle", "typeorm", "django", "sql", "converter", "migration"]
 
 dependencies = [
-    "click>=8.1",
+    "click>=8.4.0",
     "rich>=13.0",
     "pyyaml>=6.0",
     "sqlparse>=0.5.0",
