@@ -8,11 +8,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from schemaforge.convert import convert_schema
-from schemaforge.parsers.sql_parser import SQLParser
-from schemaforge.parsers.prisma_parser import PrismaParser
-from schemaforge.generators.sql_generator import SQLGenerator
 from schemaforge.generators.prisma_generator import PrismaGenerator
-
+from schemaforge.generators.sql_generator import SQLGenerator
+from schemaforge.parsers.prisma_parser import PrismaParser
+from schemaforge.parsers.sql_parser import SQLParser
 
 # ── SQL DDL Parser Tests ──
 

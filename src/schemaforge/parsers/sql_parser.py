@@ -31,7 +31,11 @@ class SQLParser:
             if not stmt:
                 continue
             upper = stmt.upper()
-            if upper.startswith("CREATE TABLE") or upper.startswith("CREATE TEMPORARY TABLE") or upper.startswith("CREATE OR REPLACE TABLE"):
+            if (
+                upper.startswith("CREATE TABLE")
+                or upper.startswith("CREATE TEMPORARY TABLE")
+                or upper.startswith("CREATE OR REPLACE TABLE")
+            ):
                 table = self._parse_create_table(stmt)
                 if table:
                     schema.tables.append(table)
@@ -196,8 +200,19 @@ class SQLParser:
         """Parse a column definition."""
         # Skip table constraints
         upper = defn.upper()
-        if (any(kw in upper for kw in ["PRIMARY KEY", "FOREIGN KEY", "INDEX", "KEY", "CHECK", "UNIQUE", "CONSTRAINT"])
-                and (not defn.split()[0].isidentifier() or defn.split()[0].upper() in ("PRIMARY", "FOREIGN", "INDEX", "KEY", "CHECK", "UNIQUE", "CONSTRAINT"))):
+        if (
+            any(kw in upper for kw in [
+                "PRIMARY KEY", "FOREIGN KEY", "INDEX",
+                "KEY", "CHECK", "UNIQUE", "CONSTRAINT",
+            ])
+            and (
+                not defn.split()[0].isidentifier()
+                or defn.split()[0].upper() in (
+                    "PRIMARY", "FOREIGN", "INDEX",
+                    "KEY", "CHECK", "UNIQUE", "CONSTRAINT",
+                )
+            )
+        ):
             return None
 
         # Parse: column_name TYPE [(args)] [constraints...]

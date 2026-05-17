@@ -7,11 +7,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from schemaforge.convert import convert_schema
-from schemaforge.parsers.sql_parser import SQLParser
-from schemaforge.parsers.prisma_parser import PrismaParser
-from schemaforge.generators.sql_generator import SQLGenerator
 from schemaforge.generators.prisma_generator import PrismaGenerator
-
+from schemaforge.generators.sql_generator import SQLGenerator
+from schemaforge.parsers.prisma_parser import PrismaParser
+from schemaforge.parsers.sql_parser import SQLParser
 
 # ── Complex SQL Schemas ──
 
@@ -68,7 +67,7 @@ CREATE TABLE tags (
 
 def test_sql_to_prisma_to_sql_roundtrip():
     """Full roundtrip: SQL → Prisma → SQL preserves table structure.
-    
+
     Note: Some type fidelity is lost at v0.1.0 (e.g. TEXT → String → VARCHAR,
     BIGSERIAL → INTEGER, DECIMAL precision/scale) — these are acceptable
     limitations for the initial release.
@@ -269,7 +268,7 @@ def test_prisma_complex_types():
 
 def test_generate_without_enum():
     """SQL generation without enums should not include CREATE TYPE."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import Column, ColumnType, Schema, Table
 
     schema = Schema(tables=[
         Table(name="items", columns=[
@@ -297,7 +296,7 @@ def test_generate_with_schema_name():
 
 def test_prisma_generate_complex():
     """Prisma generation should handle all column types."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType, Index
+    from schemaforge.ir import Column, ColumnType, Index, Schema, Table
 
     schema = Schema(tables=[
         Table(name="Item", columns=[
@@ -485,7 +484,7 @@ def test_sql_current_date_default():
 
 def test_sql_fn_default_generates_without_quotes():
     """fn: prefixed defaults should generate without quotes in SQL DDL."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import Column, ColumnType, Schema, Table
     schema = Schema(tables=[
         Table(name="events", columns=[
             Column(name="id", type=ColumnType.INTEGER, primary_key=True),
@@ -517,7 +516,7 @@ CREATE TABLE events (
     prisma = convert_schema(sql, "sql", "prisma")
     # Prisma should have @default(now()) for CURRENT_TIMESTAMP
     assert "@default(now())" in prisma
-    
+
     sql2 = convert_schema(prisma, "prisma", "sql")
     assert "CREATE TABLE events" in sql2
     assert "DEFAULT" in sql2
@@ -543,7 +542,7 @@ model Event {
     sql = convert_schema(prisma, "prisma", "sql")
     assert "CREATE TABLE" in sql
     assert "DEFAULT" in sql
-    
+
     prisma2 = convert_schema(sql, "sql", "prisma")
     assert "model Event" in prisma2
     assert "@id" in prisma2
@@ -621,7 +620,7 @@ CREATE TABLE users (
 
 def test_sql_table_options_generated():
     """MySQL table options from IR should generate correctly."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import Column, ColumnType, Schema, Table
     schema = Schema(tables=[
         Table(name="users", columns=[
             Column(name="id", type=ColumnType.INTEGER, primary_key=True),
@@ -666,7 +665,7 @@ CREATE TABLE tshirts (
 
 def test_sql_inline_enum_generated():
     """ENUM with inline values from IR should generate correctly."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import Column, ColumnType, Schema, Table
     schema = Schema(tables=[
         Table(name="tshirts", columns=[
             Column(name="id", type=ColumnType.INTEGER, primary_key=True),
@@ -690,7 +689,7 @@ CREATE TABLE tshirts (
     # SQL → SQLAlchemy should at least parse without error
     sa = convert_schema(sql, "sql", "sqlalchemy")
     assert "class Tshirts" in sa
-    
+
     # SQLAlchemy → SQL should produce CREATE TABLE (type may degrade to VARCHAR)
     sql2 = convert_schema(sa, "sqlalchemy", "sql")
     assert "CREATE TABLE tshirts" in sql2

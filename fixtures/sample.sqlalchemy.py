@@ -1,13 +1,24 @@
 """SchemaForge Demo: Blog Schema (SQLAlchemy Declarative Models)
-Convert to any ORM format with: schemaforge convert --from sqlalchemy --to <format> --input fixtures/sample.sqlalchemy.py
+Convert to any ORM format with:
+  schemaforge convert --from sqlalchemy --to <format> --input fixtures/sample.sqlalchemy.py
 """
 
+import enum
 from sqlalchemy import (
-    Column, Integer, String, Boolean, DateTime, Text, Float, Numeric,
-    ForeignKey, Enum as SAEnum, func,
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    func,
+)
+from sqlalchemy import (
+    Enum as SAEnum,
 )
 from sqlalchemy.orm import declarative_base
-import enum
 
 Base = declarative_base()
 

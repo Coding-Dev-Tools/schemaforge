@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import sys
 import tempfile
-import os
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -102,9 +101,8 @@ def test_check_directory_consistent_files():
 def test_check_directory_not_a_directory():
     """Non-directory path should raise NotADirectoryError."""
     import pytest
-    with tempfile.NamedTemporaryFile() as f:
-        with pytest.raises(NotADirectoryError):
-            check_directory(f.name)
+    with tempfile.NamedTemporaryFile() as f, pytest.raises(NotADirectoryError):
+        check_directory(f.name)
 
 
 def test_check_directory_ignores_non_schema_files():

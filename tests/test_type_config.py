@@ -10,11 +10,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import pytest
-
-from schemaforge.type_config import TypeConfig, EMPTY_CONFIG
 from schemaforge.convert import convert_schema
 from schemaforge.ir import Column, ColumnType
-
+from schemaforge.type_config import EMPTY_CONFIG, TypeConfig
 
 # ── Basic TypeConfig Tests ──
 
@@ -122,18 +120,18 @@ def test_load_from_yaml_without_pyyaml():
         tmp_path = f.name
     try:
         _orig_import = __builtins__["__import__"] if isinstance(__builtins__, dict) else __builtins__.__import__
-        
+
         def _mock_import(name, *args, **kw):
             if name == "yaml":
                 raise ImportError("No module named yaml")
             return _orig_import(name, *args, **kw)
-        
+
         try:
             if isinstance(__builtins__, dict):
                 __builtins__["__import__"] = _mock_import
             else:
                 __builtins__.__import__ = _mock_import
-            
+
             with pytest.raises(ImportError, match="PyYAML is required"):
                 TypeConfig.from_file(tmp_path)
         finally:
@@ -149,7 +147,10 @@ def test_load_from_yaml_without_pyyaml():
 @pytest.mark.parametrize("ext", [".yml", ".yaml", ".json"])
 def test_supported_extensions(ext):
     """All supported extensions load without error."""
-    content = '{"overrides": {"sql": {"INTEGER": "BIGINT"}}}' if ext == ".json" else "overrides:\n  sql:\n    INTEGER: BIGINT\n"
+    if ext == ".json":
+        content = '{"overrides": {"sql": {"INTEGER": "BIGINT"}}}'
+    else:
+        content = "overrides:\n sql:\n INTEGER: BIGINT\n"
     with tempfile.NamedTemporaryFile(mode="w", suffix=ext, delete=False) as f:
         f.write(content)
         tmp_path = f.name
@@ -185,10 +186,10 @@ def test_merge_two_configs():
     base = TypeConfig({"sql": {"INTEGER": "INT", "STRING": "TEXT"}})
     override = TypeConfig({"sql": {"INTEGER": "BIGINT"}})
     merged = base.merge(override)
-    
+
     col_int = Column(name="id", type=ColumnType.INTEGER)
     col_str = Column(name="name", type=ColumnType.STRING)
-    
+
     assert merged.get_override(col_int, "sql") == "BIGINT"  # Overridden
     assert merged.get_override(col_str, "sql") == "TEXT"     # Preserved
 
@@ -198,7 +199,7 @@ def test_merge_different_formats():
     a = TypeConfig({"sql": {"INTEGER": "INT"}})
     b = TypeConfig({"prisma": {"INTEGER": "Int"}})
     merged = a.merge(b)
-    
+
     col = Column(name="id", type=ColumnType.INTEGER)
     assert merged.get_override(col, "sql") == "INT"
     assert merged.get_override(col, "prisma") == "Int"
@@ -217,7 +218,7 @@ CREATE TABLE users (
     # Without override: STRING → "String"
     normal = convert_schema(sql, "sql", "prisma")
     assert "String" in normal
-    
+
     # With override: STRING → "String @db.VarChar({length})"
     config = TypeConfig({"prisma": {"STRING": "String @db.VarChar({length})"}})
     overridden = convert_schema(sql, "sql", "prisma", type_config=config)
@@ -263,7 +264,7 @@ CREATE TABLE users (
     # SQL → Prisma should use override
     prisma = convert_schema(sql, "sql", "prisma", type_config=config)
     assert "CustomString" in prisma
-    
+
     # Prisma → SQL should still produce valid SQL (no override for SQL)
     sql2 = convert_schema(prisma, "prisma", "sql")
     assert "CREATE TABLE users" in sql2

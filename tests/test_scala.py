@@ -9,7 +9,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from schemaforge.convert import convert_schema
 from schemaforge.parsers.scala_parser import ScalaParser
 
-
 SAMPLE_SCALA = """import java.time.Instant
 
 case class User(
@@ -120,8 +119,8 @@ def test_scala_parse_decimal_type():
 
 def test_scala_generate_simple():
     """Generator should produce valid case class."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
     from schemaforge.generators.scala_generator import ScalaGenerator
+    from schemaforge.ir import Column, ColumnType, Schema, Table
     schema = Schema(tables=[
         Table(name="users", columns=[
             Column(name="id", type=ColumnType.INTEGER),
@@ -137,8 +136,8 @@ def test_scala_generate_simple():
 
 def test_scala_generate_nullable():
     """Generator should use Option[T] for nullable columns."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
     from schemaforge.generators.scala_generator import ScalaGenerator
+    from schemaforge.ir import Column, ColumnType, Schema, Table
     schema = Schema(tables=[
         Table(name="items", columns=[
             Column(name="id", type=ColumnType.INTEGER),
@@ -153,8 +152,8 @@ def test_scala_generate_nullable():
 
 def test_scala_generate_defaults():
     """Generator should handle default values."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
     from schemaforge.generators.scala_generator import ScalaGenerator
+    from schemaforge.ir import Column, ColumnType, Schema, Table
     schema = Schema(tables=[
         Table(name="config", columns=[
             Column(name="id", type=ColumnType.INTEGER),

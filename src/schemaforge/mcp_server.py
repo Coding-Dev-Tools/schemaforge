@@ -23,7 +23,10 @@ except ImportError:
 
 
 # All supported formats
-_FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema", "graphql", "ef", "scala"]
+_FORMATS = [
+    "sql", "prisma", "drizzle", "typeorm", "django",
+    "sqlalchemy", "alembic", "json_schema", "graphql", "ef", "scala",
+]
 _FORMAT_DESCRIPTIONS = {
     "sql": "SQL DDL (Data Definition Language)",
     "prisma": "Prisma schema",

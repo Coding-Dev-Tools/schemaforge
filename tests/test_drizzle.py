@@ -6,10 +6,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from schemaforge.parsers.drizzle_parser import DrizzleParser
-from schemaforge.generators.drizzle_generator import DrizzleGenerator
 from schemaforge.convert import convert_schema
+from schemaforge.generators.drizzle_generator import DrizzleGenerator
 from schemaforge.ir import ColumnType
+from schemaforge.parsers.drizzle_parser import DrizzleParser
 
 
 class TestDrizzleParser:
@@ -131,7 +131,7 @@ export const settings = pgTable('settings', {
 
 class TestDrizzleGenerator:
     def test_generate_simple_table(self):
-        from schemaforge.ir import Schema, Table, Column, ColumnType
+        from schemaforge.ir import Column, ColumnType, Schema, Table
 
         schema = Schema()
         table = Table(name="users")
@@ -152,7 +152,7 @@ class TestDrizzleGenerator:
         assert "unique()" in result
 
     def test_generate_with_enum(self):
-        from schemaforge.ir import Schema, Table, Column, ColumnType, EnumType
+        from schemaforge.ir import Column, ColumnType, EnumType, Schema, Table
 
         schema = Schema()
         schema.enums.append(EnumType(name="role", values=["admin", "user"]))
@@ -168,7 +168,7 @@ class TestDrizzleGenerator:
         assert "'admin'" in result
 
     def test_generate_mysql_dialect(self):
-        from schemaforge.ir import Schema, Table, Column, ColumnType
+        from schemaforge.ir import Column, ColumnType, Schema, Table
 
         schema = Schema()
         table = Table(name="products")
@@ -182,7 +182,7 @@ class TestDrizzleGenerator:
         assert "drizzle-orm/mysql-core" in result
 
     def test_generate_default_now(self):
-        from schemaforge.ir import Schema, Table, Column, ColumnType
+        from schemaforge.ir import Column, ColumnType, Schema, Table
 
         schema = Schema()
         table = Table(name="logs")

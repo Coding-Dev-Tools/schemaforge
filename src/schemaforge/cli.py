@@ -20,7 +20,10 @@ from .mcp_server import mcp_command
 from .type_config import TypeConfig
 
 # All supported format names (used for CLI choices and detection)
-_FORMATS = ["sql", "prisma", "drizzle", "typeorm", "django", "sqlalchemy", "alembic", "json_schema", "graphql", "ef", "scala"]
+_FORMATS = [
+    "sql", "prisma", "drizzle", "typeorm", "django",
+    "sqlalchemy", "alembic", "json_schema", "graphql", "ef", "scala",
+]
 
 
 @click.group()

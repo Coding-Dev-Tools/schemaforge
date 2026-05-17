@@ -7,9 +7,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from schemaforge.convert import convert_schema
-from schemaforge.parsers.ef_parser import EntityFrameworkParser
 from schemaforge.generators.ef_generator import EntityFrameworkGenerator
-
+from schemaforge.parsers.ef_parser import EntityFrameworkParser
 
 SAMPLE_CS = """using System;
 using System.ComponentModel.DataAnnotations;
@@ -174,7 +173,7 @@ public class Config
 
 def test_ef_generate_simple():
     """Generator should produce valid C# class structure."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import Column, ColumnType, Schema, Table
     schema = Schema(tables=[
         Table(name="users", columns=[
             Column(name="id", type=ColumnType.INTEGER, primary_key=True),
@@ -193,7 +192,7 @@ def test_ef_generate_simple():
 
 def test_ef_generate_datetime():
     """Generator should map DATETIME to DateTime type."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import Column, ColumnType, Schema, Table
     schema = Schema(tables=[
         Table(name="events", columns=[
             Column(name="id", type=ColumnType.INTEGER, primary_key=True),
@@ -207,7 +206,7 @@ def test_ef_generate_datetime():
 
 def test_ef_generate_decimal():
     """Generator should add [Column] for decimal precision/scale."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import Column, ColumnType, Schema, Table
     schema = Schema(tables=[
         Table(name="products", columns=[
             Column(name="id", type=ColumnType.INTEGER, primary_key=True),

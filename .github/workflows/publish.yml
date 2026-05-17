@@ -24,6 +24,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install build twine
 
+      - name: Lint with ruff
+        run: pip install ruff && ruff check src/ --target-version py310
+
       - name: Build package
         run: |
           python -m build

@@ -1,18 +1,16 @@
 """Tests for SchemaForge — GraphQL SDL parser and generator."""
 from __future__ import annotations
 
+import pytest
 import sys
 from pathlib import Path
-
-import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from schemaforge.convert import convert_schema
-from schemaforge.ir import Schema, Table, Column, ColumnType, EnumType, Index
-from schemaforge.parsers.graphql_parser import GraphQLParser
 from schemaforge.generators.graphql_generator import GraphQLGenerator
-
+from schemaforge.ir import Column, ColumnType, EnumType, Schema, Table
+from schemaforge.parsers.graphql_parser import GraphQLParser
 
 # ── Sample GraphQL Schemas ──
 

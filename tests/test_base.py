@@ -7,15 +7,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from schemaforge.generators._base import (
-    resolve_type,
-    build_type_string,
-    resolve_fn_default,
-    format_literal_default,
     FN_DEFAULT_MAP,
+    build_type_string,
+    format_literal_default,
+    resolve_fn_default,
+    resolve_type,
 )
 from schemaforge.ir import Column, ColumnType
 from schemaforge.parsers.sql_parser import SQLParser
-
 
 # ── resolve_type tests ──
 

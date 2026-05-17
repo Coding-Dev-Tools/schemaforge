@@ -1,11 +1,11 @@
 """Initial schema
 
 Revision ID: sample
-Revises: 
+Revises:
 Create Date: 2026-05-15 03:00:00.000000
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'sample'
@@ -18,7 +18,7 @@ def upgrade() -> None:
         sa.Column('name', sa.String(100), nullable=False),
         sa.Column('email', sa.String(255), nullable=False, unique=True),
         sa.Column('role', sa.Enum('admin', 'editor', 'viewer'), nullable=False),
-        sa.Column('is_active', sa.Boolean(), server_default=true),
+        sa.Column('is_active', sa.Boolean(), server_default=True),
         sa.Column('created_at', sa.DateTime(), server_default=sa.func.now()),
     )
 

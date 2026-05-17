@@ -91,7 +91,10 @@ class TypeORMParser:
             for line in text.split("\n"):
                 stripped = line.strip()
                 # Detect @Entity, @ViewEntity, or bare class extends pattern
-                if (stripped.startswith("@") or stripped.startswith("export class")) and (stripped.startswith("export class") or "class " in stripped):
+                if (
+            (stripped.startswith("@") or stripped.startswith("export class"))
+            and (stripped.startswith("export class") or "class " in stripped)
+        ):
                     in_class = True
                     current = line + "\n"
                     brace_depth = 0

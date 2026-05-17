@@ -1,11 +1,10 @@
 """Schema consistency check script for CI/CD pipelines."""
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from schemaforge.convert import convert_schema
-from schemaforge.check import check_directory
 
 
 def main():

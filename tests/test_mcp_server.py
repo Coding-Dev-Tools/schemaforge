@@ -6,55 +6,55 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from schemaforge.mcp_server import create_server, _FORMATS
+from schemaforge.mcp_server import _FORMATS, create_server
 
 
 def test_create_server():
     """create_server should return a FastMCP instance."""
     s = create_server()
     assert s is not None
-    assert len([name for name in s._tool_manager._tools.keys()]) > 0
+    assert len([name for name in s._tool_manager._tools]) > 0
 
 
 def test_server_has_convert_tool():
     """Server should have the convert tool registered."""
     s = create_server()
-    tool_names = [name for name in s._tool_manager._tools.keys()]
+    tool_names = [name for name in s._tool_manager._tools]
     assert "convert" in tool_names
 
 
 def test_server_has_diff_tool():
     """Server should have the diff tool registered."""
     s = create_server()
-    tool_names = [name for name in s._tool_manager._tools.keys()]
+    tool_names = [name for name in s._tool_manager._tools]
     assert "diff" in tool_names
 
 
 def test_server_has_check_tool():
     """Server should have the check tool registered."""
     s = create_server()
-    tool_names = [name for name in s._tool_manager._tools.keys()]
+    tool_names = [name for name in s._tool_manager._tools]
     assert "check" in tool_names
 
 
 def test_server_has_formats_tool():
     """Server should have the formats tool registered."""
     s = create_server()
-    tool_names = [name for name in s._tool_manager._tools.keys()]
+    tool_names = [name for name in s._tool_manager._tools]
     assert "formats" in tool_names
 
 
 def test_server_has_detect_format_tool():
     """Server should have the detect_format tool registered."""
     s = create_server()
-    tool_names = [name for name in s._tool_manager._tools.keys()]
+    tool_names = [name for name in s._tool_manager._tools]
     assert "detect_format" in tool_names
 
 
 def test_all_5_tools_registered():
     """Server should have exactly 5 tools."""
     s = create_server()
-    tool_names = [name for name in s._tool_manager._tools.keys()]
+    tool_names = [name for name in s._tool_manager._tools]
     assert len(tool_names) == 5
 
 

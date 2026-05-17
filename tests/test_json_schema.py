@@ -7,12 +7,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-import pytest
 
 from schemaforge.convert import convert_schema
-from schemaforge.parsers.json_schema_parser import JSONSchemaParser
 from schemaforge.generators.json_schema_generator import JSONSchemaGenerator
 from schemaforge.ir import Column, ColumnType
+from schemaforge.parsers.json_schema_parser import JSONSchemaParser
 from schemaforge.type_config import TypeConfig
 
 # ── Basic Parser Tests ──
@@ -208,7 +207,7 @@ def test_parse_description():
 
 def test_generate_simple_schema():
     """Generate JSON Schema from Schema IR with one table."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import ColumnType, Schema, Table
 
     schema = Schema(tables=[
         Table(name="User", columns=[
@@ -228,7 +227,7 @@ def test_generate_simple_schema():
 
 def test_generate_required_fields():
     """Non-nullable columns appear in required array."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import ColumnType, Schema, Table
 
     schema = Schema(tables=[
         Table(name="User", columns=[
@@ -248,7 +247,7 @@ def test_generate_required_fields():
 
 def test_generate_enum():
     """ENUM column produces enum array in JSON Schema."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import ColumnType, Schema, Table
 
     schema = Schema(tables=[
         Table(name="Item", columns=[
@@ -265,7 +264,7 @@ def test_generate_enum():
 
 def test_generate_max_length():
     """STRING with length becomes maxLength."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import ColumnType, Schema, Table
 
     schema = Schema(tables=[
         Table(name="Item", columns=[
@@ -282,7 +281,7 @@ def test_generate_max_length():
 
 def test_generate_defaults():
     """Column defaults appear in JSON Schema properties."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import ColumnType, Schema, Table
 
     schema = Schema(tables=[
         Table(name="Item", columns=[
@@ -300,7 +299,7 @@ def test_generate_defaults():
 
 def test_generate_datetime_format():
     """DATETIME column gets string with date-time format."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import ColumnType, Schema, Table
 
     schema = Schema(tables=[
         Table(name="Item", columns=[
@@ -317,7 +316,7 @@ def test_generate_datetime_format():
 
 def test_generate_single_table_root_ref():
     """Single table produces a $ref to its definition."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
+    from schemaforge.ir import ColumnType, Schema, Table
 
     schema = Schema(tables=[
         Table(name="User", columns=[

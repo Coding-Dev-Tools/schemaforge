@@ -1,21 +1,19 @@
 """Tests for SchemaForge — TypeORM, Django, and SQLAlchemy parsers/generators."""
 from __future__ import annotations
 
+import pytest
 import sys
 from pathlib import Path
-
-import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from schemaforge.convert import convert_schema
-from schemaforge.parsers.typeorm_parser import TypeORMParser
-from schemaforge.parsers.django_parser import DjangoParser
-from schemaforge.generators.typeorm_generator import TypeORMGenerator
 from schemaforge.generators.django_generator import DjangoGenerator
-from schemaforge.parsers.sqlalchemy_parser import SQLAlchemyParser
 from schemaforge.generators.sqlalchemy_generator import SQLAlchemyGenerator
-
+from schemaforge.generators.typeorm_generator import TypeORMGenerator
+from schemaforge.parsers.django_parser import DjangoParser
+from schemaforge.parsers.sqlalchemy_parser import SQLAlchemyParser
+from schemaforge.parsers.typeorm_parser import TypeORMParser
 
 # ── TypeORM Entity Samples ──
 
@@ -548,8 +546,8 @@ CREATE TABLE posts (
 
 def test_alembic_generate_simple():
     """Alembic generator should produce valid migration script."""
-    from schemaforge.parsers.sql_parser import SQLParser
     from schemaforge.generators.alembic_generator import AlembicGenerator
+    from schemaforge.parsers.sql_parser import SQLParser
 
     parser = SQLParser()
     schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
@@ -570,8 +568,8 @@ def test_alembic_generate_simple():
 
 def test_alembic_create_table():
     """Alembic should generate op.create_table calls."""
-    from schemaforge.parsers.sql_parser import SQLParser
     from schemaforge.generators.alembic_generator import AlembicGenerator
+    from schemaforge.parsers.sql_parser import SQLParser
 
     parser = SQLParser()
     schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
@@ -588,8 +586,8 @@ def test_alembic_create_table():
 
 def test_alembic_create_index():
     """Alembic should generate op.create_index calls for table indexes."""
-    from schemaforge.parsers.sql_parser import SQLParser
     from schemaforge.generators.alembic_generator import AlembicGenerator
+    from schemaforge.parsers.sql_parser import SQLParser
 
     parser = SQLParser()
     schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
@@ -603,8 +601,8 @@ def test_alembic_create_index():
 
 def test_alembic_downgrade():
     """Alembic downgrade should drop tables/indexes in reverse order."""
-    from schemaforge.parsers.sql_parser import SQLParser
     from schemaforge.generators.alembic_generator import AlembicGenerator
+    from schemaforge.parsers.sql_parser import SQLParser
 
     parser = SQLParser()
     schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
@@ -624,8 +622,8 @@ def test_alembic_downgrade():
 
 def test_alembic_enum_types():
     """Alembic should generate op.execute for enum types."""
-    from schemaforge.parsers.sql_parser import SQLParser
     from schemaforge.generators.alembic_generator import AlembicGenerator
+    from schemaforge.parsers.sql_parser import SQLParser
 
     parser = SQLParser()
     schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
@@ -639,8 +637,8 @@ def test_alembic_enum_types():
 
 def test_alembic_default_values():
     """Alembic should handle server_default for boolean and fn defaults."""
-    from schemaforge.parsers.sql_parser import SQLParser
     from schemaforge.generators.alembic_generator import AlembicGenerator
+    from schemaforge.parsers.sql_parser import SQLParser
 
     parser = SQLParser()
     schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
@@ -655,8 +653,8 @@ def test_alembic_default_values():
 
 def test_alembic_primary_key():
     """Alembic should mark primary_key=True on PK columns."""
-    from schemaforge.parsers.sql_parser import SQLParser
     from schemaforge.generators.alembic_generator import AlembicGenerator
+    from schemaforge.parsers.sql_parser import SQLParser
 
     parser = SQLParser()
     schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
@@ -669,8 +667,8 @@ def test_alembic_primary_key():
 
 def test_alembic_not_null():
     """Alembic should set nullable=False for NOT NULL columns."""
-    from schemaforge.parsers.sql_parser import SQLParser
     from schemaforge.generators.alembic_generator import AlembicGenerator
+    from schemaforge.parsers.sql_parser import SQLParser
 
     parser = SQLParser()
     schema = parser.parse(SIMPLE_SQL_FOR_ALEMBIC)
@@ -683,8 +681,8 @@ def test_alembic_not_null():
 
 def test_alembic_custom_revision():
     """Alembic generator should accept custom revision_id and down_revision."""
-    from schemaforge.ir import Schema, Table, Column, ColumnType
     from schemaforge.generators.alembic_generator import AlembicGenerator
+    from schemaforge.ir import Column, ColumnType, Schema, Table
 
     schema = Schema(tables=[
         Table(name="items", columns=[
@@ -707,8 +705,8 @@ def test_alembic_custom_revision():
 
 def test_alembic_empty_schema():
     """Alembic should handle empty schema gracefully."""
-    from schemaforge.ir import Schema
     from schemaforge.generators.alembic_generator import AlembicGenerator
+    from schemaforge.ir import Schema
 
     schema = Schema()
     gen = AlembicGenerator()
