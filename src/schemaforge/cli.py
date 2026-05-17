@@ -6,7 +6,13 @@ from pathlib import Path
 
 import click
 
-from revenueholdings_license import require_license
+try:
+    from revenueholdings_license import require_license
+except ImportError:
+    import warnings
+    warnings.warn("revenueholdings-license not installed; license checks skipped", stacklevel=2)
+    def require_license(product: str) -> None:  # type: ignore[misc]
+        pass
 
 from .convert import convert_schema
 from .diff import diff_schemas
