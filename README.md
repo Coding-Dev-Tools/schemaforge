@@ -6,8 +6,8 @@
 [![PyPI](https://img.shields.io/pypi/v/schemaforge)](https://pypi.org/project/schemaforge/)
 [![Python](https://img.shields.io/pypi/pyversions/schemaforge)](https://pypi.org/project/schemaforge/)
 [![License](https://img.shields.io/pypi/l/schemaforge)](https://github.com/Coding-Dev-Tools/schemaforge/blob/main/LICENSE)
-[![CI](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/test.yml/badge.svg)](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/tests-270%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
+[![CI](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/ci.yml/badge.svg)](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
 [![VS Code](https://img.shields.io/badge/VS%20Code-extension-blue)](https://marketplace.visualstudio.com/items?itemName=revenue-holdings.vscode-schemaforge)
 [![Open Source Alternative](https://img.shields.io/badge/Open_Source_Alternative-%E2%87%92-blue?logo=opensourceinitiative)](https://www.opensourcealternative.to/project/schemaforge)
 [![LibHunt](https://img.shields.io/badge/LibHunt-%E2%87%92-blue?logo=codeigniter)](https://www.libhunt.com/r/Coding-Dev-Tools/schemaforge)
@@ -63,7 +63,7 @@ Requires Python 3.10+.
 
 ### `schemaforge convert`
 
-Convert a schema from one format to another. All 9 formats support conversion to and from every other format (72 direction pairs).
+Convert a schema from one format to another. All 11 formats support conversion to and from every other format (110 direction pairs).
 
 ```bash
 # Format-specific examples
@@ -210,7 +210,7 @@ SchemaForge maps types intelligently between ORM systems. The core `ColumnType` 
 
 ## Demo Fixtures
 
-Try SchemaForge immediately with our example blog schema. The `fixtures/` directory contains an equivalent schema (users, posts, categories with enums and various data types) in all 9 formats:
+Try SchemaForge immediately with our example blog schema. The `fixtures/` directory contains an equivalent schema (users, posts, categories with enums and various data types) in all 11 formats:
 
 ```bash
 # List all fixtures
@@ -386,13 +386,13 @@ npm run compile
 
 ## Pricing
 
-SchemaForge is one of eight tools in the Revenue Holdings suite. One license covers all CLI tools.
+SchemaForge is one of eleven tools in the Revenue Holdings suite. One license covers all CLI tools.
 
 | Plan | Price | Best For |
 |------|-------|----------|
 | **Free** | $0 | Individual devs, OSS â€” CLI only, rate-limited |
 | **SchemaForge Individual** | **$15/mo** ($12 billed annually) | Professional devs â€” unlimited conversions, batch mode |
-| **Suite (all 8 tools)** | **$49/mo** ($39 billed annually) | Full Revenue Holdings toolkit â€” 40% savings |
+| **Suite (all 11 tools)** | **$49/mo** ($39 billed annually) | Full Revenue Holdings toolkit â€” 40% savings |
 | **Team** | **$79/mo** ($63 billed annually) | Up to 5 devs â€” shared schemas, team dashboard, alerts |
 | **Enterprise** | Custom | SSO, RBAC, compliance reports, dedicated support |
 
@@ -404,7 +404,7 @@ SchemaForge is one of eight tools in the Revenue Holdings suite. One license cov
 | Feature | Free | Individual | Suite | Team | Enterprise |
 |---------|:----:|:----------:|:-----:|:----:|:----------:|
 | CLI: convert, diff | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
-| All 9 format directions | â€” | âœ“ | âœ“ | âœ“ | âœ“ |
+| All 11 format directions | â€” | âœ“ | âœ“ | âœ“ | âœ“ |
 | Alembic migration generation | â€” | âœ“ | âœ“ | âœ“ | âœ“ |
 | JSON Schema import/export | â€” | âœ“ | âœ“ | âœ“ | âœ“ |
 | GraphQL SDL import/export | â€” | âœ“ | âœ“ | âœ“ | âœ“ |
@@ -450,5 +450,5 @@ MIT â€” see [LICENSE](LICENSE)
 
 ---
 
-<sub>Part of [Revenue Holdings](https://coding-dev-tools.github.io/revenueholdings.dev/) â€” a suite of 10 developer CLI tools built by autonomous AI agents. Also check out the [SchemaForge VS Code extension](https://github.com/Coding-Dev-Tools/vscode-schemaforge), [API Contract Guardian](https://github.com/Coding-Dev-Tools/api-contract-guardian) (breaking change detection), [DeployDiff](https://github.com/Coding-Dev-Tools/deploydiff) (infrastructure diffs), [json2sql](https://github.com/Coding-Dev-Tools/json2sql) (JSON â†’ SQL), [ConfigDrift](https://github.com/Coding-Dev-Tools/configdrift) (config drift detection), [DeadCode](https://github.com/Coding-Dev-Tools/deadcode) (dead code cleanup), [APIAuth](https://github.com/Coding-Dev-Tools/apiauth) (API key management), [APIGhost](https://github.com/Coding-Dev-Tools/apighost) (mock API server), [Envault](https://github.com/Coding-Dev-Tools/envault) (env sync), and [click-to-mcp](https://github.com/Coding-Dev-Tools/click-to-mcp) (CLI â†’ MCP server).</sub>
+<sub>Part of [Revenue Holdings](https://coding-dev-tools.github.io/revenueholdings.dev/) — a suite of 11 developer CLI tools built by autonomous AI agents. Also check out the [SchemaForge VS Code extension](https://github.com/Coding-Dev-Tools/vscode-schemaforge), [ConfigDrift](https://github.com/Coding-Dev-Tools/configdrift) (config drift detection), [DataMorph](https://github.com/Coding-Dev-Tools/datamorph) (data format conversion), [DeadCode](https://github.com/Coding-Dev-Tools/deadcode) (dead code cleanup), [DeployDiff](https://github.com/Coding-Dev-Tools/deploydiff) (infrastructure diffs), [DevForge](https://github.com/Coding-Dev-Tools/devforge) (unified CLI), [Envault](https://github.com/Coding-Dev-Tools/envault) (env sync), [APIAuth](https://github.com/Coding-Dev-Tools/apiauth) (API key management), [APIGhost](https://github.com/Coding-Dev-Tools/apighost) (mock API server), [json2sql](https://github.com/Coding-Dev-Tools/json2sql) (JSON → SQL), [API Contract Guardian](https://github.com/Coding-Dev-Tools/api-contract-guardian) (breaking change detection), and [click-to-mcp](https://github.com/Coding-Dev-Tools/click-to-mcp) (CLI → MCP server).</sub>
 
