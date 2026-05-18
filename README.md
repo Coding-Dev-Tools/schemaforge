@@ -7,8 +7,8 @@
 [![Python](https://img.shields.io/pypi/pyversions/schemaforge)](https://pypi.org/project/schemaforge/)
 [![License](https://img.shields.io/pypi/l/schemaforge)](https://github.com/Coding-Dev-Tools/schemaforge/blob/main/LICENSE)
 [![CI](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/ci.yml/badge.svg)](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-270%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
-[![VS Code](https://img.shields.io/badge/VS%20Code-extension-blue)](https://marketplace.visualstudio.com/items?itemName=devforge.vscode-schemaforge)
+[![Tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
+[![VS Code](https://img.shields.io/badge/VS%20Code-extension-blue)](https://marketplace.visualstudio.com/items?itemName=revenue-holdings.vscode-schemaforge)
 [![Open Source Alternative](https://img.shields.io/badge/Open_Source_Alternative-%E2%87%92-blue?logo=opensourceinitiative)](https://www.opensourcealternative.to/project/schemaforge)
 [![LibHunt](https://img.shields.io/badge/LibHunt-%E2%87%92-blue?logo=codeigniter)](https://www.libhunt.com/r/Coding-Dev-Tools/schemaforge)
 [![Awesome Python](https://img.shields.io/badge/Awesome_Python-%E2%87%92-blue?logo=python)](https://github.com/uhub/awesome-python)
@@ -386,13 +386,13 @@ npm run compile
 
 ## Pricing
 
-SchemaForge is one of eight tools in the DevForge suite. One license covers all CLI tools.
+SchemaForge is one of eleven tools in the Revenue Holdings suite. One license covers all CLI tools.
 
 | Plan | Price | Best For |
 |------|-------|----------|
 | **Free** | $0 | Individual devs, OSS — CLI only, rate-limited |
 | **SchemaForge Individual** | **$15/mo** ($12 billed annually) | Professional devs — unlimited conversions, batch mode |
-| **Suite (all 8 tools)** | **$49/mo** ($39 billed annually) | Full DevForge toolkit — 40% savings |
+| **Suite (all 11 tools)** | **$49/mo** ($39 billed annually) | Full Revenue Holdings toolkit — 40% savings |
 | **Team** | **$79/mo** ($63 billed annually) | Up to 5 devs — shared schemas, team dashboard, alerts |
 | **Enterprise** | Custom | SSO, RBAC, compliance reports, dedicated support |
 
@@ -403,18 +403,18 @@ SchemaForge is one of eight tools in the DevForge suite. One license covers all 
 
 | Feature | Free | Individual | Suite | Team | Enterprise |
 |---------|:----:|:----------:|:-----:|:----:|:----------:|
-| CLI: convert, diff | ✓ | ✓ | ✓ | ✓ | ✓ |
-| All 11 format directions | — | ✓ | ✓ | ✓ | ✓ |
-| Alembic migration generation | — | ✓ | ✓ | ✓ | ✓ |
-| JSON Schema import/export | — | ✓ | ✓ | ✓ | ✓ |
-| GraphQL SDL import/export | — | ✓ | ✓ | ✓ | ✓ |
-| MCP server (AI agent tools) | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Custom type mappings | — | ✓ | ✓ | ✓ | ✓ |
-| Batch directory conversion | — | ✓ | ✓ | ✓ | ✓ |
-| Team shared type mappings | — | — | — | ✓ | ✓ |
-| Dashboard & analytics | — | — | — | ✓ | ✓ |
-| Compliance reports | — | — | — | — | ✓ |
-| RBAC / SSO / SAML / OIDC | — | — | — | — | ✓ |
+|| CLI: convert, diff | ✓ | ✓ | ✓ | ✓ | ✓ |
+|| All 11 format directions | — | ✓ | ✓ | ✓ | ✓ |
+|| Alembic migration generation | — | ✓ | ✓ | ✓ | ✓ |
+|| JSON Schema import/export | — | ✓ | ✓ | ✓ | ✓ |
+|| GraphQL SDL import/export | — | ✓ | ✓ | ✓ | ✓ |
+|| MCP server (AI agent tools) | ✓ | ✓ | ✓ | ✓ | ✓ |
+|| Custom type mappings | — | ✓ | ✓ | ✓ | ✓ |
+|| Batch directory conversion | — | ✓ | ✓ | ✓ | ✓ |
+|| Team shared type mappings | — | — | — | ✓ | ✓ |
+|| Dashboard & analytics | — | — | — | ✓ | ✓ |
+|| Compliance reports | — | — | — | — | ✓ |
+|| RBAC / SSO / SAML / OIDC | — | — | — | — | ✓ |
 | Priority support | Community | 24h | 24h | 8h | Dedicated |
 
 ## Development
@@ -450,5 +450,5 @@ MIT — see [LICENSE](LICENSE)
 
 ---
 
-<sub>Part of [DevForge](https://coding-dev-tools.github.io/devforge.dev/) — a suite of 10 developer CLI tools built by autonomous AI agents. Also check out the [SchemaForge VS Code extension](https://github.com/Coding-Dev-Tools/vscode-schemaforge), [API Contract Guardian](https://github.com/Coding-Dev-Tools/api-contract-guardian) (breaking change detection), [DeployDiff](https://github.com/Coding-Dev-Tools/deploydiff) (infrastructure diffs), [json2sql](https://github.com/Coding-Dev-Tools/json2sql) (JSON → SQL), [ConfigDrift](https://github.com/Coding-Dev-Tools/configdrift) (config drift detection), [DeadCode](https://github.com/Coding-Dev-Tools/deadcode) (dead code cleanup), [APIAuth](https://github.com/Coding-Dev-Tools/apiauth) (API key management), [APIGhost](https://github.com/Coding-Dev-Tools/apighost) (mock API server), [Envault](https://github.com/Coding-Dev-Tools/envault) (env sync), and [click-to-mcp](https://github.com/Coding-Dev-Tools/click-to-mcp) (CLI → MCP server).</sub>
+<sub>Part of [Revenue Holdings](https://coding-dev-tools.github.io/revenueholdings.dev/) — a suite of 11 developer CLI tools built by autonomous AI agents. Also check out the [SchemaForge VS Code extension](https://github.com/Coding-Dev-Tools/vscode-schemaforge), [ConfigDrift](https://github.com/Coding-Dev-Tools/configdrift) (config drift detection), [DataMorph](https://github.com/Coding-Dev-Tools/datamorph) (data format conversion), [DeadCode](https://github.com/Coding-Dev-Tools/deadcode) (dead code cleanup), [DeployDiff](https://github.com/Coding-Dev-Tools/deploydiff) (infrastructure diffs), [DevForge](https://github.com/Coding-Dev-Tools/devforge) (unified CLI), [Envault](https://github.com/Coding-Dev-Tools/envault) (env sync), [APIAuth](https://github.com/Coding-Dev-Tools/apiauth) (API key management), [APIGhost](https://github.com/Coding-Dev-Tools/apighost) (mock API server), [json2sql](https://github.com/Coding-Dev-Tools/json2sql) (JSON → SQL), [API Contract Guardian](https://github.com/Coding-Dev-Tools/api-contract-guardian) (breaking change detection), and [click-to-mcp](https://github.com/Coding-Dev-Tools/click-to-mcp) (CLI → MCP server).</sub>
 
