@@ -63,7 +63,7 @@ Requires Python 3.10+.
 
 ### `schemaforge convert`
 
-Convert a schema from one format to another. All 9 formats support conversion to and from every other format (72 direction pairs).
+Convert a schema from one format to another. All 11 formats support conversion to and from every other format (110 direction pairs).
 
 ```bash
 # Format-specific examples
@@ -210,7 +210,7 @@ SchemaForge maps types intelligently between ORM systems. The core `ColumnType` 
 
 ## Demo Fixtures
 
-Try SchemaForge immediately with our example blog schema. The `fixtures/` directory contains an equivalent schema (users, posts, categories with enums and various data types) in all 9 formats:
+Try SchemaForge immediately with our example blog schema. The `fixtures/` directory contains an equivalent schema (users, posts, categories with enums and various data types) in all 11 formats:
 
 ```bash
 # List all fixtures
@@ -404,7 +404,7 @@ SchemaForge is one of eight tools in the DevForge suite. One license covers all 
 | Feature | Free | Individual | Suite | Team | Enterprise |
 |---------|:----:|:----------:|:-----:|:----:|:----------:|
 | CLI: convert, diff | ✓ | ✓ | ✓ | ✓ | ✓ |
-| All 9 format directions | — | ✓ | ✓ | ✓ | ✓ |
+| All 11 format directions | — | ✓ | ✓ | ✓ | ✓ |
 | Alembic migration generation | — | ✓ | ✓ | ✓ | ✓ |
 | JSON Schema import/export | — | ✓ | ✓ | ✓ | ✓ |
 | GraphQL SDL import/export | — | ✓ | ✓ | ✓ | ✓ |
