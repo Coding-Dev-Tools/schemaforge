@@ -1,6 +1,6 @@
-﻿# SchemaForge
+# SchemaForge
 
-> **Bidirectional ORM schema converter** â€” convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic migrations, JSON Schema, GraphQL SDL, EF Core (C#), and Scala case classes. **11 formats, 110 direction pairs.**
+> **Bidirectional ORM schema converter** — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic migrations, JSON Schema, GraphQL SDL, EF Core (C#), and Scala case classes. **11 formats, 110 direction pairs.**
 
 [![GitHub stars](https://img.shields.io/github/stars/Coding-Dev-Tools/schemaforge?style=social)](https://github.com/Coding-Dev-Tools/schemaforge/stargazers)
 [![PyPI](https://img.shields.io/pypi/v/schemaforge)](https://pypi.org/project/schemaforge/)
@@ -13,11 +13,11 @@
 [![LibHunt](https://img.shields.io/badge/LibHunt-%E2%87%92-blue?logo=codeigniter)](https://www.libhunt.com/r/Coding-Dev-Tools/schemaforge)
 [![Awesome Python](https://img.shields.io/badge/Awesome_Python-%E2%87%92-blue?logo=python)](https://github.com/uhub/awesome-python)
 
-> â­ **Star this repo**
+> ⭐ **Star this repo**
 
-**Why SchemaForge?** Every major ORM migration is a one-way street. Prisma introspects SQL but can't export back. Drizzle users manually rewrite schemas when switching ORMs. TypeORM developers are locked into decorator syntax. SchemaForge is the first tool to do **bidirectional, lossless conversion** between 11 schema formats â€” with a shared internal representation that guarantees roundtrip fidelity.
+**Why SchemaForge?** Every major ORM migration is a one-way street. Prisma introspects SQL but can't export back. Drizzle users manually rewrite schemas when switching ORMs. TypeORM developers are locked into decorator syntax. SchemaForge is the first tool to do **bidirectional, lossless conversion** between 11 schema formats — with a shared internal representation that guarantees roundtrip fidelity.
 
-Convert any schema to any format, verify equivalence with the diff command, generate Alembic migrations, produce JSON Schema definitions, create GraphQL SDL types, convert Entity Framework (C#) entities, generate Scala case classes, and batch-process entire directories. Whether you're migrating from Prisma to Drizzle, sharing a schema with a Django backend, exposing your data model as GraphQL, translating C# entities to Scala, or working with the SchemaForge VS Code extension for live preview â€” SchemaForge handles it.
+Convert any schema to any format, verify equivalence with the diff command, generate Alembic migrations, produce JSON Schema definitions, create GraphQL SDL types, convert Entity Framework (C#) entities, generate Scala case classes, and batch-process entire directories. Whether you're migrating from Prisma to Drizzle, sharing a schema with a Django backend, exposing your data model as GraphQL, translating C# entities to Scala, or working with the SchemaForge VS Code extension for live preview — SchemaForge handles it.
 
 ## Quick Start
 
@@ -25,7 +25,7 @@ Convert any schema to any format, verify equivalence with the diff command, gene
 # Install
 pip install schemaforge
 
-# Convert Prisma â†’ Drizzle
+# Convert Prisma → Drizzle
 schemaforge convert --from prisma --to drizzle --input schema.prisma
 
 # Generate GraphQL from SQL
@@ -109,17 +109,17 @@ Detects added, removed, and modified tables, columns, indexes, and constraints.
 
 | Format | Import | Export | Roundtrip |
 |--------|:------:|:------:|:---------:|
-| SQL DDL | âœ“ | âœ“ | âœ“ |
-| Prisma schema | âœ“ | âœ“ | âœ“ |
-| Drizzle schema | âœ“ | âœ“ | âœ“ |
-| TypeORM entities | âœ“ | âœ“ | âœ“ |
-| Django models | âœ“ | âœ“ | âœ“ |
-| SQLAlchemy models | âœ“ | âœ“ | âœ“ |
-| Alembic migrations | â€” | âœ“ | â€” |
-| JSON Schema | âœ“ | âœ“ | âœ“ |
-| GraphQL SDL | âœ“ | âœ“ | âœ“ |
-| EF Core (C#) | âœ“ | âœ“ | âœ“ |
-| Scala case class | âœ“ | âœ“ | âœ“ |
+| SQL DDL | ✓ | ✓ | ✓ |
+| Prisma schema | ✓ | ✓ | ✓ |
+| Drizzle schema | ✓ | ✓ | ✓ |
+| TypeORM entities | ✓ | ✓ | ✓ |
+| Django models | ✓ | ✓ | ✓ |
+| SQLAlchemy models | ✓ | ✓ | ✓ |
+| Alembic migrations | — | ✓ | — |
+| JSON Schema | ✓ | ✓ | ✓ |
+| GraphQL SDL | ✓ | ✓ | ✓ |
+| EF Core (C#) | ✓ | ✓ | ✓ |
+| Scala case class | ✓ | ✓ | ✓ |
 
 **Alembic** is generator-only: you can create migration scripts from any format, but parsing existing migrations back to IR is not yet supported.
 
@@ -141,24 +141,24 @@ Detects added, removed, and modified tables, columns, indexes, and constraints.
 
 ## How It Works
 
-SchemaForge uses a **shared Internal Representation (IR)** â€” all formats convert to and from this common schema definition. This architecture guarantees:
+SchemaForge uses a **shared Internal Representation (IR)** — all formats convert to and from this common schema definition. This architecture guarantees:
 
-- **Zero-loss roundtripping**: `sql â†’ prisma â†’ sql` produces the same schema you started with
+- **Zero-loss roundtripping**: `sql → prisma → sql` produces the same schema you started with
 - **Bidirectional conversion**: every supported format can convert to every other format
-- **Extensibility**: adding a new format requires only a parser and a generator â€” no pairwise converters
+- **Extensibility**: adding a new format requires only a parser and a generator — no pairwise converters
 
 ```
-|    SQL DDL â”€â”€â”€â”
-|    Prisma â”€â”€â”€â”€â”¤
-|    Drizzle â”€â”€â”€â”¤
-|    TypeORM â”€â”€â”€â”¤
-|    Django â”€â”€â”€â”€â”¤
-| SQLAlchemy â”€â”€â”€â”¤
-|   Alembic â”€â”€â”€â”€â”¤
-| JSON Schema â”€â”€â”¤
-|   GraphQL â”€â”€â”€â”€â”¤
-|  EF Core â”€â”€â”€â”€â”€â”¤
-|    Scala â”€â”€â”€â”€â”€â”¤
+|    SQL DDL ───┐
+|    Prisma ────┤
+|    Drizzle ───┤
+|    TypeORM ───┤
+|    Django ────┤
+| SQLAlchemy ───┤
+|   Alembic ────┤
+| JSON Schema ──┤
+|   GraphQL ────┤
+|  EF Core ─────┤
+|    Scala ─────┤
 ```
 
 Each parser reads format-specific syntax and builds a schema IR. Each generator takes the same IR and produces format-native output. The `fn:` prefix convention preserves SQL function defaults (CURRENT_TIMESTAMP, NOW(), gen_random_uuid()) across format boundaries.
@@ -216,19 +216,19 @@ Try SchemaForge immediately with our example blog schema. The `fixtures/` direct
 # List all fixtures
 ls fixtures/
 
-# Convert SQL â†’ Prisma
+# Convert SQL → Prisma
 schemaforge convert --from sql --to prisma --input fixtures/sample.sql
 
-# Convert Prisma â†’ Django
+# Convert Prisma → Django
 schemaforge convert --from prisma --to django --input fixtures/sample.prisma
 
-# Convert SQL â†’ GraphQL
+# Convert SQL → GraphQL
 schemaforge convert --from sql --to graphql --input fixtures/sample.sql
 
-# Convert SQL â†’ JSON Schema
+# Convert SQL → JSON Schema
 schemaforge convert --from sql --to json_schema --input fixtures/sample.sql
 
-# Convert Prisma â†’ Alembic migration
+# Convert Prisma → Alembic migration
 schemaforge convert --from prisma --to alembic --input fixtures/sample.prisma --output migrations/
 
 # Custom type mapping demo
@@ -246,23 +246,23 @@ Each fixture demonstrates the same blog schema so you can compare ORM syntax sid
 
 ## Features
 
-- **Bidirectional conversion** â€” all 11 formats convert to and from every other format
-- **Zero-loss roundtripping** â€” `sql â†’ prisma â†’ sql` reproduces the original schema exactly
-- **Custom type mappings** â€” YAML/JSON config files to override any type mapping with template variables
-- **VS Code extension** â€” live preview, schema diff, and one-click conversion from VS Code
-- **Alembic migration generation** â€” create database migration scripts from any schema format
-- **JSON Schema** â€” import/export schema definitions as JSON Schema (draft 2020-12)
-- **GraphQL SDL** â€” generate or consume GraphQL type definitions with enums, directives, and scalars
-- **EF Core (C#) support** â€” import/export Entity Framework entity classes with data annotations
-- **Scala case class support** â€” generate case classes targeting Doobie/Quill/Slick
-- **Diff mode** â€” compare two schemas in the same format with line-level differences
-- **Batch mode** â€” convert entire directories of schema files with one command
-- **Intelligent type mapping** â€” types map correctly across all 11 formats
-- **Function default preservation** â€” `CURRENT_TIMESTAMP`, `NOW()`, `gen_random_uuid()` survive roundtrips
-- **MySQL support** â€” ENGINE=InnoDB, AUTO_INCREMENT, DEFAULT CHARSET, COMMENT table options
-- **Inline ENUM** â€” `ENUM('small', 'medium', 'large')` column types parsed and roundtripped
-- **Relation preservation** â€” indexes, unique constraints maintained across all conversions
-- **Custom type handling** â€” dialect-specific types (JSONB, etc.) pass through via CUSTOM type
+- **Bidirectional conversion** — all 11 formats convert to and from every other format
+- **Zero-loss roundtripping** — `sql → prisma → sql` reproduces the original schema exactly
+- **Custom type mappings** — YAML/JSON config files to override any type mapping with template variables
+- **VS Code extension** — live preview, schema diff, and one-click conversion from VS Code
+- **Alembic migration generation** — create database migration scripts from any schema format
+- **JSON Schema** — import/export schema definitions as JSON Schema (draft 2020-12)
+- **GraphQL SDL** — generate or consume GraphQL type definitions with enums, directives, and scalars
+- **EF Core (C#) support** — import/export Entity Framework entity classes with data annotations
+- **Scala case class support** — generate case classes targeting Doobie/Quill/Slick
+- **Diff mode** — compare two schemas in the same format with line-level differences
+- **Batch mode** — convert entire directories of schema files with one command
+- **Intelligent type mapping** — types map correctly across all 11 formats
+- **Function default preservation** — `CURRENT_TIMESTAMP`, `NOW()`, `gen_random_uuid()` survive roundtrips
+- **MySQL support** — ENGINE=InnoDB, AUTO_INCREMENT, DEFAULT CHARSET, COMMENT table options
+- **Inline ENUM** — `ENUM('small', 'medium', 'large')` column types parsed and roundtripped
+- **Relation preservation** — indexes, unique constraints maintained across all conversions
+- **Custom type handling** — dialect-specific types (JSONB, etc.) pass through via CUSTOM type
 
 ## MCP Server
 
@@ -272,7 +272,7 @@ SchemaForge includes an **MCP (Model Context Protocol) server** that exposes all
 # Install with MCP support
 pip install schemaforge[mcp]
 
-# Start the server (stdio mode â€” default for AI clients)
+# Start the server (stdio mode — default for AI clients)
 schemaforge mcp
 
 # Start as SSE HTTP server
@@ -321,18 +321,18 @@ The **SchemaForge VS Code extension** provides live schema preview, quick conver
 
 ### Features
 
-- **Live Preview** â€” opens a side panel showing your active schema file converted to all other formats (tabbed interface for quick comparison)
-- **Quick Convert** â€” `Ctrl+Alt+S` / `Cmd+Alt+S` to convert the active editor's schema to your configured default target format
-- **Format Detection** â€” `Ctrl+Alt+D` / `Cmd+Alt+D` to detect and display the format of the active schema file
-- **Diff Two Schemas** â€” select two schema files to diff them side-by-side in VS Code's native diff editor
-- **Right-Click Conversion** â€” right-click any schema file in the explorer to convert it
-- **Custom Editor** â€” open `.schemaforge` files for a rich conversion preview
-- **Auto-Refresh** â€” preview panel updates when you save a schema file or switch tabs
+- **Live Preview** — opens a side panel showing your active schema file converted to all other formats (tabbed interface for quick comparison)
+- **Quick Convert** — `Ctrl+Alt+S` / `Cmd+Alt+S` to convert the active editor's schema to your configured default target format
+- **Format Detection** — `Ctrl+Alt+D` / `Cmd+Alt+D` to detect and display the format of the active schema file
+- **Diff Two Schemas** — select two schema files to diff them side-by-side in VS Code's native diff editor
+- **Right-Click Conversion** — right-click any schema file in the explorer to convert it
+- **Custom Editor** — open `.schemaforge` files for a rich conversion preview
+- **Auto-Refresh** — preview panel updates when you save a schema file or switch tabs
 
 ### Installation
 
 1. Install SchemaForge: `pip install schemaforge`
-2. Install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=revenue-holdings.vscode-schemaforge)
+2. Install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=devforge.vscode-schemaforge)
 3. Open a `.sql`, `.prisma`, `.graphql`, `.cs`, or `.scala` file
 4. Run `SchemaForge: Show Preview` from the command palette
 
@@ -358,7 +358,7 @@ npm run compile
 
 | Version | Features |
 |---------|----------|
-| v0.1.0 | SQL DDL â†” Prisma bidirectional conversion |
+| v0.1.0 | SQL DDL ↔ Prisma bidirectional conversion |
 | v0.2.0 | Drizzle schema support |
 | v0.3.0 | TypeORM entities support |
 | v0.4.0 | Django models support |
@@ -367,14 +367,14 @@ npm run compile
 | v0.7.0 | MySQL table options (ENGINE, CHARSET), inline ENUM('a','b','c') |
 | v0.8.0 | Alembic migration generation (7th format) |
 | v0.9.0 | Shared generator base module, refactored fn: default handling |
-| v1.0.0 | Stable release â€” comprehensive docs, CLI polish |
+| v1.0.0 | Stable release — comprehensive docs, CLI polish |
 | v1.1.0 | Custom type mapping configuration (YAML/JSON overrides) |
 | v1.2.0 | JSON Schema support (8th format) |
 | **v1.3.0** | **GraphQL SDL support (9th format)** |
 | v1.4.0 | Schema consistency check, CI/CD workflow, MCP server |
 | **v1.5.0** | **Entity Framework Core (C#) support (10th format)** |
 | **v1.6.0** | **Scala case class support (11th format)** |
-| **v1.7.0** | **VS Code extension â€” live preview, diff, quick convert** |
+| **v1.7.0** | **VS Code extension — live preview, diff, quick convert** |
 
 ### Planned
 
@@ -390,31 +390,31 @@ SchemaForge is one of eleven tools in the Revenue Holdings suite. One license co
 
 | Plan | Price | Best For |
 |------|-------|----------|
-| **Free** | $0 | Individual devs, OSS â€” CLI only, rate-limited |
-| **SchemaForge Individual** | **$15/mo** ($12 billed annually) | Professional devs â€” unlimited conversions, batch mode |
-| **Suite (all 11 tools)** | **$49/mo** ($39 billed annually) | Full Revenue Holdings toolkit â€” 40% savings |
-| **Team** | **$79/mo** ($63 billed annually) | Up to 5 devs â€” shared schemas, team dashboard, alerts |
+| **Free** | $0 | Individual devs, OSS — CLI only, rate-limited |
+| **SchemaForge Individual** | **$15/mo** ($12 billed annually) | Professional devs — unlimited conversions, batch mode |
+| **Suite (all 11 tools)** | **$49/mo** ($39 billed annually) | Full Revenue Holdings toolkit — 40% savings |
+| **Team** | **$79/mo** ($63 billed annually) | Up to 5 devs — shared schemas, team dashboard, alerts |
 | **Enterprise** | Custom | SSO, RBAC, compliance reports, dedicated support |
 
-ðŸ”¹ **No lock-in**: CLI works fully offline on the free tier â€” no telemetry, no phone-home.
-ðŸ”¹ **Annual billing**: Save 20%.
+🔹 **No lock-in**: CLI works fully offline on the free tier — no telemetry, no phone-home.
+🔹 **Annual billing**: Save 20%.
 
 ### Per-Tier Features
 
 | Feature | Free | Individual | Suite | Team | Enterprise |
 |---------|:----:|:----------:|:-----:|:----:|:----------:|
-| CLI: convert, diff | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
-| All 11 format directions | â€” | âœ“ | âœ“ | âœ“ | âœ“ |
-| Alembic migration generation | â€” | âœ“ | âœ“ | âœ“ | âœ“ |
-| JSON Schema import/export | â€” | âœ“ | âœ“ | âœ“ | âœ“ |
-| GraphQL SDL import/export | â€” | âœ“ | âœ“ | âœ“ | âœ“ |
-| MCP server (AI agent tools) | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
-| Custom type mappings | â€” | âœ“ | âœ“ | âœ“ | âœ“ |
-| Batch directory conversion | â€” | âœ“ | âœ“ | âœ“ | âœ“ |
-| Team shared type mappings | â€” | â€” | â€” | âœ“ | âœ“ |
-| Dashboard & analytics | â€” | â€” | â€” | âœ“ | âœ“ |
-| Compliance reports | â€” | â€” | â€” | â€” | âœ“ |
-| RBAC / SSO / SAML / OIDC | â€” | â€” | â€” | â€” | âœ“ |
+|| CLI: convert, diff | ✓ | ✓ | ✓ | ✓ | ✓ |
+|| All 11 format directions | — | ✓ | ✓ | ✓ | ✓ |
+|| Alembic migration generation | — | ✓ | ✓ | ✓ | ✓ |
+|| JSON Schema import/export | — | ✓ | ✓ | ✓ | ✓ |
+|| GraphQL SDL import/export | — | ✓ | ✓ | ✓ | ✓ |
+|| MCP server (AI agent tools) | ✓ | ✓ | ✓ | ✓ | ✓ |
+|| Custom type mappings | — | ✓ | ✓ | ✓ | ✓ |
+|| Batch directory conversion | — | ✓ | ✓ | ✓ | ✓ |
+|| Team shared type mappings | — | — | — | ✓ | ✓ |
+|| Dashboard & analytics | — | — | — | ✓ | ✓ |
+|| Compliance reports | — | — | — | — | ✓ |
+|| RBAC / SSO / SAML / OIDC | — | — | — | — | ✓ |
 | Priority support | Community | 24h | 24h | 8h | Dedicated |
 
 ## Development
@@ -446,7 +446,7 @@ PRs welcome! New format parsers/generators, bug fixes, and documentation improve
 
 ## License
 
-MIT â€” see [LICENSE](LICENSE)
+MIT — see [LICENSE](LICENSE)
 
 ---
 
