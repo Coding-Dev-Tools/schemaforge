@@ -6,7 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/schemaforge)](https://pypi.org/project/schemaforge/)
 [![Python](https://img.shields.io/pypi/pyversions/schemaforge)](https://pypi.org/project/schemaforge/)
 [![License](https://img.shields.io/pypi/l/schemaforge)](https://github.com/Coding-Dev-Tools/schemaforge/blob/main/LICENSE)
-[![CI](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/test.yml/badge.svg)](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/test.yml)
+[![CI](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/ci.yml/badge.svg)](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-270%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
 [![VS Code](https://img.shields.io/badge/VS%20Code-extension-blue)](https://marketplace.visualstudio.com/items?itemName=devforge.vscode-schemaforge)
 [![Open Source Alternative](https://img.shields.io/badge/Open_Source_Alternative-%E2%87%92-blue?logo=opensourceinitiative)](https://www.opensourcealternative.to/project/schemaforge)
