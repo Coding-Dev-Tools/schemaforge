@@ -43,8 +43,8 @@ schemaforge convert --from sql --to prisma --input schema.sql --type-map my-type
 # Diff two schemas
 schemaforge diff schema-v1.prisma schema-v2.prisma
 
-# Batch convert all schemas in a directory
-schemaforge convert --from sql --to prisma --dir ./schemas/
+# Check all schemas in a directory are consistent
+schemaforge check --dir ./schemas/
 ```
 
 ## Installation
@@ -89,8 +89,8 @@ schemaforge convert --from graphql --to prisma --input schema.graphql
 # Custom type mapping
 schemaforge convert --from sql --to prisma --input schema.sql --type-map my-types.yaml
 
-# Dir mode (batch convert all files)
-schemaforge convert --from sql --to prisma --dir ./schemas/
+# Dir mode (check all files are consistent)
+schemaforge check --dir ./schemas/ --canonical prisma
 ```
 
 ### `schemaforge diff`
@@ -236,7 +236,7 @@ schemaforge convert --from sql --to prisma --input fixtures/sample.sql \
   --type-map fixtures/sample-type-overrides.yaml
 
 # Batch convert all fixtures from SQL
-schemaforge convert --from sql --to prisma --dir fixtures/
+schemaforge check --dir fixtures/
 
 # Diff two format outputs
 schemaforge diff fixtures/sample.sql fixtures/sample.prisma --format prisma
