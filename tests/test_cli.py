@@ -7,10 +7,8 @@ from __future__ import annotations
 
 import sys
 import tempfile
-from pathlib import Path
-
-import pytest
 from click.testing import CliRunner
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
@@ -370,12 +368,11 @@ class TestCheckCommand:
             Path(tmpdir, "schema.sql").write_text(SAMPLE_SQL)
             Path(tmpdir, "schema.prisma").write_text(SAMPLE_PRISMA)
 
-            result = runner.invoke(main, [
+            runner.invoke(main, [
                 "check",
                 "--dir", tmpdir,
                 "--type-map", str(type_map),
             ])
-            # May exit 1 depending on equivalence; check it ran
 
     def test_check_invalid_directory(self):
         """Check a file path that is not a directory."""
