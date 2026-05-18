@@ -3,9 +3,9 @@
 > **Bidirectional ORM schema converter** — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic migrations, JSON Schema, GraphQL SDL, EF Core (C#), and Scala case classes. **11 formats, 110 direction pairs.**
 
 [![GitHub stars](https://img.shields.io/github/stars/Coding-Dev-Tools/schemaforge?style=social)](https://github.com/Coding-Dev-Tools/schemaforge/stargazers)
-[![PyPI](https://img.shields.io/pypi/v/schemaforge)](https://pypi.org/project/schemaforge/)
-[![Python](https://img.shields.io/pypi/pyversions/schemaforge)](https://pypi.org/project/schemaforge/)
-[![License](https://img.shields.io/pypi/l/schemaforge)](https://github.com/Coding-Dev-Tools/schemaforge/blob/main/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/schemaforge-cli)](https://pypi.org/project/schemaforge-cli/)
+[![Python](https://img.shields.io/pypi/pyversions/schemaforge-cli)](https://pypi.org/project/schemaforge-cli/)
+[![License](https://img.shields.io/pypi/l/schemaforge-cli)](https://github.com/Coding-Dev-Tools/schemaforge/blob/main/LICENSE)
 [![CI](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/ci.yml/badge.svg)](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
 [![VS Code](https://img.shields.io/badge/VS%20Code-extension-blue)](https://marketplace.visualstudio.com/items?itemName=revenue-holdings.vscode-schemaforge)
