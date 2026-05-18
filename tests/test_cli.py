@@ -12,7 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from schemaforge.cli import main
+from schemaforge.cli import _detect_format, main
 
 # ── Helpers ──
 
@@ -459,3 +459,47 @@ class TestGeneralCli:
         assert result.exit_code == 0
         assert "Usage:" in result.output
         assert "--dir" in result.output
+
+
+# ═══════════════════════════════════════════════════════════════
+#  _detect_format
+# ═══════════════════════════════════════════════════════════════
+
+class TestDetectFormat:
+    """Tests for the private _detect_format helper."""
+
+    def test_sql_extension(self):
+        assert _detect_format("schema.sql") == "sql"
+
+    def test_prisma_extension(self):
+        assert _detect_format("schema.prisma") == "prisma"
+
+    def test_drizzle_ts(self):
+        assert _detect_format("schema.ts") == "drizzle"
+
+    def test_drizzle_tsx(self):
+        assert _detect_format("schema.tsx") == "drizzle"
+
+    def test_django_python(self):
+        assert _detect_format("models.py") == "django"
+
+    def test_json_schema(self):
+        assert _detect_format("schema.json") == "json_schema"
+
+    def test_graphql(self):
+        assert _detect_format("schema.graphql") == "graphql"
+
+    def test_graphql_gql(self):
+        assert _detect_format("schema.gql") == "graphql"
+
+    def test_ef_csharp(self):
+        assert _detect_format("entities.cs") == "ef"
+
+    def test_scala(self):
+        assert _detect_format("models.scala") == "scala"
+
+    def test_unknown_extension_defaults_to_sql(self):
+        assert _detect_format("schema.txt") == "sql"
+
+    def test_no_extension_defaults_to_sql(self):
+        assert _detect_format("schema") == "sql"
