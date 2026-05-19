@@ -13,6 +13,7 @@ except ImportError:
             return func
         return decorator
 
+from . import __version__
 from .check import check_directory
 from .convert import convert_schema
 from .diff import diff_schemas
@@ -27,7 +28,7 @@ _FORMATS = [
 
 
 @click.group()
-@click.version_option()
+@click.version_option(version=__version__)
 def main() -> None:
     """SchemaForge â€” bidirectional ORM schema converter.
 

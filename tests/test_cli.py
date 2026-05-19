@@ -373,6 +373,7 @@ class TestCheckCommand:
                 "--dir", tmpdir,
                 "--type-map", str(type_map),
             ])
+            # May exit 1 depending on equivalence; check it ran
 
     def test_check_invalid_directory(self):
         """Check a file path that is not a directory."""

@@ -3,19 +3,16 @@
 > **Bidirectional ORM schema converter** — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic migrations, JSON Schema, GraphQL SDL, EF Core (C#), and Scala case classes. **11 formats, 110 direction pairs.**
 
 [![GitHub stars](https://img.shields.io/github/stars/Coding-Dev-Tools/schemaforge?style=social)](https://github.com/Coding-Dev-Tools/schemaforge/stargazers)
-[![PyPI](https://img.shields.io/pypi/v/schemaforge)](https://pypi.org/project/schemaforge/)
-[![Python](https://img.shields.io/pypi/pyversions/schemaforge)](https://pypi.org/project/schemaforge/)
-[![License](https://img.shields.io/pypi/l/schemaforge)](https://github.com/Coding-Dev-Tools/schemaforge/blob/main/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/schemaforge-cli)](https://pypi.org/project/schemaforge-cli/)
+[![Python](https://img.shields.io/pypi/pyversions/schemaforge-cli)](https://pypi.org/project/schemaforge-cli/)
+[![License](https://img.shields.io/pypi/l/schemaforge-cli)](https://github.com/Coding-Dev-Tools/schemaforge/blob/main/LICENSE)
 [![CI](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/ci.yml/badge.svg)](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-270%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
-[![VS Code](https://img.shields.io/badge/VS%20Code-extension-blue)](https://marketplace.visualstudio.com/items?itemName=devforge.vscode-schemaforge)
+[![Tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
+[![VS Code](https://img.shields.io/badge/VS%20Code-extension-blue)](https://marketplace.visualstudio.com/items?itemName=revenue-holdings.vscode-schemaforge)
 [![Open Source Alternative](https://img.shields.io/badge/Open_Source_Alternative-%E2%87%92-blue?logo=opensourceinitiative)](https://www.opensourcealternative.to/project/schemaforge)
 [![LibHunt](https://img.shields.io/badge/LibHunt-%E2%87%92-blue?logo=codeigniter)](https://www.libhunt.com/r/Coding-Dev-Tools/schemaforge)
-[![Awesome Python](https://img.shields.io/badge/Awesome_Python-%E2%87%92-blue?logo=python)](https://github.com/uhub/awesome-python)
 
-> ⭐ **Star this repo**
-
-**Why SchemaForge?** Every major ORM migration is a one-way street. Prisma introspects SQL but can't export back. Drizzle users manually rewrite schemas when switching ORMs. TypeORM developers are locked into decorator syntax. SchemaForge is the first tool to do **bidirectional, lossless conversion** between 11 schema formats — with a shared internal representation that guarantees roundtrip fidelity.
+**Why SchemaForge?**
 
 Convert any schema to any format, verify equivalence with the diff command, generate Alembic migrations, produce JSON Schema definitions, create GraphQL SDL types, convert Entity Framework (C#) entities, generate Scala case classes, and batch-process entire directories. Whether you're migrating from Prisma to Drizzle, sharing a schema with a Django backend, exposing your data model as GraphQL, translating C# entities to Scala, or working with the SchemaForge VS Code extension for live preview — SchemaForge handles it.
 
@@ -63,7 +60,7 @@ Requires Python 3.10+.
 
 ### `schemaforge convert`
 
-Convert a schema from one format to another. All 9 formats support conversion to and from every other format (72 direction pairs).
+Convert a schema from one format to another. All 11 formats support conversion to and from every other format (110 direction pairs).
 
 ```bash
 # Format-specific examples
@@ -210,7 +207,7 @@ SchemaForge maps types intelligently between ORM systems. The core `ColumnType` 
 
 ## Demo Fixtures
 
-Try SchemaForge immediately with our example blog schema. The `fixtures/` directory contains an equivalent schema (users, posts, categories with enums and various data types) in all 9 formats:
+Try SchemaForge immediately with our example blog schema. The `fixtures/` directory contains an equivalent schema (users, posts, categories with enums and various data types) in all 11 formats:
 
 ```bash
 # List all fixtures
@@ -403,18 +400,18 @@ SchemaForge is one of 11 tools in the DevForge suite. One license covers all CLI
 
 | Feature | Free | Individual | Suite | Team | Enterprise |
 |---------|:----:|:----------:|:-----:|:----:|:----------:|
-| CLI: convert, diff | ✓ | ✓ | ✓ | ✓ | ✓ |
-| All 9 format directions | — | ✓ | ✓ | ✓ | ✓ |
-| Alembic migration generation | — | ✓ | ✓ | ✓ | ✓ |
-| JSON Schema import/export | — | ✓ | ✓ | ✓ | ✓ |
-| GraphQL SDL import/export | — | ✓ | ✓ | ✓ | ✓ |
-| MCP server (AI agent tools) | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Custom type mappings | — | ✓ | ✓ | ✓ | ✓ |
-| Batch directory conversion | — | ✓ | ✓ | ✓ | ✓ |
-| Team shared type mappings | — | — | — | ✓ | ✓ |
-| Dashboard & analytics | — | — | — | ✓ | ✓ |
-| Compliance reports | — | — | — | — | ✓ |
-| RBAC / SSO / SAML / OIDC | — | — | — | — | ✓ |
+|| CLI: convert, diff | ✓ | ✓ | ✓ | ✓ | ✓ |
+|| All 11 format directions | — | ✓ | ✓ | ✓ | ✓ |
+|| Alembic migration generation | — | ✓ | ✓ | ✓ | ✓ |
+|| JSON Schema import/export | — | ✓ | ✓ | ✓ | ✓ |
+|| GraphQL SDL import/export | — | ✓ | ✓ | ✓ | ✓ |
+|| MCP server (AI agent tools) | ✓ | ✓ | ✓ | ✓ | ✓ |
+|| Custom type mappings | — | ✓ | ✓ | ✓ | ✓ |
+|| Batch directory conversion | — | ✓ | ✓ | ✓ | ✓ |
+|| Team shared type mappings | — | — | — | ✓ | ✓ |
+|| Dashboard & analytics | — | — | — | ✓ | ✓ |
+|| Compliance reports | — | — | — | — | ✓ |
+|| RBAC / SSO / SAML / OIDC | — | — | — | — | ✓ |
 | Priority support | Community | 24h | 24h | 8h | Dedicated |
 
 ## Development
@@ -450,5 +447,5 @@ MIT — see [LICENSE](LICENSE)
 
 ---
 
-<sub>Part of [DevForge](https://coding-dev-tools.github.io/devforge.dev/) — a suite of 10 developer CLI tools built by autonomous AI agents. Also check out the [SchemaForge VS Code extension](https://github.com/Coding-Dev-Tools/vscode-schemaforge), [API Contract Guardian](https://github.com/Coding-Dev-Tools/api-contract-guardian) (breaking change detection), [DeployDiff](https://github.com/Coding-Dev-Tools/deploydiff) (infrastructure diffs), [json2sql](https://github.com/Coding-Dev-Tools/json2sql) (JSON → SQL), [ConfigDrift](https://github.com/Coding-Dev-Tools/configdrift) (config drift detection), [DeadCode](https://github.com/Coding-Dev-Tools/deadcode) (dead code cleanup), [APIAuth](https://github.com/Coding-Dev-Tools/apiauth) (API key management), [APIGhost](https://github.com/Coding-Dev-Tools/apighost) (mock API server), [Envault](https://github.com/Coding-Dev-Tools/envault) (env sync), and [click-to-mcp](https://github.com/Coding-Dev-Tools/click-to-mcp) (CLI → MCP server).</sub>
+<sub>Part of [Revenue Holdings](https://coding-dev-tools.github.io/revenueholdings.dev/) — a suite of 11 developer CLI tools built by autonomous AI agents. Also check out the [SchemaForge VS Code extension](https://github.com/Coding-Dev-Tools/vscode-schemaforge), [ConfigDrift](https://github.com/Coding-Dev-Tools/configdrift) (config drift detection), [DataMorph](https://github.com/Coding-Dev-Tools/datamorph) (data format conversion), [DeadCode](https://github.com/Coding-Dev-Tools/deadcode) (dead code cleanup), [DeployDiff](https://github.com/Coding-Dev-Tools/deploydiff) (infrastructure diffs), [Envault](https://github.com/Coding-Dev-Tools/envault) (env sync), [APIAuth](https://github.com/Coding-Dev-Tools/apiauth) (API key management), [APIGhost](https://github.com/Coding-Dev-Tools/apighost) (mock API server), [json2sql](https://github.com/Coding-Dev-Tools/json2sql) (JSON → SQL), [API Contract Guardian](https://github.com/Coding-Dev-Tools/api-contract-guardian) (breaking change detection), and [click-to-mcp](https://github.com/Coding-Dev-Tools/click-to-mcp) (CLI → MCP server).</sub>
 
