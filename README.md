@@ -378,13 +378,13 @@ npm run compile
 
 ## Pricing
 
-SchemaForge is one of 11 tools in the DevForge suite. One license covers all CLI tools.
+SchemaForge is one of 11 tools in the Revenue Holdings suite. One license covers all CLI tools.
 
 | Plan | Price | Best For |
 |------|-------|----------|
 | **Free** | $0 | Individual devs, OSS — CLI only, rate-limited |
 | **SchemaForge Individual** | **$15/mo** ($12 billed annually) | Professional devs — unlimited conversions, batch mode |
-| **Suite (all 11 tools)** | **$49/mo** ($39 billed annually) | Full DevForge toolkit — 40% savings |
+| **Suite (all 11 tools)** | **$49/mo** ($39 billed annually) | Full Revenue Holdings toolkit — 40% savings |
 | **Team** | **$79/mo** ($63 billed annually) | Up to 5 devs — shared schemas, team dashboard, alerts |
 | **Enterprise** | Custom | SSO, RBAC, compliance reports, dedicated support |
 
