@@ -3,14 +3,12 @@
 > **Bidirectional ORM schema converter** — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic migrations, JSON Schema, GraphQL SDL, EF Core (C#), and Scala case classes. **11 formats, 110 direction pairs.**
 
 [![GitHub stars](https://img.shields.io/github/stars/Coding-Dev-Tools/schemaforge?style=social)](https://github.com/Coding-Dev-Tools/schemaforge/stargazers)
-[![PyPI](https://img.shields.io/pypi/v/schemaforge-cli)](https://pypi.org/project/schemaforge-cli/)
-[![Python](https://img.shields.io/pypi/pyversions/schemaforge-cli)](https://pypi.org/project/schemaforge-cli/)
-[![License](https://img.shields.io/pypi/l/schemaforge-cli)](https://github.com/Coding-Dev-Tools/schemaforge/blob/main/LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://github.com/Coding-Dev-Tools/schemaforge)
+[![License](https://img.shields.io/github/license/Coding-Dev-Tools/schemaforge)](https://github.com/Coding-Dev-Tools/schemaforge/blob/main/LICENSE)
 [![CI](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/ci.yml/badge.svg)](https://github.com/Coding-Dev-Tools/schemaforge/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)](https://github.com/Coding-Dev-Tools/schemaforge)
 [![VS Code](https://img.shields.io/badge/VS%20Code-extension-blue)](https://marketplace.visualstudio.com/items?itemName=revenue-holdings.vscode-schemaforge)
 [![Open Source Alternative](https://img.shields.io/badge/Open_Source_Alternative-%E2%87%92-blue?logo=opensourceinitiative)](https://www.opensourcealternative.to/project/schemaforge)
-[![LibHunt](https://img.shields.io/badge/LibHunt-%E2%87%92-blue?logo=codeigniter)](https://www.libhunt.com/r/Coding-Dev-Tools/schemaforge)
 
 **Why SchemaForge?**
 
@@ -19,8 +17,8 @@ Convert any schema to any format, verify equivalence with the diff command, gene
 ## Quick Start
 
 ```bash
-# Install
-pip install schemaforge
+# Install (package publishing pending — install from source)
+pip install git+https://github.com/Coding-Dev-Tools/schemaforge.git
 
 # Convert Prisma → Drizzle
 schemaforge convert --from prisma --to drizzle --input schema.prisma
@@ -47,10 +45,7 @@ schemaforge check --dir ./schemas/
 ## Installation
 
 ```bash
-# PyPI (recommended)
-pip install schemaforge
-
-# Latest from source
+# Install from source (recommended — PyPI publishing pending)
 pip install git+https://github.com/Coding-Dev-Tools/schemaforge.git
 ```
 
@@ -267,7 +262,7 @@ SchemaForge includes an **MCP (Model Context Protocol) server** that exposes all
 
 ```bash
 # Install with MCP support
-pip install schemaforge[mcp]
+pip install "schemaforge[mcp] @ git+https://github.com/Coding-Dev-Tools/schemaforge.git"
 
 # Start the server (stdio mode — default for AI clients)
 schemaforge mcp
@@ -328,7 +323,7 @@ The **SchemaForge VS Code extension** provides live schema preview, quick conver
 
 ### Installation
 
-1. Install SchemaForge: `pip install schemaforge`
+1. Install SchemaForge: `pip install git+https://github.com/Coding-Dev-Tools/schemaforge.git`
 2. Install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=devforge.vscode-schemaforge)
 3. Open a `.sql`, `.prisma`, `.graphql`, `.cs`, or `.scala` file
 4. Run `SchemaForge: Show Preview` from the command palette
