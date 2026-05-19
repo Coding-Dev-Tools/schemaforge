@@ -1,6 +1,7 @@
 """Schema consistency check script for CI/CD pipelines."""
 import os
 import sys
+import tempfile
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -20,12 +21,15 @@ def main():
         sql = f.read()
 
     failures = 0
-    formats = ["prisma", "drizzle", "typeorm", "django", "sqlalchemy", "json_schema", "graphql"]
+    # All 11 supported formats (alembic is generator-only so excluded from roundtrip)
+    formats = ["prisma", "drizzle", "typeorm", "django", "sqlalchemy", "json_schema", "graphql", "ef", "scala"]
+
+    out_dir = tempfile.mkdtemp(prefix="schemaforge-check-")
 
     for fmt in formats:
         try:
             result = convert_schema(sql, "sql", fmt)
-            out_path = os.path.join("/tmp", f"sample.{fmt}")
+            out_path = os.path.join(out_dir, f"sample.{fmt}")
             with open(out_path, "w") as f:
                 f.write(result)
             print(f"  OK: sql -> {fmt}")

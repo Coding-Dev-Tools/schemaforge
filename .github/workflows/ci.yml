@@ -64,4 +64,4 @@ jobs:
 
       - name: Run schemaforge check on fixtures
         run: |
-          schemaforge check --dir /tmp --canonical sql || true
+          schemaforge check --dir fixtures/ --canonical sql
