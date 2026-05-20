@@ -1,17 +1,10 @@
-﻿"""SchemaForge CLI â€” bidirectional ORM schema converter."""
+﻿"""SchemaForge CLI — bidirectional ORM schema converter."""
 from __future__ import annotations
 
 import click
 import sys
 from pathlib import Path
 
-try:
-    from revenueholdings_license import require_license
-except ImportError:
-    def require_license(tool):
-        def decorator(func):
-            return func
-        return decorator
 
 from . import __version__
 from .check import check_directory
@@ -30,12 +23,12 @@ _FORMATS = [
 @click.group()
 @click.version_option(version=__version__)
 def main() -> None:
-    """SchemaForge â€” bidirectional ORM schema converter.
+    """SchemaForge — bidirectional ORM schema converter.
 
     Convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy models,
     Alembic migrations, JSON Schema, and GraphQL SDL with zero-loss roundtripping.
     """
-    require_license("schemaforge")
+
 
 
 @main.command()
