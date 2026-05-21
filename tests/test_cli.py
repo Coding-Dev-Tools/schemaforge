@@ -466,6 +466,28 @@ class TestGeneralCli:
 #  _detect_format
 # ═══════════════════════════════════════════════════════════════
 
+class TestHelpEncoding:
+    """Verifies CLI help text has no garbled/encoding corruption."""
+
+    def test_help_no_garbled_unicode(self):
+        """--help output should not contain garbled Unicode patterns."""
+        runner = CliRunner()
+        result = runner.invoke(main, ["--help"])
+        output = result.output
+        # Known garbled patterns that occur when UTF-8 is misinterpreted as Latin-1
+        garbled = ["â€", "Ã©", "Ã¼", "Ã±", "ï»¿"]
+        for pattern in garbled:
+            assert pattern not in output, f"Garbled Unicode found: {pattern!r}"
+
+    def test_help_docstring_em_dash(self):
+        """--help output should show em-dash (—) not garbled mojibake."""
+        runner = CliRunner()
+        result = runner.invoke(main, ["--help"])
+        output = result.output
+        # The module docstring uses an em-dash — verify it renders
+        assert "—" in output, "Em-dash not found in help output"
+
+
 class TestDetectFormat:
     """Tests for the private _detect_format helper."""
 
