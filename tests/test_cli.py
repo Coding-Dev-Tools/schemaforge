@@ -504,3 +504,9 @@ class TestDetectFormat:
 
     def test_no_extension_defaults_to_sql(self):
         assert _detect_format("schema") == "sql"
+
+    def test_uppercase_extension(self):
+        """_detect_format should handle case-insensitive extensions."""
+        assert _detect_format("schema.PRISMA") == "prisma"
+        assert _detect_format("schema.SQL") == "sql"
+        assert _detect_format("schema.JSON") == "json_schema"
