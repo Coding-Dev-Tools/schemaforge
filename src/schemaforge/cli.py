@@ -1,4 +1,4 @@
-﻿"""SchemaForge CLI — bidirectional ORM schema converter."""
+"""SchemaForge CLI — bidirectional ORM schema converter."""
 from __future__ import annotations
 
 import click
@@ -33,8 +33,7 @@ def main() -> None:
     """SchemaForge — bidirectional ORM schema converter.
 
     Convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy models,
-    Alembic migrations, JSON Schema, GraphQL SDL, EF Core (C#), and Scala case classes
-    with zero-loss roundtripping.
+    Alembic migrations, JSON Schema, and GraphQL SDL with zero-loss roundtripping.
     """
     require_license("schemaforge")
 
