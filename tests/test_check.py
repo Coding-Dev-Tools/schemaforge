@@ -46,6 +46,16 @@ def test_detect_format_alembic():
     assert detect_format("migration.py") == "django"
 
 
+def test_detect_format_ef():
+    """EF Core C# files should be detected."""
+    assert detect_format("schema.cs") == "ef"
+
+
+def test_detect_format_scala():
+    """Scala case class files should be detected."""
+    assert detect_format("schema.scala") == "scala"
+
+
 # ── check_directory tests ──
 
 SAMPLE_SQL = """CREATE TABLE users (
