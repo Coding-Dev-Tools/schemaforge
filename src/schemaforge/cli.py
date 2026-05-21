@@ -1,4 +1,4 @@
-﻿"""SchemaForge CLI — bidirectional ORM schema converter."""
+"""SchemaForge CLI — bidirectional ORM schema converter."""
 from __future__ import annotations
 
 import click
