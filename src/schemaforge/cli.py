@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 from . import __version__
-from .check import check_directory
+from .check import check_directory, detect_format
 from .convert import convert_schema
 from .diff import diff_schemas
 from .mcp_server import mcp_command
@@ -129,18 +129,6 @@ main.add_command(mcp_command)
 
 
 def _detect_format(path: str) -> str:
-    ext = Path(path).suffix.lower()
-    ext_map = {
-        ".sql": "sql",
-        ".prisma": "prisma",
-        ".ts": "drizzle",
-        ".tsx": "drizzle",
-        ".py": "django",
-        ".json": "json_schema",
-        ".graphql": "graphql",
-        ".gql": "graphql",
-        ".cs": "ef",
-        ".scala": "scala",
-    }
-    return ext_map.get(ext, "sql")
+    """Detect schema format from file extension, falling back to sql."""
+    return detect_format(path) or "sql"
 
