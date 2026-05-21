@@ -136,15 +136,17 @@ main.add_command(mcp_command)
 
 def _detect_format(path: str) -> str:
     ext = Path(path).suffix.lower()
-    if ext == ".sql":
-        return "sql"
-    if ext == ".prisma":
-        return "prisma"
-    if ext in (".ts", ".tsx"):
-        return "drizzle"
-    if ext == ".py":
-        return "django"
-    if ext in (".json",):
-        return "typeorm"
-    return "sql"  # default
+    ext_map = {
+        ".sql": "sql",
+        ".prisma": "prisma",
+        ".ts": "drizzle",
+        ".tsx": "drizzle",
+        ".py": "django",
+        ".json": "json_schema",
+        ".graphql": "graphql",
+        ".gql": "graphql",
+        ".cs": "ef",
+        ".scala": "scala",
+    }
+    return ext_map.get(ext, "sql")
 

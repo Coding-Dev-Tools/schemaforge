@@ -55,7 +55,7 @@ def create_server() -> Any:
     @server.tool(
         name="convert",
         description="Convert a schema from one format to another. "
-                    "All 9 formats support conversion to and from every other format. "
+                    "All 11 formats support conversion to and from every other format. "
                     "Returns the converted schema as text.",
     )
     def convert_tool(
