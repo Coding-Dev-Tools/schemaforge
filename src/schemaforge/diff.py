@@ -48,12 +48,31 @@ def diff_schemas(text_a: str, text_b: str, fmt: str) -> str:
             lines.append(f"\n  {name}:")
             lines.extend(f"    {d}" for d in diffs)
 
-    if not added and not removed and not any(
-        _diff_tables(
+    # Diff enums
+    a_enum_names = {e.name for e in schema_a.enums}
+    b_enum_names = {e.name for e in schema_b.enums}
+    enum_added = b_enum_names - a_enum_names
+    enum_removed = a_enum_names - b_enum_names
+    if enum_added:
+        lines.append(f"\n+ Added enums: {', '.join(sorted(enum_added))}")
+    if enum_removed:
+        lines.append(f"\n- Removed enums: {', '.join(sorted(enum_removed))}")
+    for ename in sorted(a_enum_names & b_enum_names):
+        ea = next(e for e in schema_a.enums if e.name == ename)
+        eb = next(e for e in schema_b.enums if e.name == ename)
+        if ea.values != eb.values:
+            lines.append(f"\n  enum {ename}:")
+            lines.append(f"    values: {ea.values} → {eb.values}")
+
+    # Determine if any differences were found
+    has_table_diffs = any(
+        bool(_diff_tables(
             next(t for t in schema_a.tables if t.name == name),
-            next(t for t in schema_b.tables if t.name == name)
-        ) for name in common
-    ):
+            next(t for t in schema_b.tables if t.name == name),
+        ))
+        for name in common
+    )
+    if not added and not removed and not has_table_diffs and not enum_added and not enum_removed:
         lines.append("No differences found.")
 
     return "\n".join(lines)
@@ -85,5 +104,17 @@ def _diff_tables(ta, tb) -> list[str]:
             diffs.append(f'~ column "{name}": PK={ca.primary_key} → {cb.primary_key}')
         if ca.default != cb.default:
             diffs.append(f'~ column "{name}": default={ca.default} → {cb.default}')
+        if ca.unique != cb.unique:
+            diffs.append(f'~ column "{name}": unique={ca.unique} → {cb.unique}')
+        if ca.comment != cb.comment:
+            diffs.append(f'~ column "{name}": comment="{ca.comment}" → "{cb.comment}"')
+
+    # Compare indexes
+    a_idx = {idx.name: idx for idx in ta.indexes if idx.name}
+    b_idx = {idx.name: idx for idx in tb.indexes if idx.name}
+    for name in sorted(set(b_idx.keys()) - set(a_idx.keys())):
+        diffs.append(f'+ index "{name}"')
+    for name in sorted(set(a_idx.keys()) - set(b_idx.keys())):
+        diffs.append(f'- index "{name}"')
 
     return diffs
