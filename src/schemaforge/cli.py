@@ -1,20 +1,12 @@
-﻿"""SchemaForge CLI â€” bidirectional ORM schema converter."""
+"""SchemaForge CLI — bidirectional ORM schema converter."""
 from __future__ import annotations
 
 import click
 import sys
 from pathlib import Path
 
-try:
-    from revenueholdings_license import require_license
-except ImportError:
-    def require_license(tool):
-        def decorator(func):
-            return func
-        return decorator
-
 from . import __version__
-from .check import check_directory
+from .check import check_directory, detect_format
 from .convert import convert_schema
 from .diff import diff_schemas
 from .mcp_server import mcp_command
@@ -30,12 +22,12 @@ _FORMATS = [
 @click.group()
 @click.version_option(version=__version__)
 def main() -> None:
-    """SchemaForge â€” bidirectional ORM schema converter.
+    """SchemaForge — bidirectional ORM schema converter.
 
     Convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy models,
     Alembic migrations, JSON Schema, and GraphQL SDL with zero-loss roundtripping.
     """
-    require_license("schemaforge")
+
 
 
 @main.command()
@@ -136,18 +128,6 @@ main.add_command(mcp_command)
 
 
 def _detect_format(path: str) -> str:
-    ext = Path(path).suffix.lower()
-    ext_map = {
-        ".sql": "sql",
-        ".prisma": "prisma",
-        ".ts": "drizzle",
-        ".tsx": "drizzle",
-        ".py": "django",
-        ".json": "json_schema",
-        ".graphql": "graphql",
-        ".gql": "graphql",
-        ".cs": "ef",
-        ".scala": "scala",
-    }
-    return ext_map.get(ext, "sql")
+    """Detect schema format from file extension, falling back to sql."""
+    return detect_format(path) or "sql"
 

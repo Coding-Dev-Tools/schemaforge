@@ -17,6 +17,8 @@ _FORMAT_EXTENSIONS: dict[str, str] = {
     ".json": "json_schema",
     ".graphql": "graphql",
     ".gql": "graphql",
+    ".cs": "ef",
+    ".scala": "scala",
 }
 
 
