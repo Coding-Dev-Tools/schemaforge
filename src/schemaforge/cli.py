@@ -5,6 +5,7 @@ import click
 import sys
 from pathlib import Path
 
+
 from . import __version__
 from .check import check_directory, detect_format
 from .convert import convert_schema
