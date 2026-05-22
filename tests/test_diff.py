@@ -6,8 +6,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from schemaforge.diff import diff_schemas, _diff_tables
-from schemaforge.ir import Column, ColumnType, EnumType, Index, Schema, Table
+from schemaforge.diff import _diff_tables, diff_schemas
+from schemaforge.ir import Column, ColumnType, Index, Table
 
 # ── Unit tests for _diff_tables ──
 
