@@ -13,6 +13,7 @@ authors = [{name = "Revenue Holdings"}]
 keywords = ["schema", "orm", "prisma", "drizzle", "typeorm", "django", "sql", "converter", "migration"]
 classifiers = [
     "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
     "Intended Audience :: Developers",
     "Topic :: Database",
     "Topic :: Software Development :: Code Generators",

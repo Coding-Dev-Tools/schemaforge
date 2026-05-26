@@ -1,6 +1,6 @@
 {
   "name": "schemaforge-cli",
-  "version": "0.1.1",
+  "version": "1.7.0",
   "description": "Database schema generator from Python type hints, Pydantic models, or JSON Schema definitions.",
   "author": "Revenue Holdings <engineering@revenueholdings.dev>",
   "license": "MIT",
