@@ -6,9 +6,10 @@ Run with:
 """
 from __future__ import annotations
 
-import click
 from pathlib import Path
 from typing import Any
+
+import click
 
 from .check import check_directory, detect_format
 from .convert import convert_schema

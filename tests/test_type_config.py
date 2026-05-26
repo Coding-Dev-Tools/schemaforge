@@ -10,6 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import pytest
+
 from schemaforge.convert import convert_schema
 from schemaforge.ir import Column, ColumnType
 from schemaforge.type_config import EMPTY_CONFIG, TypeConfig

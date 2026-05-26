@@ -7,8 +7,9 @@ from __future__ import annotations
 
 import sys
 import tempfile
-from click.testing import CliRunner
 from pathlib import Path
+
+from click.testing import CliRunner
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 

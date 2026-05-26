@@ -4,6 +4,7 @@ Convert to any ORM format with:
 """
 
 import enum
+
 from sqlalchemy import (
     Boolean,
     Column,
