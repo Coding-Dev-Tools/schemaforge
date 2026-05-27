@@ -63,11 +63,11 @@ def check_directory(
     converted: list[tuple[str, str, str]] = []
     failures: list[str] = []
 
-    for fpath, fmt, name in schema_files:
+    for file_path, fmt, name in schema_files:
         try:
-            text = Path(fpath).read_text(encoding="utf-8")
+            text = Path(file_path).read_text(encoding="utf-8")
             result = convert_schema(text, fmt, canonical, type_config=type_config)
-            converted.append((fpath, name, result))
+            converted.append((file_path, name, result))
         except Exception as e:
             failures.append(f"  FAIL {name}: {e}")
 

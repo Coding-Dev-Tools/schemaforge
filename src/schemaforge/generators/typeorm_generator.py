@@ -57,13 +57,6 @@ class TypeORMGenerator:
         )
         if has_pk:
             imports.append("PrimaryGeneratedColumn")
-        any(
-            any(not c.primary_key for c in t.columns) for t in schema.tables
-        ) or any(
-            any(c.primary_key for c in t.columns and not any(
-                True for cc in t.columns if cc.primary_key
-            )) for t in schema.tables
-        )
         # Actually just always import Column since most tables have non-PK columns
         imports.append("Column")
         has_index = any(t.indexes for t in schema.tables)
