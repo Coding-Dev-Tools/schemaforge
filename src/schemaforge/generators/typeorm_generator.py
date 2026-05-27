@@ -167,7 +167,7 @@ class TypeORMGenerator:
                     options["default"] = f"() => \"{fn_name}\""
                 elif isinstance(col.default, str):
                     options["default"] = f'"{col.default}"'
-                elif isinstance(col.default, (int, float)):
+                elif isinstance(col.default, int | float):
                     options["default"] = str(col.default)
 
             options_str = self._format_options(options)
