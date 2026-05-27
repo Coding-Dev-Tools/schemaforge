@@ -131,3 +131,7 @@ def _detect_format(path: str) -> str:
     """Detect schema format from file extension, falling back to sql."""
     return detect_format(path) or "sql"
 
+
+if __name__ == "__main__":
+    main()
+
