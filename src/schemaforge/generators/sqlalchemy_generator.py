@@ -136,7 +136,7 @@ class SQLAlchemyGenerator:
         # Literal defaults
         if col.default is not None and not (isinstance(col.default, str) and col.default.startswith("fn:")):
             lit = format_literal_default(col)
-            if isinstance(col.default, (bool, int, float, str)):
+            if isinstance(col.default, bool | int | float | str):
                 kwargs.append(f"default={lit}")
 
         if kwargs:

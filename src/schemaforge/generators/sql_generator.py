@@ -103,7 +103,7 @@ class SQLGenerator:
         if col.default is not None:
             if isinstance(col.default, bool):
                 parts.append(f"DEFAULT {'TRUE' if col.default else 'FALSE'}")
-            elif isinstance(col.default, (int, float)):
+            elif isinstance(col.default, int | float):
                 parts.append(f"DEFAULT {col.default}")
             elif isinstance(col.default, str) and col.default.startswith("fn:"):
                 fn_val = col.default[3:]

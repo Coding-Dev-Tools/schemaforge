@@ -178,7 +178,7 @@ class DrizzleGenerator:
                 chain.append(f".default({str(col.default).lower()})")
             elif isinstance(col.default, str):
                 chain.append(f".default('{col.default}')")
-            elif isinstance(col.default, (int, float)):
+            elif isinstance(col.default, int | float):
                 chain.append(f".default({col.default})")
             else:
                 chain.append(f".default({col.default})")
