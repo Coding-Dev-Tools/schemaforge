@@ -108,7 +108,7 @@ class ScalaGenerator:
                     default_str = " = java.util.UUID.randomUUID()"
             elif isinstance(col.default, str):
                 default_str = f' = "{col.default}"'
-            elif isinstance(col.default, (int, float)):
+            elif isinstance(col.default, int | float):
                 default_str = f" = {col.default}"
 
         return f"{col.name}: {scala_type}{default_str}"

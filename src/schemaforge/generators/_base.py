@@ -198,6 +198,6 @@ def format_literal_default(col: Column) -> str | None:
         return str(col.default).lower()
     if isinstance(col.default, str):
         return f"'{col.default}'"
-    if isinstance(col.default, (int, float)):
+    if isinstance(col.default, int | float):
         return str(col.default)
     return None

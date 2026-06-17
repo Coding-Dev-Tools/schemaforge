@@ -100,7 +100,7 @@ class EntityFrameworkGenerator:
                 pass  # Skip function defaults in C#
             elif isinstance(col.default, str):
                 default_str = f' = "{col.default}";'
-            elif isinstance(col.default, (int, float)):
+            elif isinstance(col.default, int | float):
                 default_str = f" = {col.default};"
 
         ann_str = " ".join(annotations)

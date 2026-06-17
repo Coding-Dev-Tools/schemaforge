@@ -57,13 +57,6 @@ class TypeORMGenerator:
         )
         if has_pk:
             imports.append("PrimaryGeneratedColumn")
-        any(
-            any(not c.primary_key for c in t.columns) for t in schema.tables
-        ) or any(
-            any(c.primary_key for c in t.columns and not any(
-                True for cc in t.columns if cc.primary_key
-            )) for t in schema.tables
-        )
         # Actually just always import Column since most tables have non-PK columns
         imports.append("Column")
         has_index = any(t.indexes for t in schema.tables)
@@ -167,7 +160,7 @@ class TypeORMGenerator:
                     options["default"] = f"() => \"{fn_name}\""
                 elif isinstance(col.default, str):
                     options["default"] = f'"{col.default}"'
-                elif isinstance(col.default, (int, float)):
+                elif isinstance(col.default, int | float):
                     options["default"] = str(col.default)
 
             options_str = self._format_options(options)

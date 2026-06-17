@@ -150,7 +150,7 @@ class DjangoGenerator:
                     kwargs.append(f"default={fn_name}")
             elif isinstance(col.default, str):
                 kwargs.append(f"default='{col.default}'")
-            elif isinstance(col.default, (int, float)):
+            elif isinstance(col.default, int | float):
                 kwargs.append(f"default={col.default}")
 
         if not kwargs and django_field == "CharField":
