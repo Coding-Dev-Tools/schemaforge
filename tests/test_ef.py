@@ -1,4 +1,5 @@
 """Tests for Entity Framework Core format (parser + generator)."""
+
 from __future__ import annotations
 
 import sys
@@ -34,6 +35,7 @@ public class User
 
 
 # ── Parser Tests ──
+
 
 def test_ef_parse_table_name():
     """Parser should extract table name from [Table] attribute."""
@@ -124,24 +126,26 @@ def test_ef_parse_no_models():
 
 def test_ef_parse_multiple_tables():
     """Parser should handle multiple entity classes."""
-    cs = '\n'.join([
-        '[Table("users")]',
-        'public class User',
-        '{',
-        '    [Key]',
-        '    public int Id { get; set; }',
-        '    public string Name { get; set; }',
-        '}',
-        '',
-        '[Table("posts")]',
-        'public class Post',
-        '{',
-        '    [Key]',
-        '    public int Id { get; set; }',
-        '    [Required]',
-        '    public string Title { get; set; }',
-        '}',
-    ])
+    cs = "\n".join(
+        [
+            '[Table("users")]',
+            "public class User",
+            "{",
+            "    [Key]",
+            "    public int Id { get; set; }",
+            "    public string Name { get; set; }",
+            "}",
+            "",
+            '[Table("posts")]',
+            "public class Post",
+            "{",
+            "    [Key]",
+            "    public int Id { get; set; }",
+            "    [Required]",
+            "    public string Title { get; set; }",
+            "}",
+        ]
+    )
     parser = EntityFrameworkParser()
     schema = parser.parse(cs)
     assert len(schema.tables) == 2
@@ -171,16 +175,27 @@ public class Config
 
 # ── Generator Tests ──
 
+
 def test_ef_generate_simple():
     """Generator should produce valid C# class structure."""
     from schemaforge.ir import Column, ColumnType, Schema, Table
-    schema = Schema(tables=[
-        Table(name="users", columns=[
-            Column(name="id", type=ColumnType.INTEGER, primary_key=True),
-            Column(name="name", type=ColumnType.STRING, nullable=False,
-                   type_args={"length": 100}),
-        ])
-    ])
+
+    schema = Schema(
+        tables=[
+            Table(
+                name="users",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER, primary_key=True),
+                    Column(
+                        name="name",
+                        type=ColumnType.STRING,
+                        nullable=False,
+                        type_args={"length": 100},
+                    ),
+                ],
+            )
+        ]
+    )
     gen = EntityFrameworkGenerator()
     output = gen.generate(schema)
     assert "using System" in output
@@ -193,12 +208,18 @@ def test_ef_generate_simple():
 def test_ef_generate_datetime():
     """Generator should map DATETIME to DateTime type."""
     from schemaforge.ir import Column, ColumnType, Schema, Table
-    schema = Schema(tables=[
-        Table(name="events", columns=[
-            Column(name="id", type=ColumnType.INTEGER, primary_key=True),
-            Column(name="ts", type=ColumnType.DATETIME),
-        ])
-    ])
+
+    schema = Schema(
+        tables=[
+            Table(
+                name="events",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER, primary_key=True),
+                    Column(name="ts", type=ColumnType.DATETIME),
+                ],
+            )
+        ]
+    )
     gen = EntityFrameworkGenerator()
     output = gen.generate(schema)
     assert "DateTime" in output
@@ -207,13 +228,22 @@ def test_ef_generate_datetime():
 def test_ef_generate_decimal():
     """Generator should add [Column] for decimal precision/scale."""
     from schemaforge.ir import Column, ColumnType, Schema, Table
-    schema = Schema(tables=[
-        Table(name="products", columns=[
-            Column(name="id", type=ColumnType.INTEGER, primary_key=True),
-            Column(name="price", type=ColumnType.DECIMAL,
-                   type_args={"precision": 12, "scale": 4}),
-        ])
-    ])
+
+    schema = Schema(
+        tables=[
+            Table(
+                name="products",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER, primary_key=True),
+                    Column(
+                        name="price",
+                        type=ColumnType.DECIMAL,
+                        type_args={"precision": 12, "scale": 4},
+                    ),
+                ],
+            )
+        ]
+    )
     gen = EntityFrameworkGenerator()
     output = gen.generate(schema)
     assert "decimal" in output
@@ -223,6 +253,7 @@ def test_ef_generate_decimal():
 def test_ef_generate_empty():
     """Empty schema should produce just the boilerplate."""
     from schemaforge.ir import Schema
+
     gen = EntityFrameworkGenerator()
     output = gen.generate(Schema())
     assert "using System" in output
@@ -230,6 +261,7 @@ def test_ef_generate_empty():
 
 
 # ── Roundtrip / Conversion Tests ──
+
 
 def test_ef_to_sql_roundtrip():
     """C# entities should convert to valid SQL."""
