@@ -1,4 +1,5 @@
 """Parser: TypeORM entity schema → SchemaForge IR."""
+
 from __future__ import annotations
 
 import contextlib
@@ -92,9 +93,8 @@ class TypeORMParser:
                 stripped = line.strip()
                 # Detect @Entity, @ViewEntity, or bare class extends pattern
                 if (
-            (stripped.startswith("@") or stripped.startswith("export class"))
-            and (stripped.startswith("export class") or "class " in stripped)
-        ):
+                    stripped.startswith("@") or stripped.startswith("export class")
+                ) and (stripped.startswith("export class") or "class " in stripped):
                     in_class = True
                     current = line + "\n"
                     brace_depth = 0
@@ -144,11 +144,13 @@ class TypeORMParser:
             stripped = line.strip()
 
             # Multi-line @Column decorator
-            if stripped.startswith("@PrimaryGeneratedColumn") or \
-               stripped.startswith("@PrimaryColumn") or \
-               stripped.startswith("@Column") or \
-               stripped.startswith("@Index") or \
-               stripped.startswith("@Unique"):
+            if (
+                stripped.startswith("@PrimaryGeneratedColumn")
+                or stripped.startswith("@PrimaryColumn")
+                or stripped.startswith("@Column")
+                or stripped.startswith("@Index")
+                or stripped.startswith("@Unique")
+            ):
                 decorator_lines = [stripped]
                 # Collect multi-line decorator
                 depth = stripped.count("(") - stripped.count(")")
@@ -172,8 +174,9 @@ class TypeORMParser:
                     field_line = next_line
                     break
 
-                if decorator_text.startswith("@PrimaryGeneratedColumn") or \
-                   decorator_text.startswith("@PrimaryColumn"):
+                if decorator_text.startswith(
+                    "@PrimaryGeneratedColumn"
+                ) or decorator_text.startswith("@PrimaryColumn"):
                     col = self._parse_column_with_decorator(
                         decorator_text, field_line, is_pk=True
                     )
@@ -259,7 +262,7 @@ class TypeORMParser:
             raw_default = options["default"]
             if isinstance(raw_default, str) and raw_default.startswith("() => "):
                 # Function default (CURRENT_TIMESTAMP, etc.)
-                fn_name = raw_default.replace("() => ", "").strip().strip('"\'')
+                fn_name = raw_default.replace("() => ", "").strip().strip("\"'")
                 if fn_name.upper() in ("CURRENT_TIMESTAMP", "NOW()", "UUID"):
                     pass  # Skip DB-managed defaults
                 else:
@@ -272,7 +275,7 @@ class TypeORMParser:
                 try:
                     col.default = float(raw_default)
                 except ValueError:
-                    col.default = raw_default.strip('"\'')
+                    col.default = raw_default.strip("\"'")
 
         # Handle custom type
         if col_type == ColumnType.CUSTOM and col_type_str:
@@ -307,7 +310,7 @@ class TypeORMParser:
         # If it's a plain string (type name), handle it
         inner_stripped = inner.strip()
         if inner_stripped.startswith('"') or inner_stripped.startswith("'"):
-            options["type"] = inner_stripped.strip('"\'')
+            options["type"] = inner_stripped.strip("\"'")
             return options
 
         # If it's an object literal { ... }
@@ -326,7 +329,7 @@ class TypeORMParser:
             if inner:
                 # Could be a string or inline object
                 if inner.startswith('"') or inner.startswith("'"):
-                    return {"type": inner.strip('"\'')}
+                    return {"type": inner.strip("\"'")}
                 if inner.startswith("{"):
                     obj_inner = inner[1:-1].strip()
                     return self._parse_key_value_pairs(obj_inner)
@@ -431,9 +434,7 @@ class TypeORMParser:
         # Try to extract columns from array
         arr_match = re.search(r"\[([^\]]+)\]", inner)
         if arr_match:
-            columns = [
-                c.strip().strip('"\'') for c in arr_match.group(1).split(",")
-            ]
+            columns = [c.strip().strip("\"'") for c in arr_match.group(1).split(",")]
         else:
             # Single field index — name is in quotes
             name_match = re.search(r'["\'](\w+)["\']', inner)
