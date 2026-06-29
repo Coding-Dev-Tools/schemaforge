@@ -1,4 +1,5 @@
 """Tests for SchemaForge — SQL DDL ↔ Prisma roundtrip."""
+
 from __future__ import annotations
 
 import sys
@@ -133,6 +134,7 @@ def test_prisma_generate():
 
 
 # ── Roundtrip Tests ──
+
 
 def test_sql_to_prisma_roundtrip():
     """Parse SQL, convert to Prisma, check key elements survive."""
