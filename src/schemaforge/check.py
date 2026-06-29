@@ -1,4 +1,5 @@
 """Schema consistency checker — ensures all format representations are equivalent."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -89,13 +90,9 @@ def check_directory(
             # Found a mismatch — run a proper diff
             try:
                 diff_result = diff_schemas(text_a, text_b, canonical)
-                mismatches.append(
-                    f"MISMATCH: {name_a} vs {name_b}\n{diff_result}\n"
-                )
+                mismatches.append(f"MISMATCH: {name_a} vs {name_b}\n{diff_result}\n")
             except Exception as e:
-                mismatches.append(
-                    f"ERROR diffing {name_a} vs {name_b}: {e}\n"
-                )
+                mismatches.append(f"ERROR diffing {name_a} vs {name_b}: {e}\n")
 
     # Build report
     lines: list[str] = []
