@@ -1,4 +1,5 @@
 """Tests for SchemaForge MCP server (mcp_server.py)."""
+
 from __future__ import annotations
 
 import sys
