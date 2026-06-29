@@ -1,4 +1,5 @@
 """Parser: Django model schema → SchemaForge IR."""
+
 from __future__ import annotations
 
 import contextlib
@@ -77,9 +78,7 @@ class DjangoParser:
                 body_lines: list[str] = []
                 i += 1
                 while i < len(lines):
-                    if lines[i].strip() and not lines[i].startswith(
-                        (" ", "\t")
-                    ):
+                    if lines[i].strip() and not lines[i].startswith((" ", "\t")):
                         break
                     # Skip blank lines and comments
                     stripped_body = lines[i].strip()
@@ -123,7 +122,9 @@ class DjangoParser:
             field_class = field_m.group(2)
 
             # Extract args between the outermost parens
-            args_start = stripped.index("(", stripped.index(field_class) + len(field_class))
+            args_start = stripped.index(
+                "(", stripped.index(field_class) + len(field_class)
+            )
             paren_depth = 0
             args_end = len(stripped)
             for j, ch in enumerate(stripped[args_start:]):
@@ -134,7 +135,7 @@ class DjangoParser:
                     if paren_depth == 0:
                         args_end = args_start + j
                         break
-            field_args = stripped[args_start + 1:args_end]
+            field_args = stripped[args_start + 1 : args_end]
 
             col_type = self._FIELD_MAP.get(field_class, ColumnType.CUSTOM)
 
