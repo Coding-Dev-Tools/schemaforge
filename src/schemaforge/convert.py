@@ -1,4 +1,5 @@
 """Schema conversion: all format pairs via the IR."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
