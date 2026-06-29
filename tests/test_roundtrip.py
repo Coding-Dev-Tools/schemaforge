@@ -1,4 +1,5 @@
 """Roundtrip and edge-case tests for SchemaForge — SQL DDL ↔ Prisma."""
+
 from __future__ import annotations
 
 import sys
@@ -64,6 +65,7 @@ CREATE TABLE tags (
 
 
 # ── Roundtrip Fidelity Tests ──
+
 
 def test_sql_to_prisma_to_sql_roundtrip():
     """Full roundtrip: SQL → Prisma → SQL preserves table structure.
@@ -151,6 +153,7 @@ model Post {
 
 
 # ── Edge Case Tests ──
+
 
 def test_empty_sql():
     """Empty input should produce empty schema."""
@@ -266,16 +269,22 @@ def test_prisma_complex_types():
 
 # ── Generator Edge Cases ──
 
+
 def test_generate_without_enum():
     """SQL generation without enums should not include CREATE TYPE."""
     from schemaforge.ir import Column, ColumnType, Schema, Table
 
-    schema = Schema(tables=[
-        Table(name="items", columns=[
-            Column(name="id", type=ColumnType.INTEGER, primary_key=True),
-            Column(name="name", type=ColumnType.STRING, nullable=False),
-        ])
-    ])
+    schema = Schema(
+        tables=[
+            Table(
+                name="items",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER, primary_key=True),
+                    Column(name="name", type=ColumnType.STRING, nullable=False),
+                ],
+            )
+        ]
+    )
     gen = SQLGenerator()
     output = gen.generate(schema)
     assert "CREATE TYPE" not in output
@@ -298,18 +307,30 @@ def test_prisma_generate_complex():
     """Prisma generation should handle all column types."""
     from schemaforge.ir import Column, ColumnType, Index, Schema, Table
 
-    schema = Schema(tables=[
-        Table(name="Item", columns=[
-            Column(name="id", type=ColumnType.INTEGER, primary_key=True),
-            Column(name="name", type=ColumnType.STRING, type_args={"length": 100}),
-            Column(name="price", type=ColumnType.DECIMAL, type_args={"precision": 12, "scale": 4}),
-            Column(name="active", type=ColumnType.BOOLEAN, default=True),
-            Column(name="data", type=ColumnType.JSON, nullable=True),
-            Column(name="token", type=ColumnType.UUID, unique=True),
-        ], indexes=[
-            Index(name="idx_name", columns=["name"]),
-        ])
-    ])
+    schema = Schema(
+        tables=[
+            Table(
+                name="Item",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER, primary_key=True),
+                    Column(
+                        name="name", type=ColumnType.STRING, type_args={"length": 100}
+                    ),
+                    Column(
+                        name="price",
+                        type=ColumnType.DECIMAL,
+                        type_args={"precision": 12, "scale": 4},
+                    ),
+                    Column(name="active", type=ColumnType.BOOLEAN, default=True),
+                    Column(name="data", type=ColumnType.JSON, nullable=True),
+                    Column(name="token", type=ColumnType.UUID, unique=True),
+                ],
+                indexes=[
+                    Index(name="idx_name", columns=["name"]),
+                ],
+            )
+        ]
+    )
     gen = PrismaGenerator()
     output = gen.generate(schema)
     assert "model Item" in output
@@ -322,6 +343,7 @@ def test_prisma_generate_complex():
 
 # ── Conversion Edge Cases ──
 
+
 def test_convert_same_format_returns_original():
     """Converting a format to itself should return the original text."""
     result = convert_schema("hello world", "sql", "sql")
@@ -331,6 +353,7 @@ def test_convert_same_format_returns_original():
 def test_convert_unsupported_format():
     """Unsupported format should raise ValueError."""
     import pytest
+
     with pytest.raises(ValueError, match="Unsupported source format"):
         convert_schema("data", "unsupported", "sql")
     with pytest.raises(ValueError, match="Unsupported target format"):
@@ -361,6 +384,7 @@ def test_sql_default_values():
 
 
 # ── SQL Parser Edge Case Tests ──
+
 
 def test_sql_temporary_table():
     """CREATE TEMPORARY TABLE should be parsed."""
@@ -415,11 +439,11 @@ def test_sql_backtick_quoted_schema_table():
 def test_sql_double_quoted_table():
     """Double-quoted table names should be parsed."""
     parser = SQLParser()
-    schema = parser.parse('''
+    schema = parser.parse("""
         CREATE TABLE "users" (
             "id" INTEGER PRIMARY KEY
         );
-    ''')
+    """)
     assert len(schema.tables) == 1
     assert schema.tables[0].name == "users"
 
@@ -485,14 +509,30 @@ def test_sql_current_date_default():
 def test_sql_fn_default_generates_without_quotes():
     """fn: prefixed defaults should generate without quotes in SQL DDL."""
     from schemaforge.ir import Column, ColumnType, Schema, Table
-    schema = Schema(tables=[
-        Table(name="events", columns=[
-            Column(name="id", type=ColumnType.INTEGER, primary_key=True),
-            Column(name="created_at", type=ColumnType.DATETIME, default="fn:CURRENT_TIMESTAMP"),
-            Column(name="updated_at", type=ColumnType.DATETIME, default="fn:NOW()"),
-            Column(name="token", type=ColumnType.UUID, default="fn:gen_random_uuid()"),
-        ])
-    ])
+
+    schema = Schema(
+        tables=[
+            Table(
+                name="events",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER, primary_key=True),
+                    Column(
+                        name="created_at",
+                        type=ColumnType.DATETIME,
+                        default="fn:CURRENT_TIMESTAMP",
+                    ),
+                    Column(
+                        name="updated_at", type=ColumnType.DATETIME, default="fn:NOW()"
+                    ),
+                    Column(
+                        name="token",
+                        type=ColumnType.UUID,
+                        default="fn:gen_random_uuid()",
+                    ),
+                ],
+            )
+        ]
+    )
     gen = SQLGenerator()
     output = gen.generate(schema)
     assert "DEFAULT CURRENT_TIMESTAMP" in output
@@ -549,6 +589,7 @@ model Event {
 
 
 # ── MySQL Table Options Tests ──
+
 
 def test_sql_mysql_engine_option():
     """ENGINE=InnoDB table option should be parsed."""
@@ -621,11 +662,18 @@ CREATE TABLE users (
 def test_sql_table_options_generated():
     """MySQL table options from IR should generate correctly."""
     from schemaforge.ir import Column, ColumnType, Schema, Table
-    schema = Schema(tables=[
-        Table(name="users", columns=[
-            Column(name="id", type=ColumnType.INTEGER, primary_key=True),
-        ], options={"ENGINE": "InnoDB", "DEFAULT CHARSET": "utf8mb4"})
-    ])
+
+    schema = Schema(
+        tables=[
+            Table(
+                name="users",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER, primary_key=True),
+                ],
+                options={"ENGINE": "InnoDB", "DEFAULT CHARSET": "utf8mb4"},
+            )
+        ]
+    )
     gen = SQLGenerator()
     output = gen.generate(schema)
     assert "ENGINE=InnoDB" in output
@@ -633,6 +681,7 @@ def test_sql_table_options_generated():
 
 
 # ── Inline ENUM('a','b','c') Tests ──
+
 
 def test_sql_inline_enum_column():
     """Inline ENUM('a','b','c') column type should be parsed."""
@@ -666,13 +715,22 @@ CREATE TABLE tshirts (
 def test_sql_inline_enum_generated():
     """ENUM with inline values from IR should generate correctly."""
     from schemaforge.ir import Column, ColumnType, Schema, Table
-    schema = Schema(tables=[
-        Table(name="tshirts", columns=[
-            Column(name="id", type=ColumnType.INTEGER, primary_key=True),
-            Column(name="size", type=ColumnType.ENUM,
-                   type_args={"values": ["small", "medium", "large"]}),
-        ])
-    ])
+
+    schema = Schema(
+        tables=[
+            Table(
+                name="tshirts",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER, primary_key=True),
+                    Column(
+                        name="size",
+                        type=ColumnType.ENUM,
+                        type_args={"values": ["small", "medium", "large"]},
+                    ),
+                ],
+            )
+        ]
+    )
     gen = SQLGenerator()
     output = gen.generate(schema)
     assert "ENUM('small', 'medium', 'large')" in output
