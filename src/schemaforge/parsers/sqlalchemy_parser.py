@@ -1,4 +1,5 @@
 """Parser: SQLAlchemy declarative model schema → SchemaForge IR."""
+
 from __future__ import annotations
 
 import contextlib
@@ -90,8 +91,12 @@ class SQLAlchemyParser:
                 model_name = model_m.group(1)
                 base_name = model_m.group(2)
                 # Skip base class definitions themselves
-                if base_name.lower() in ("declarative_base", "declarativebase",
-                                          "as_declarative", "registry"):
+                if base_name.lower() in (
+                    "declarative_base",
+                    "declarativebase",
+                    "as_declarative",
+                    "registry",
+                ):
                     i += 1
                     continue
                 # Check if any base looks like a declarative base
@@ -187,7 +192,7 @@ class SQLAlchemyParser:
                     if paren_depth == 0:
                         args_end = args_start + j
                         break
-            col_args = stripped[args_start + 1:args_end]
+            col_args = stripped[args_start + 1 : args_end]
 
             # Parse the Column contents
             col = self._parse_column(col_name, col_args)
@@ -338,8 +343,9 @@ class SQLAlchemyParser:
             value = kv_match.group(2).strip()
 
             # Strip quotes from string values
-            if (value.startswith('"') and value.endswith('"')) or \
-               (value.startswith("'") and value.endswith("'")):
+            if (value.startswith('"') and value.endswith('"')) or (
+                value.startswith("'") and value.endswith("'")
+            ):
                 kwargs[key] = value[1:-1]
             elif value.lower() in ("true", "false"):
                 kwargs[key] = value.lower()
