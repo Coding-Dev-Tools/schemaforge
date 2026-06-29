@@ -3,6 +3,7 @@
 Generates op.create_table() / op.create_index() migration code
 for initial schema setup, deployable as Alembic revision scripts.
 """
+
 from __future__ import annotations
 
 from ..ir import Column, ColumnType, Schema, Table
@@ -73,15 +74,13 @@ class AlembicGenerator:
             for enum_type in schema.enums:
                 values = ", ".join(f"'{v}'" for v in enum_type.values)
                 lines.append(
-                    f"op.execute(\"CREATE TYPE {enum_type.name} AS ENUM ({values})\")"
+                    f'op.execute("CREATE TYPE {enum_type.name} AS ENUM ({values})")'
                 )
             lines.append("")
 
         lines.append("# revision identifiers, used by Alembic.")
         lines.append(f"revision = '{revision_id}'")
-        lines.append(
-            f"down_revision = {repr(down_revision)}"
-        )
+        lines.append(f"down_revision = {repr(down_revision)}")
         lines.append("")
 
         # ── upgrade() ──
@@ -114,15 +113,11 @@ class AlembicGenerator:
             for table in reversed(schema.tables):
                 lines.append(f"    op.drop_table('{table.name}')")
             for enum_type in reversed(schema.enums):
-                lines.append(
-                    f"    op.execute('DROP TYPE {enum_type.name}')"
-                )
+                lines.append(f"    op.execute('DROP TYPE {enum_type.name}')")
 
         return "\n".join(lines) + "\n"
 
-    def _generate_table(
-        self, table: Table
-    ) -> tuple[list[str], list[str]]:
+    def _generate_table(self, table: Table) -> tuple[list[str], list[str]]:
         """Generate op.create_table() and op.create_index() calls for a table.
 
         Returns (create_table_lines, create_index_lines).
@@ -133,15 +128,11 @@ class AlembicGenerator:
 
         table_lines: list[str] = []
         if col_defs:
-            table_lines.append(
-                f"    op.create_table('{table.name}',"
-            )
+            table_lines.append(f"    op.create_table('{table.name}',")
             table_lines.extend(col_defs)
             table_lines.append("    )")
         else:
-            table_lines.append(
-                f"    op.create_table('{table.name}')"
-            )
+            table_lines.append(f"    op.create_table('{table.name}')")
 
         index_lines: list[str] = []
         for idx in table.indexes:
@@ -154,15 +145,16 @@ class AlembicGenerator:
                 )
             else:
                 index_lines.append(
-                    f"    op.create_index('{idx_name}', "
-                    f"'{table.name}', [{col_list}])"
+                    f"    op.create_index('{idx_name}', '{table.name}', [{col_list}])"
                 )
 
         return table_lines, index_lines
 
     def _column_def(self, col: Column) -> str:
         """Generate a sa.Column() definition string."""
-        sa_type = build_type_string(col, self._TYPE_MAP,
+        sa_type = build_type_string(
+            col,
+            self._TYPE_MAP,
             string_fmt="{}({})",
             string_default="sa.String",
             decimal_fmt="{}({}, {})",
@@ -184,12 +176,16 @@ class AlembicGenerator:
             kwargs.append("unique=True")
 
         # fn: defaults (server_default)
-        fn_default = resolve_fn_default(col, fn_wrapper="sa.func.{}", expr_fallback="sa.text('{}')")
+        fn_default = resolve_fn_default(
+            col, fn_wrapper="sa.func.{}", expr_fallback="sa.text('{}')"
+        )
         if fn_default:
             kwargs.append(f"server_default={fn_default}")
 
         # Literal defaults
-        if col.default is not None and not (isinstance(col.default, str) and col.default.startswith("fn:")):
+        if col.default is not None and not (
+            isinstance(col.default, str) and col.default.startswith("fn:")
+        ):
             lit = format_literal_default(col)
             kwargs.append(f"server_default={lit}")
 
