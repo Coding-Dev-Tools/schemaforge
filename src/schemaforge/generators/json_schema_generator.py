@@ -3,6 +3,7 @@
 Converts tables/columns into a JSON Schema document
 with each table as a ``$defs`` entry and columns as properties.
 """
+
 from __future__ import annotations
 
 import json
@@ -125,6 +126,7 @@ class JSONSchemaGenerator:
                 if overridden.startswith("{") and overridden.endswith("}"):
                     try:
                         import json as _json
+
                         prop = _json.loads(overridden)
                         return self._add_base_annotations(prop, col)
                     except (json.JSONDecodeError, ValueError):
@@ -157,7 +159,7 @@ class JSONSchemaGenerator:
                 max_val = 10 ** (prec - (scale or 0)) - 10 ** -(scale or 0)
                 prop["maximum"] = max_val
             if scale:
-                prop["multipleOf"] = 10 ** -(scale)
+                prop["multipleOf"] = 10**-(scale)
 
         return self._add_base_annotations(prop, col)
 
