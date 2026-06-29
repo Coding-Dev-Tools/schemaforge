@@ -1,4 +1,5 @@
 """Tests for Scala case class format (parser + generator)."""
+
 from __future__ import annotations
 
 import sys
@@ -22,6 +23,7 @@ case class User(
 
 
 # ── Parser Tests ──
+
 
 def test_scala_parse_simple():
     """Parser should extract case class and fields."""
@@ -99,7 +101,7 @@ case class Post(id: Int, title: String)
 
 def test_scala_parse_uuid_type():
     """Parser should handle UUID types."""
-    scala = 'case class Item(id: java.util.UUID, name: String)'
+    scala = "case class Item(id: java.util.UUID, name: String)"
     parser = ScalaParser()
     schema = parser.parse(scala)
     cols = {c.name: c for c in schema.tables[0].columns}
@@ -108,7 +110,7 @@ def test_scala_parse_uuid_type():
 
 def test_scala_parse_decimal_type():
     """Parser should handle BigDecimal."""
-    scala = 'case class Product(id: Int, price: BigDecimal)'
+    scala = "case class Product(id: Int, price: BigDecimal)"
     parser = ScalaParser()
     schema = parser.parse(scala)
     cols = {c.name: c for c in schema.tables[0].columns}
@@ -117,16 +119,23 @@ def test_scala_parse_decimal_type():
 
 # ── Generation Tests ──
 
+
 def test_scala_generate_simple():
     """Generator should produce valid case class."""
     from schemaforge.generators.scala_generator import ScalaGenerator
     from schemaforge.ir import Column, ColumnType, Schema, Table
-    schema = Schema(tables=[
-        Table(name="users", columns=[
-            Column(name="id", type=ColumnType.INTEGER),
-            Column(name="name", type=ColumnType.STRING, nullable=False),
-        ])
-    ])
+
+    schema = Schema(
+        tables=[
+            Table(
+                name="users",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER),
+                    Column(name="name", type=ColumnType.STRING, nullable=False),
+                ],
+            )
+        ]
+    )
     gen = ScalaGenerator()
     output = gen.generate(schema)
     assert "case class Users" in output
@@ -138,12 +147,18 @@ def test_scala_generate_nullable():
     """Generator should use Option[T] for nullable columns."""
     from schemaforge.generators.scala_generator import ScalaGenerator
     from schemaforge.ir import Column, ColumnType, Schema, Table
-    schema = Schema(tables=[
-        Table(name="items", columns=[
-            Column(name="id", type=ColumnType.INTEGER),
-            Column(name="description", type=ColumnType.STRING, nullable=True),
-        ])
-    ])
+
+    schema = Schema(
+        tables=[
+            Table(
+                name="items",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER),
+                    Column(name="description", type=ColumnType.STRING, nullable=True),
+                ],
+            )
+        ]
+    )
     gen = ScalaGenerator()
     output = gen.generate(schema)
     assert "Option[String]" in output
@@ -154,13 +169,19 @@ def test_scala_generate_defaults():
     """Generator should handle default values."""
     from schemaforge.generators.scala_generator import ScalaGenerator
     from schemaforge.ir import Column, ColumnType, Schema, Table
-    schema = Schema(tables=[
-        Table(name="config", columns=[
-            Column(name="id", type=ColumnType.INTEGER),
-            Column(name="active", type=ColumnType.BOOLEAN, default=True),
-            Column(name="name", type=ColumnType.STRING, default="untitled"),
-        ])
-    ])
+
+    schema = Schema(
+        tables=[
+            Table(
+                name="config",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER),
+                    Column(name="active", type=ColumnType.BOOLEAN, default=True),
+                    Column(name="name", type=ColumnType.STRING, default="untitled"),
+                ],
+            )
+        ]
+    )
     gen = ScalaGenerator()
     output = gen.generate(schema)
     assert "true" in output
@@ -168,6 +189,7 @@ def test_scala_generate_defaults():
 
 
 # ── Conversion Tests ──
+
 
 def test_scala_to_sql():
     """Scala case classes should convert to SQL."""
