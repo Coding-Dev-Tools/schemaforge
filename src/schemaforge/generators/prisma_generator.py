@@ -1,4 +1,5 @@
 """Generator: SchemaForge IR → Prisma schema."""
+
 from __future__ import annotations
 
 from ..ir import Column, ColumnType, Schema
@@ -64,11 +65,16 @@ class PrismaGenerator:
 
     def _field_def(self, col: Column) -> str:
         """Generate a Prisma field definition."""
-        prisma_type = resolve_type(col, self._TYPE_MAP, fmt="prisma", type_config=self._type_config)
+        prisma_type = resolve_type(
+            col, self._TYPE_MAP, fmt="prisma", type_config=self._type_config
+        )
 
         # Handle String with length (Prisma uses @db.VarChar) — skip if overridden
-        if col.type == ColumnType.STRING and "length" in col.type_args \
-                and not has_type_override(col, "prisma", self._type_config):
+        if (
+            col.type == ColumnType.STRING
+            and "length" in col.type_args
+            and not has_type_override(col, "prisma", self._type_config)
+        ):
             prisma_type = f"String @db.VarChar({col.type_args['length']})"
 
         annotations: list[str] = []
@@ -86,18 +92,20 @@ class PrismaGenerator:
             annotations.append(fn_default)
 
         # Literal defaults (non-fn)
-        if (col.default is not None
-                and not (isinstance(col.default, str) and col.default.startswith("fn:"))
-                and not col.primary_key):
-                if isinstance(col.default, bool):
-                    annotations.append(f"@default({str(col.default).lower()})")
-                elif isinstance(col.default, str):
-                    if col.default.endswith("()"):
-                        annotations.append(f"@default({col.default})")
-                    else:
-                        annotations.append(f'@default("{col.default}")')
-                else:
+        if (
+            col.default is not None
+            and not (isinstance(col.default, str) and col.default.startswith("fn:"))
+            and not col.primary_key
+        ):
+            if isinstance(col.default, bool):
+                annotations.append(f"@default({str(col.default).lower()})")
+            elif isinstance(col.default, str):
+                if col.default.endswith("()"):
                     annotations.append(f"@default({col.default})")
+                else:
+                    annotations.append(f'@default("{col.default}")')
+            else:
+                annotations.append(f"@default({col.default})")
 
         nullable_suffix = "?" if col.nullable else ""
 
