@@ -3,6 +3,7 @@
 Covers the full CLI surface: convert, diff, check, mcp, version,
 error handling, edge cases, and output file paths.
 """
+
 from __future__ import annotations
 
 import sys
@@ -46,6 +47,7 @@ model users {
 #  convert command
 # ═══════════════════════════════════════════════════════════════
 
+
 class TestConvertCommand:
     def test_convert_sql_to_prisma_stdout(self):
         """Convert SQL → Prisma, output to stdout."""
@@ -54,12 +56,18 @@ class TestConvertCommand:
             f.write(SAMPLE_SQL)
             tmpfile = f.name
         try:
-            result = runner.invoke(main, [
-                "convert",
-                "--from", "sql",
-                "--to", "prisma",
-                "--input", tmpfile,
-            ])
+            result = runner.invoke(
+                main,
+                [
+                    "convert",
+                    "--from",
+                    "sql",
+                    "--to",
+                    "prisma",
+                    "--input",
+                    tmpfile,
+                ],
+            )
             assert result.exit_code == 0
             assert "model users" in result.output
             assert "@id" in result.output
@@ -74,12 +82,18 @@ class TestConvertCommand:
             f.write(SAMPLE_PRISMA)
             tmpfile = f.name
         try:
-            result = runner.invoke(main, [
-                "convert",
-                "--from", "prisma",
-                "--to", "sql",
-                "--input", tmpfile,
-            ])
+            result = runner.invoke(
+                main,
+                [
+                    "convert",
+                    "--from",
+                    "prisma",
+                    "--to",
+                    "sql",
+                    "--input",
+                    tmpfile,
+                ],
+            )
             assert result.exit_code == 0
             assert "CREATE TABLE" in result.output
             assert "INTEGER" in result.output or "INT" in result.output.upper()
@@ -94,13 +108,20 @@ class TestConvertCommand:
             tmp_in = f_in.name
         tmp_out = Path(tempfile.mktemp(suffix=".prisma"))
         try:
-            result = runner.invoke(main, [
-                "convert",
-                "--from", "sql",
-                "--to", "prisma",
-                "--input", tmp_in,
-                "--output", str(tmp_out),
-            ])
+            result = runner.invoke(
+                main,
+                [
+                    "convert",
+                    "--from",
+                    "sql",
+                    "--to",
+                    "prisma",
+                    "--input",
+                    tmp_in,
+                    "--output",
+                    str(tmp_out),
+                ],
+            )
             assert result.exit_code == 0
             assert tmp_out.exists()
             content = tmp_out.read_text(encoding="utf-8")
@@ -116,12 +137,18 @@ class TestConvertCommand:
         sql_fixture = FIXTURES / "sample.sql"
         assert sql_fixture.exists(), f"Fixture not found: {sql_fixture}"
 
-        result = runner.invoke(main, [
-            "convert",
-            "--from", "sql",
-            "--to", "prisma",
-            "--input", str(sql_fixture),
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "convert",
+                "--from",
+                "sql",
+                "--to",
+                "prisma",
+                "--input",
+                str(sql_fixture),
+            ],
+        )
         assert result.exit_code == 0
         assert "model" in result.output or "model " in result.output
 
@@ -132,13 +159,20 @@ class TestConvertCommand:
         type_map = FIXTURES / "sample-type-overrides.yaml"
         assert sql_fixture.exists() and type_map.exists()
 
-        result = runner.invoke(main, [
-            "convert",
-            "--from", "sql",
-            "--to", "prisma",
-            "--input", str(sql_fixture),
-            "--type-map", str(type_map),
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "convert",
+                "--from",
+                "sql",
+                "--to",
+                "prisma",
+                "--input",
+                str(sql_fixture),
+                "--type-map",
+                str(type_map),
+            ],
+        )
         assert result.exit_code == 0
 
     def test_convert_django_to_sqlalchemy(self):
@@ -147,12 +181,18 @@ class TestConvertCommand:
         django_fixture = FIXTURES / "sample.django.py"
         assert django_fixture.exists()
 
-        result = runner.invoke(main, [
-            "convert",
-            "--from", "django",
-            "--to", "sqlalchemy",
-            "--input", str(django_fixture),
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "convert",
+                "--from",
+                "django",
+                "--to",
+                "sqlalchemy",
+                "--input",
+                str(django_fixture),
+            ],
+        )
         assert result.exit_code == 0
         assert "Column(" in result.output or "sa.Column" in result.output
 
@@ -162,12 +202,18 @@ class TestConvertCommand:
         graphql_fixture = FIXTURES / "sample.graphql"
         assert graphql_fixture.exists()
 
-        result = runner.invoke(main, [
-            "convert",
-            "--from", "graphql",
-            "--to", "prisma",
-            "--input", str(graphql_fixture),
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "convert",
+                "--from",
+                "graphql",
+                "--to",
+                "prisma",
+                "--input",
+                str(graphql_fixture),
+            ],
+        )
         assert result.exit_code == 0
         assert "model" in result.output
 
@@ -177,24 +223,36 @@ class TestConvertCommand:
         json_fixture = FIXTURES / "sample.json_schema.json"
         assert json_fixture.exists()
 
-        result = runner.invoke(main, [
-            "convert",
-            "--from", "json_schema",
-            "--to", "sql",
-            "--input", str(json_fixture),
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "convert",
+                "--from",
+                "json_schema",
+                "--to",
+                "sql",
+                "--input",
+                str(json_fixture),
+            ],
+        )
         assert result.exit_code == 0
         assert "CREATE TABLE" in result.output
 
     def test_convert_missing_file_returns_error(self):
         """Missing input file should exit with non-zero code."""
         runner = CliRunner()
-        result = runner.invoke(main, [
-            "convert",
-            "--from", "sql",
-            "--to", "prisma",
-            "--input", "nonexistent_file.sql",
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "convert",
+                "--from",
+                "sql",
+                "--to",
+                "prisma",
+                "--input",
+                "nonexistent_file.sql",
+            ],
+        )
         assert result.exit_code != 0
         assert "does not exist" in result.output.lower() or "Error" in result.output
 
@@ -205,12 +263,18 @@ class TestConvertCommand:
             f.write(SAMPLE_SQL)
             tmpfile = f.name
         try:
-            result = runner.invoke(main, [
-                "convert",
-                "--from", "badformat",
-                "--to", "prisma",
-                "--input", tmpfile,
-            ])
+            result = runner.invoke(
+                main,
+                [
+                    "convert",
+                    "--from",
+                    "badformat",
+                    "--to",
+                    "prisma",
+                    "--input",
+                    tmpfile,
+                ],
+            )
             assert result.exit_code != 0
             assert "badformat" in result.output.lower() or "Error" in result.output
         finally:
@@ -223,12 +287,18 @@ class TestConvertCommand:
             f.write(SAMPLE_SQL)
             tmpfile = f.name
         try:
-            result = runner.invoke(main, [
-                "convert",
-                "--from", "sql",
-                "--to", "badformat",
-                "--input", tmpfile,
-            ])
+            result = runner.invoke(
+                main,
+                [
+                    "convert",
+                    "--from",
+                    "sql",
+                    "--to",
+                    "badformat",
+                    "--input",
+                    tmpfile,
+                ],
+            )
             assert result.exit_code != 0
             assert "badformat" in result.output.lower() or "Error" in result.output
         finally:
@@ -240,12 +310,18 @@ class TestConvertCommand:
         ef_fixture = FIXTURES / "sample.ef.cs"
         assert ef_fixture.exists()
 
-        result = runner.invoke(main, [
-            "convert",
-            "--from", "ef",
-            "--to", "sql",
-            "--input", str(ef_fixture),
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "convert",
+                "--from",
+                "ef",
+                "--to",
+                "sql",
+                "--input",
+                str(ef_fixture),
+            ],
+        )
         assert result.exit_code == 0
         assert "CREATE TABLE" in result.output
 
@@ -255,12 +331,18 @@ class TestConvertCommand:
         scala_fixture = FIXTURES / "sample.scala"
         assert scala_fixture.exists()
 
-        result = runner.invoke(main, [
-            "convert",
-            "--from", "scala",
-            "--to", "sql",
-            "--input", str(scala_fixture),
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "convert",
+                "--from",
+                "scala",
+                "--to",
+                "sql",
+                "--input",
+                str(scala_fixture),
+            ],
+        )
         assert result.exit_code == 0
         assert "CREATE TABLE" in result.output
 
@@ -268,6 +350,7 @@ class TestConvertCommand:
 # ═══════════════════════════════════════════════════════════════
 #  diff command
 # ═══════════════════════════════════════════════════════════════
+
 
 class TestDiffCommand:
     def test_diff_same_file(self):
@@ -277,10 +360,14 @@ class TestDiffCommand:
         f2 = FIXTURES / "sample.sql"
         assert f1.exists()
 
-        result = runner.invoke(main, [
-            "diff",
-            str(f1), str(f2),
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "diff",
+                str(f1),
+                str(f2),
+            ],
+        )
         assert result.exit_code == 0
 
     def test_diff_different_files(self):
@@ -293,10 +380,14 @@ class TestDiffCommand:
             f2.write("CREATE TABLE b (id INT PRIMARY KEY);\n")
             f2_path = f2.name
         try:
-            result = runner.invoke(main, [
-                "diff",
-                f1_path, f2_path,
-            ])
+            result = runner.invoke(
+                main,
+                [
+                    "diff",
+                    f1_path,
+                    f2_path,
+                ],
+            )
             assert result.exit_code == 0
         finally:
             Path(f1_path).unlink(missing_ok=True)
@@ -309,27 +400,37 @@ class TestDiffCommand:
         f2 = FIXTURES / "sample.sql"
         assert f1.exists()
 
-        result = runner.invoke(main, [
-            "diff",
-            str(f1), str(f2),
-            "--format", "sql",
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "diff",
+                str(f1),
+                str(f2),
+                "--format",
+                "sql",
+            ],
+        )
         assert result.exit_code == 0
 
     def test_diff_missing_file(self):
         """Diff with missing file should exit with error."""
         runner = CliRunner()
         f1 = FIXTURES / "sample.sql"
-        result = runner.invoke(main, [
-            "diff",
-            str(f1), "nonexistent.sql",
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "diff",
+                str(f1),
+                "nonexistent.sql",
+            ],
+        )
         assert result.exit_code != 0
 
 
 # ═══════════════════════════════════════════════════════════════
 #  check command
 # ═══════════════════════════════════════════════════════════════
+
 
 class TestCheckCommand:
     def test_check_directory_two_files(self):
@@ -339,10 +440,14 @@ class TestCheckCommand:
             Path(tmpdir, "schema.sql").write_text(SAMPLE_SQL)
             Path(tmpdir, "schema.prisma").write_text(SAMPLE_PRISMA)
 
-            result = runner.invoke(main, [
-                "check",
-                "--dir", tmpdir,
-            ])
+            result = runner.invoke(
+                main,
+                [
+                    "check",
+                    "--dir",
+                    tmpdir,
+                ],
+            )
             # May exit 1 if schemas are not perfectly equivalent;
             # verify at least it attempted comparison
             assert "Files found" in result.output
@@ -353,10 +458,14 @@ class TestCheckCommand:
         with tempfile.TemporaryDirectory() as tmpdir:
             Path(tmpdir, "schema.sql").write_text(SAMPLE_SQL)
 
-            result = runner.invoke(main, [
-                "check",
-                "--dir", tmpdir,
-            ])
+            result = runner.invoke(
+                main,
+                [
+                    "check",
+                    "--dir",
+                    tmpdir,
+                ],
+            )
             assert result.exit_code == 0
             assert "Need at least 2" in result.output
 
@@ -368,11 +477,16 @@ class TestCheckCommand:
             Path(tmpdir, "schema.sql").write_text(SAMPLE_SQL)
             Path(tmpdir, "schema.prisma").write_text(SAMPLE_PRISMA)
 
-            runner.invoke(main, [
-                "check",
-                "--dir", tmpdir,
-                "--type-map", str(type_map),
-            ])
+            runner.invoke(
+                main,
+                [
+                    "check",
+                    "--dir",
+                    tmpdir,
+                    "--type-map",
+                    str(type_map),
+                ],
+            )
             # May exit 1 depending on equivalence; check it ran
 
     def test_check_invalid_directory(self):
@@ -382,10 +496,14 @@ class TestCheckCommand:
             f.write(b"x")
             f_path = f.name
         try:
-            result = runner.invoke(main, [
-                "check",
-                "--dir", f_path,
-            ])
+            result = runner.invoke(
+                main,
+                [
+                    "check",
+                    "--dir",
+                    f_path,
+                ],
+            )
             assert result.exit_code != 0
             assert "Error" in result.output or "Not a directory" in result.output
         finally:
@@ -395,6 +513,7 @@ class TestCheckCommand:
 # ═══════════════════════════════════════════════════════════════
 #  mcp command
 # ═══════════════════════════════════════════════════════════════
+
 
 class TestMcpCommand:
     def test_mcp_help_shows(self):
@@ -409,6 +528,7 @@ class TestMcpCommand:
 # ═══════════════════════════════════════════════════════════════
 #  general CLI behavior
 # ═══════════════════════════════════════════════════════════════
+
 
 class TestGeneralCli:
     def test_version(self):
@@ -465,6 +585,7 @@ class TestGeneralCli:
 # ═══════════════════════════════════════════════════════════════
 #  _detect_format
 # ═══════════════════════════════════════════════════════════════
+
 
 class TestHelpEncoding:
     """Verifies CLI help text has no garbled/encoding corruption."""
