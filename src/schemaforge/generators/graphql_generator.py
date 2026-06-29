@@ -3,6 +3,7 @@
 Converts tables/columns into GraphQL Schema Definition Language
 type definitions with enums, directives, and nullable/required annotations.
 """
+
 from __future__ import annotations
 
 from ..ir import Column, ColumnType, Schema, Table
@@ -156,7 +157,7 @@ class GraphQLGenerator:
 
         # Comments
         if col.comment:
-            directives.append(f'# {col.comment.replace(chr(10), " ")}')
+            directives.append(f"# {col.comment.replace(chr(10), ' ')}")
 
         if directives:
             field_def += f" {' '.join(directives)}"
