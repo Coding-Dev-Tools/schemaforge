@@ -1,4 +1,5 @@
 """Generator: SchemaForge IR → Django model schema."""
+
 from __future__ import annotations
 
 from ..ir import Column, ColumnType, Schema
@@ -102,7 +103,9 @@ class DjangoGenerator:
 
     def _field_def(self, col: Column) -> str:
         """Generate a Django model field definition."""
-        django_field = resolve_type(col, self._FIELD_MAP, fmt="django", type_config=self._type_config)
+        django_field = resolve_type(
+            col, self._FIELD_MAP, fmt="django", type_config=self._type_config
+        )
         if not django_field.endswith("Field"):
             django_field = django_field + "Field"
 
