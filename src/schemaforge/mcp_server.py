@@ -4,6 +4,7 @@ Run with:
     schemaforge mcp          # stdio transport (default for AI clients)
     schemaforge mcp --sse    # SSE transport (HTTP server)
 """
+
 from __future__ import annotations
 
 import click
@@ -24,8 +25,17 @@ except ImportError:
 
 # All supported formats
 _FORMATS = [
-    "sql", "prisma", "drizzle", "typeorm", "django",
-    "sqlalchemy", "alembic", "json_schema", "graphql", "ef", "scala",
+    "sql",
+    "prisma",
+    "drizzle",
+    "typeorm",
+    "django",
+    "sqlalchemy",
+    "alembic",
+    "json_schema",
+    "graphql",
+    "ef",
+    "scala",
 ]
 _FORMAT_DESCRIPTIONS = {
     "sql": "SQL DDL (Data Definition Language)",
@@ -55,8 +65,8 @@ def create_server() -> Any:
     @server.tool(
         name="convert",
         description="Convert a schema from one format to another. "
-                    "All 11 formats support conversion to and from every other format. "
-                    "Returns the converted schema as text.",
+        "All 11 formats support conversion to and from every other format. "
+        "Returns the converted schema as text.",
     )
     def convert_tool(
         schema_text: str,
@@ -86,7 +96,9 @@ def create_server() -> Any:
                 return f"Error loading type map: {e}"
 
         try:
-            result = convert_schema(schema_text, from_format, to_format, type_config=type_config)
+            result = convert_schema(
+                schema_text, from_format, to_format, type_config=type_config
+            )
             return result
         except ValueError as e:
             return f"Error: {e}"
@@ -98,7 +110,7 @@ def create_server() -> Any:
     @server.tool(
         name="diff",
         description="Compare two schemas in the same format and return differences. "
-                    "Detects added, removed, and modified tables, columns, indexes, and constraints.",
+        "Detects added, removed, and modified tables, columns, indexes, and constraints.",
     )
     def diff_tool(
         schema_a: str,
@@ -118,14 +130,18 @@ def create_server() -> Any:
 
         try:
             result = diff_schemas(schema_a, schema_b, format)
-            return result if result.strip() else "No differences found — schemas are equivalent."
+            return (
+                result
+                if result.strip()
+                else "No differences found — schemas are equivalent."
+            )
         except Exception as e:
             return f"Error: {e}"
 
     @server.tool(
         name="check",
         description="Verify all schema files in a directory produce equivalent schemas. "
-                    "Useful for CI/CD to ensure consistency across format representations.",
+        "Useful for CI/CD to ensure consistency across format representations.",
     )
     def check_tool(
         directory: str,
@@ -140,7 +156,9 @@ def create_server() -> Any:
             type_map_path: Optional path to a YAML/JSON type mapping config file.
         """
         try:
-            result = check_directory(directory, canonical=canonical, type_map_path=type_map_path)
+            result = check_directory(
+                directory, canonical=canonical, type_map_path=type_map_path
+            )
             return result
         except NotADirectoryError as e:
             return f"Error: {e}"
@@ -150,7 +168,7 @@ def create_server() -> Any:
     @server.tool(
         name="formats",
         description="List all supported schema formats with their descriptions. "
-                    "Returns the list of format identifiers and what they represent.",
+        "Returns the list of format identifiers and what they represent.",
     )
     def formats_tool() -> str:
         """List all supported schema formats."""
@@ -166,7 +184,7 @@ def create_server() -> Any:
     @server.tool(
         name="detect_format",
         description="Detect the schema format from a filename or file extension. "
-                    "Returns the format identifier or 'unknown' if not recognized.",
+        "Returns the format identifier or 'unknown' if not recognized.",
     )
     def detect_format_tool(filename: str) -> str:
         """Detect schema format from filename.
