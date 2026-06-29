@@ -3,6 +3,7 @@
 Parses Scala case class definitions suitable for Doobie, Quill,
 or Slick into the internal schema representation.
 """
+
 from __future__ import annotations
 
 import re
@@ -12,16 +13,14 @@ from ..ir import Column, ColumnType, Schema, Table
 
 # Regex: extract case class
 _CASE_CLASS_RE = re.compile(
-    r'(?:@(?:Entity|Table|Mapped)\s*(?:\([^)]*\))?\s*)?'
-    r'(?:case\s+)?class\s+(\w+)'
-    r'(?:\s*\(((?:[^()]|\([^()]*\))*)\))',
+    r"(?:@(?:Entity|Table|Mapped)\s*(?:\([^)]*\))?\s*)?"
+    r"(?:case\s+)?class\s+(\w+)"
+    r"(?:\s*\(((?:[^()]|\([^()]*\))*)\))",
     re.MULTILINE,
 )
 
 # Regex: extract field from case class parameter list
-_FIELD_RE = re.compile(
-    r'\s*(\w+)\s*:\s*([^=,]+)(?:\s*=\s*([^,]+))?\s*,?\s*'
-)
+_FIELD_RE = re.compile(r"\s*(\w+)\s*:\s*([^=,]+)(?:\s*=\s*([^,]+))?\s*,?\s*")
 
 # Map Scala types to ColumnType
 _SCALA_TYPE_MAP: dict[str, ColumnType] = {
@@ -92,8 +91,9 @@ def _parse_default(value_str: str) -> Any:
         return None
 
     # Quoted strings
-    if (val.startswith('"') and val.endswith('"')) or \
-       (val.startswith('"""') and val.endswith('"""')):
+    if (val.startswith('"') and val.endswith('"')) or (
+        val.startswith('"""') and val.endswith('"""')
+    ):
         inner = val.strip('"')
         # Handle interpolation: s"..."
         idx = inner.find("$")
@@ -143,7 +143,9 @@ class ScalaParser:
             fields = _FIELD_RE.findall(params_str)
 
             for field_name, field_type, default_str in fields:
-                col = self._field_to_column(field_name, field_type.strip(), default_str.strip())
+                col = self._field_to_column(
+                    field_name, field_type.strip(), default_str.strip()
+                )
                 if col:
                     table.columns.append(col)
 
@@ -152,7 +154,9 @@ class ScalaParser:
 
         return schema
 
-    def _field_to_column(self, name: str, raw_type: str, default_str: str) -> Column | None:
+    def _field_to_column(
+        self, name: str, raw_type: str, default_str: str
+    ) -> Column | None:
         """Convert a Scala field to a Column IR."""
         clean_type, is_optional = _clean_scala_type(raw_type)
 
