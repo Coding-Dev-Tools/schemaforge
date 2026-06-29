@@ -1,4 +1,5 @@
 """Parser for Drizzle ORM TypeScript schemas into SchemaForge IR."""
+
 from __future__ import annotations
 
 import re
@@ -66,16 +67,16 @@ class DrizzleParser:
 
         # Find all table definitions: pgTable('name', { ... }) or mysqlTable etc.
         table_pattern = re.compile(
-            r'(?:export\s+)?(?:const\s+)?(\w+)\s*=\s*'
-            r'(pgTable|mysqlTable|sqliteTable)\s*\(\s*'
+            r"(?:export\s+)?(?:const\s+)?(\w+)\s*=\s*"
+            r"(pgTable|mysqlTable|sqliteTable)\s*\(\s*"
             r"['\"](\w+)['\"]\s*,\s*\{",
             re.MULTILINE,
         )
 
         # Also find pgEnum declarations
         enum_pattern = re.compile(
-            r'(?:export\s+)?(?:const\s+)?(\w+)\s*=\s*'
-            r'pgEnum\s*\(\s*'
+            r"(?:export\s+)?(?:const\s+)?(\w+)\s*=\s*"
+            r"pgEnum\s*\(\s*"
             r"['\"](\w+)['\"]\s*,\s*\[([^\]]*)\]",
             re.MULTILINE,
         )
@@ -84,7 +85,9 @@ class DrizzleParser:
             m.group(1)
             enum_name = m.group(2)
             values_str = m.group(3)
-            values = [v.strip().strip("'\"") for v in values_str.split(",") if v.strip()]
+            values = [
+                v.strip().strip("'\"") for v in values_str.split(",") if v.strip()
+            ]
             schema.enums.append(EnumType(name=enum_name, values=values))
 
         for m in table_pattern.finditer(text):
@@ -121,16 +124,16 @@ class DrizzleParser:
 
         while i < len(text) and depth > 0:
             ch = text[i]
-            if ch == '{':
+            if ch == "{":
                 depth += 1
-            elif ch == '}':
+            elif ch == "}":
                 depth -= 1
-            elif ch in ("'", '"', '`'):
+            elif ch in ("'", '"', "`"):
                 # Skip string literals
                 quote = ch
                 i += 1
                 while i < len(text) and text[i] != quote:
-                    if text[i] == '\\':
+                    if text[i] == "\\":
                         i += 1
                     i += 1
             i += 1
@@ -138,7 +141,7 @@ class DrizzleParser:
         if depth != 0:
             return None
 
-        return text[block_start:i - 1]
+        return text[block_start : i - 1]
 
     def _parse_columns(self, columns_text: str, factory: str) -> list[Column]:
         """Parse column definitions from the columns block."""
@@ -149,7 +152,7 @@ class DrizzleParser:
 
         for col_def in col_defs:
             col_def = col_def.strip()
-            if not col_def or col_def.startswith('//') or col_def.startswith('/*'):
+            if not col_def or col_def.startswith("//") or col_def.startswith("/*"):
                 continue
             col = self._parse_single_column(col_def, factory)
             if col:
@@ -170,19 +173,19 @@ class DrizzleParser:
             ch = text[i]
             if in_string:
                 current += ch
-                if ch == string_char and (i == 0 or text[i - 1] != '\\'):
+                if ch == string_char and (i == 0 or text[i - 1] != "\\"):
                     in_string = False
-            elif ch in ("'", '"', '`'):
+            elif ch in ("'", '"', "`"):
                 in_string = True
                 string_char = ch
                 current += ch
-            elif ch == '(':
+            elif ch == "(":
                 depth += 1
                 current += ch
-            elif ch == ')':
+            elif ch == ")":
                 depth -= 1
                 current += ch
-            elif ch == ',' and depth == 0:
+            elif ch == "," and depth == 0:
                 defs.append(current.strip())
                 current = ""
             else:
@@ -215,19 +218,19 @@ class DrizzleParser:
         col_type = _DRIZZLE_TYPE_MAP.get(type_func, ColumnType.CUSTOM)
 
         # Parse type args from the rest of the definition
-        rest = col_def[m.end():]
+        rest = col_def[m.end() :]
         type_args: dict[str, Any] = {}
 
         # Extract { length: N }
-        length_m = re.search(r'length\s*:\s*(\d+)', rest)
+        length_m = re.search(r"length\s*:\s*(\d+)", rest)
         if length_m:
             type_args["length"] = int(length_m.group(1))
 
         # Extract { precision: N, scale: N }
-        precision_m = re.search(r'precision\s*:\s*(\d+)', rest)
+        precision_m = re.search(r"precision\s*:\s*(\d+)", rest)
         if precision_m:
             type_args["precision"] = int(precision_m.group(1))
-        scale_m = re.search(r'scale\s*:\s*(\d+)', rest)
+        scale_m = re.search(r"scale\s*:\s*(\d+)", rest)
         if scale_m:
             type_args["scale"] = int(scale_m.group(1))
 
@@ -238,7 +241,7 @@ class DrizzleParser:
 
         # Parse default value
         default = None
-        default_m = re.search(r'\.default\(([^)]+)\)', rest)
+        default_m = re.search(r"\.default\(([^)]+)\)", rest)
         if default_m:
             default_val = default_m.group(1).strip()
             if default_val.lower() == "null":
