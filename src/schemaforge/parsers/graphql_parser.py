@@ -4,6 +4,7 @@ Maps GraphQL Schema Definition Language (SDL) type definitions
 into schema tables/columns, supporting enums, directives, and
 custom scalars.
 """
+
 from __future__ import annotations
 
 import re
@@ -43,7 +44,11 @@ _TYPE_MAP: dict[str, ColumnType] = {
 
 # Built-in scalars that should be kept as-is (not mapped to CUSTOM)
 _BUILTIN_SCALARS = {
-    "String", "Int", "Float", "Boolean", "ID",
+    "String",
+    "Int",
+    "Float",
+    "Boolean",
+    "ID",
 }
 
 
@@ -128,9 +133,9 @@ class GraphQLParser:
             # and some are 'enum Name { VAL1 VAL2 }'
             if kind == "enum" and not body:
                 # Try to find scalar values right after the name
-                text[match.end():].strip()
+                text[match.end() :].strip()
                 # Fallback: try matching enum values on the same line or next
-                val_match = re.match(r"\s*\{([^}]+)\}", text[match.start():])
+                val_match = re.match(r"\s*\{([^}]+)\}", text[match.start() :])
                 if val_match:
                     body = val_match.group(1).strip()
 
@@ -192,9 +197,7 @@ class GraphQLParser:
             options={"is_input": "true"} if is_input else {},
         )
 
-    def _parse_fields(
-        self, body: str, is_input: bool = False
-    ) -> list[Column]:
+    def _parse_fields(self, body: str, is_input: bool = False) -> list[Column]:
         """Parse GraphQL type fields into Column IR.
 
         Each field line: name: Type! @directive
