@@ -4,6 +4,7 @@ Maps a JSON Schema document with ``$defs`` (or standalone schema)
 into tables/columns, where each definition becomes a table and
 each property becomes a column with appropriate type mapping.
 """
+
 from __future__ import annotations
 
 import json
