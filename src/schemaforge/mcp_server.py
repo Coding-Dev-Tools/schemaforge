@@ -69,7 +69,7 @@ def create_server() -> Any:
         Args:
             schema_text: The schema text to convert.
             from_format: Source format (sql, prisma, drizzle, typeorm, django,
-                        sqlalchemy, alembic, json_schema, graphql).
+                        sqlalchemy, alembic, json_schema, graphql, ef, scala).
             to_format: Target format (same options as from_format).
             type_map_path: Optional path to a YAML/JSON type mapping config file.
         """
