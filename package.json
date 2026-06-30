@@ -1,45 +1,54 @@
 {
-  "name": "schemaforge-cli",
-  "version": "1.7.0",
-  "description": "Database schema generator from Python type hints, Pydantic models, or JSON Schema definitions.",
-  "author": "Revenue Holdings <engineering@revenueholdings.dev>",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Coding-Dev-Tools/schemaforge.git"
-  },
-  "homepage": "https://github.com/Coding-Dev-Tools/schemaforge#readme",
-  "bugs": {
-    "url": "https://github.com/Coding-Dev-Tools/schemaforge/issues"
-  },
-  "bin": {
-    "schemaforge": "cli.js"
-  },
-  "keywords": [
-    "schema",
-    "orm",
-    "database",
-    "converter",
-    "sqlalchemy",
-    "django",
-    "prisma",
-    "pydantic",
-    "json-schema",
-    "migration",
-    "code-generation",
-    "bidirectional",
-    "cli",
-    "developer-tools",
-    "typescript"
-  ],
-  "files": [
-    "cli.js"
-  ],
-  "engines": {
-    "node": ">=16.0.0"
-  },
-  "preferGlobal": true,
-  "publishConfig": {
-    "access": "public"
-  }
+    "name":  "schemaforge-cli",
+    "version":  "1.7.0",
+    "description":  "Database schema generator from Python type hints, Pydantic models, or JSON Schema definitions.",
+    "author":  "Revenue Holdings \u003cengineering@revenueholdings.dev\u003e",
+    "license":  "MIT",
+    "repository":  {
+                       "type":  "git",
+                       "url":  "https://github.com/Coding-Dev-Tools/schemaforge.git"
+                   },
+    "homepage":  "https://github.com/Coding-Dev-Tools/schemaforge#readme",
+    "bugs":  {
+                 "url":  "https://github.com/Coding-Dev-Tools/schemaforge/issues"
+             },
+    "bin":  {
+                "schemaforge":  "cli.js"
+            },
+    "keywords":  [
+                     "schema",
+                     "orm",
+                     "database",
+                     "converter",
+                     "sqlalchemy",
+                     "django",
+                     "prisma",
+                     "pydantic",
+                     "json-schema",
+                     "migration",
+                     "code-generation",
+                     "bidirectional",
+                     "cli",
+                     "developer-tools",
+                     "typescript"
+                 ],
+    "files":  [
+                  "cli.js"
+              ],
+    "engines":  {
+                    "node":  "\u003e=16.0.0"
+                },
+    "preferGlobal":  true,
+    "publishConfig":  {
+                          "access":  "public"
+                      },
+    "scripts":  {
+                    "test":  "node --test tests/*.test.js",
+                    "lint":  "eslint .",
+                    "test:py":  "pytest"
+                },
+    "devDependencies":  {
+                            "@eslint/js":  "^9.0.0",
+                            "eslint":  "^9.0.0"
+                        }
 }

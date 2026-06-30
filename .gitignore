@@ -71,3 +71,6 @@ Thumbs.db
 research/
 fixtures/generated/
 .ruff_cache/
+
+# Added by release-prep
+node_modules
