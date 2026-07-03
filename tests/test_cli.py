@@ -653,3 +653,136 @@ class TestDetectFormat:
         assert _detect_format("schema.PRISMA") == "prisma"
         assert _detect_format("schema.SQL") == "sql"
         assert _detect_format("schema.JSON") == "json_schema"
+
+
+# ═══════════════════════════════════════════════════════════════
+#  detect command (CLI integration)
+# ═══════════════════════════════════════════════════════════════
+
+
+class TestDetectCommand:
+    """CLI integration tests for the `schemaforge detect` command."""
+
+    def test_detect_sql(self):
+        """detect should return 'sql' for .sql files."""
+        runner = CliRunner()
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".sql", delete=False) as f:
+            f.write(SAMPLE_SQL)
+            tmpfile = f.name
+        try:
+            result = runner.invoke(main, ["detect", tmpfile])
+            assert result.exit_code == 0
+            assert result.output.strip() == "sql"
+        finally:
+            Path(tmpfile).unlink(missing_ok=True)
+
+    def test_detect_prisma(self):
+        """detect should return 'prisma' for .prisma files."""
+        runner = CliRunner()
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".prisma", delete=False) as f:
+            f.write(SAMPLE_PRISMA)
+            tmpfile = f.name
+        try:
+            result = runner.invoke(main, ["detect", tmpfile])
+            assert result.exit_code == 0
+            assert result.output.strip() == "prisma"
+        finally:
+            Path(tmpfile).unlink(missing_ok=True)
+
+    def test_detect_unknown(self):
+        """detect should return 'unknown' for unrecognized extensions."""
+        runner = CliRunner()
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write("irrelevant content")
+            tmpfile = f.name
+        try:
+            result = runner.invoke(main, ["detect", tmpfile])
+            assert result.exit_code == 0
+            assert result.output.strip() == "unknown"
+        finally:
+            Path(tmpfile).unlink(missing_ok=True)
+
+    def test_detect_verbose(self):
+        """detect --verbose should show detailed info."""
+        runner = CliRunner()
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".sql", delete=False) as f:
+            f.write(SAMPLE_SQL)
+            tmpfile = f.name
+        try:
+            result = runner.invoke(main, ["detect", "--verbose", tmpfile])
+            assert result.exit_code == 0
+            assert "file:" in result.output
+            assert "format:" in result.output
+            assert "method:" in result.output
+        finally:
+            Path(tmpfile).unlink(missing_ok=True)
+
+    def test_detect_missing_file(self):
+        """detect on a non-existent file should error."""
+        runner = CliRunner()
+        result = runner.invoke(main, ["detect", "nonexistent.sql"])
+        assert result.exit_code != 0
+        assert "does not exist" in result.output.lower() or "Error" in result.output
+
+
+# ═══════════════════════════════════════════════════════════════
+#  formats command (CLI integration)
+# ═══════════════════════════════════════════════════════════════
+
+
+class TestFormatsCommand:
+    """CLI integration tests for the `schemaforge formats` command."""
+
+    def test_formats_list(self):
+        """formats should list all supported formats."""
+        runner = CliRunner()
+        result = runner.invoke(main, ["formats"])
+        assert result.exit_code == 0
+        for fmt in ["sql", "prisma", "drizzle", "django", "graphql", "scala", "ef"]:
+            assert fmt in result.output
+
+    def test_formats_json(self):
+        """formats --json should output a JSON array."""
+        runner = CliRunner()
+        result = runner.invoke(main, ["formats", "--json"])
+        assert result.exit_code == 0
+        import json
+        parsed = json.loads(result.output.strip())
+        assert isinstance(parsed, list)
+        assert "sql" in parsed
+        assert "prisma" in parsed
+
+
+# ═══════════════════════════════════════════════════════════════
+#  convert with positional argument (CLI integration)
+# ═══════════════════════════════════════════════════════════════
+
+
+class TestConvertPositionalArg:
+    """Tests for the new positional input argument on `convert`."""
+
+    def test_convert_positional_arg(self):
+        """convert should accept a positional input argument."""
+        runner = CliRunner()
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".sql", delete=False) as f:
+            f.write(SAMPLE_SQL)
+            tmpfile = f.name
+        try:
+            result = runner.invoke(
+                main,
+                ["convert", tmpfile, "--from", "sql", "--to", "prisma"],
+            )
+            assert result.exit_code == 0
+            assert "model users" in result.output
+        finally:
+            Path(tmpfile).unlink(missing_ok=True)
+
+    def test_convert_no_input_error(self):
+        """convert without any input should show error."""
+        runner = CliRunner()
+        result = runner.invoke(
+            main,
+            ["convert", "--from", "sql", "--to", "prisma"],
+        )
+        assert result.exit_code != 0
+        assert "no input file" in result.output.lower() or "Error" in result.output

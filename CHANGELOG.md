@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `schemaforge mcp` command (stdio and SSE modes)
 - `schemaforge check` command — schema consistency across directories
 - `schemaforge formats` command — list supported formats
-- `schemaforge detect_format` command — identify format from filename
+- `schemaforge detect` command — identify format from filename
 - CI/CD workflow for automated testing and publishing
 
 ### Changed

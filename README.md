@@ -1,6 +1,6 @@
 # SchemaForge
 
-> **Bidirectional ORM schema converter** — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic migrations, JSON Schema, GraphQL SDL, EF Core (C#), and Scala case classes. **11 formats, 110 direction pairs.**
+> **Bidirectional ORM schema converter** — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic migrations, JSON Schema, GraphQL SDL, EF Core (C#), and Scala case classes. **11 formats, 100 conversion directions.**
 
 [![GitHub stars](https://img.shields.io/github/stars/Coding-Dev-Tools/schemaforge?style=social)](https://github.com/Coding-Dev-Tools/schemaforge/stargazers)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://github.com/Coding-Dev-Tools/schemaforge)
@@ -55,7 +55,7 @@ Requires Python 3.10+.
 
 ### `schemaforge convert`
 
-Convert a schema from one format to another. All 11 formats support conversion to and from every other format (110 direction pairs).
+Convert a schema from one format to another. Every format converts to and from every other format, except Alembic which is generator-only (a target, not a source) — 100 direction pairs.
 
 ```bash
 # Format-specific examples
@@ -115,6 +115,11 @@ Detects added, removed, and modified tables, columns, indexes, and constraints.
 
 **Alembic** is generator-only: you can create migration scripts from any format, but parsing existing migrations back to IR is not yet supported.
 
+### Limitations
+
+- **Foreign keys & relationships** — the shared IR does not yet model foreign-key constraints or ORM relations, so `FOREIGN KEY` / `REFERENCES` clauses, Prisma/TypeORM relation fields, and Django `ForeignKey` fields are dropped during conversion rather than roundtripped. Tables, columns, types, defaults, indexes, unique constraints, and enums are preserved. FK support is on the roadmap.
+- **Alembic is generator-only** (see above) — you can generate migrations from any format but not parse them back.
+
 ### Format Identifiers for `--from` / `--to`
 
 | CLI identifier | Format |
@@ -135,8 +140,8 @@ Detects added, removed, and modified tables, columns, indexes, and constraints.
 
 SchemaForge uses a **shared Internal Representation (IR)** — all formats convert to and from this common schema definition. This architecture guarantees:
 
-- **Zero-loss roundtripping**: `sql → prisma → sql` produces the same schema you started with
-- **Bidirectional conversion**: every supported format can convert to every other format
+- **High-fidelity roundtripping**: `sql → prisma → sql` reproduces tables, columns, types, defaults, indexes, unique constraints, and enums. Foreign-key/relationship constraints are not yet modeled in the IR and are dropped (see [Limitations](#limitations)).
+- **Bidirectional conversion**: every format can convert to every other format, except Alembic, which is generator-only (a target, not a source)
 - **Extensibility**: adding a new format requires only a parser and a generator — no pairwise converters
 
 ```
@@ -238,8 +243,8 @@ Each fixture demonstrates the same blog schema so you can compare ORM syntax sid
 
 ## Features
 
-- **Bidirectional conversion** — all 11 formats convert to and from every other format
-- **Zero-loss roundtripping** — `sql → prisma → sql` reproduces the original schema exactly
+- **Bidirectional conversion** — every format converts to and from every other format (Alembic is generator-only: a target, not a source)
+- **High-fidelity roundtripping** — `sql → prisma → sql` reproduces tables, columns, types, defaults, indexes, and enums (foreign keys are not yet preserved — see [Limitations](#limitations))
 - **Custom type mappings** — YAML/JSON config files to override any type mapping with template variables
 - **VS Code extension** — live preview, schema diff, and one-click conversion from VS Code
 - **Alembic migration generation** — create database migration scripts from any schema format
@@ -253,7 +258,7 @@ Each fixture demonstrates the same blog schema so you can compare ORM syntax sid
 - **Function default preservation** — `CURRENT_TIMESTAMP`, `NOW()`, `gen_random_uuid()` survive roundtrips
 - **MySQL support** — ENGINE=InnoDB, AUTO_INCREMENT, DEFAULT CHARSET, COMMENT table options
 - **Inline ENUM** — `ENUM('small', 'medium', 'large')` column types parsed and roundtripped
-- **Relation preservation** — indexes, unique constraints maintained across all conversions
+- **Index & constraint preservation** — indexes and unique constraints maintained across all conversions (foreign-key/relationship constraints are not yet modeled — see [Limitations](#limitations))
 - **Custom type handling** — dialect-specific types (JSONB, etc.) pass through via CUSTOM type
 
 ## MCP Server

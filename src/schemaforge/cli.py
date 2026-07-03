@@ -36,7 +36,8 @@ def main() -> None:
     """SchemaForge — bidirectional ORM schema converter.
 
     Convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy models,
-    Alembic migrations, JSON Schema, and GraphQL SDL with zero-loss roundtripping.
+    Alembic migrations, JSON Schema, and GraphQL SDL with high-fidelity
+    roundtripping (foreign-key/relationship constraints are not yet preserved).
     """
 
 
