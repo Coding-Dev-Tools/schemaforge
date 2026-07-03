@@ -7,10 +7,21 @@ Run with:
 
 from __future__ import annotations
 
-import os
 import click
+import os
 from pathlib import Path
 from typing import Any
+
+from .check import check_directory, detect_format
+from .convert import convert_schema
+from .diff import diff_schemas
+from .type_config import TypeConfig
+
+# Try to import mcp — soft dependency
+try:
+    from mcp.server.fastmcp import FastMCP
+except ImportError:
+    FastMCP = None  # type: ignore
 
 
 def _confined_directory(directory: str) -> Path:
@@ -31,17 +42,6 @@ def _confined_directory(directory: str) -> Path:
             f"Set SCHEMAFORGE_MCP_ROOT to permit a different base directory."
         )
     return target
-
-from .check import check_directory, detect_format
-from .convert import convert_schema
-from .diff import diff_schemas
-from .type_config import TypeConfig
-
-# Try to import mcp — soft dependency
-try:
-    from mcp.server.fastmcp import FastMCP
-except ImportError:
-    FastMCP = None  # type: ignore
 
 
 # All supported formats
