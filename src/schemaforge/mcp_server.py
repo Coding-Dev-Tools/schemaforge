@@ -8,6 +8,7 @@ Run with:
 from __future__ import annotations
 
 import click
+import os
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +22,26 @@ try:
     from mcp.server.fastmcp import FastMCP
 except ImportError:
     FastMCP = None  # type: ignore
+
+
+def _confined_directory(directory: str) -> Path:
+    """Resolve *directory* and confirm it stays within the allowed root.
+
+    The ``check`` tool iterates and reads files under the given directory. To
+    keep an AI agent (or, in SSE mode, a remote caller) from reading arbitrary
+    locations on the host, requests are confined to a root — the
+    ``SCHEMAFORGE_MCP_ROOT`` environment variable if set, otherwise the current
+    working directory the server was launched in. Escaping the root raises
+    ``PermissionError``.
+    """
+    root = Path(os.environ.get("SCHEMAFORGE_MCP_ROOT", Path.cwd())).resolve()
+    target = Path(directory).resolve()
+    if target != root and not target.is_relative_to(root):
+        raise PermissionError(
+            f"Directory '{directory}' is outside the allowed root '{root}'. "
+            f"Set SCHEMAFORGE_MCP_ROOT to permit a different base directory."
+        )
+    return target
 
 
 # All supported formats
@@ -156,10 +177,13 @@ def create_server() -> Any:
             type_map_path: Optional path to a YAML/JSON type mapping config file.
         """
         try:
+            safe_dir = _confined_directory(directory)
             result = check_directory(
-                directory, canonical=canonical, type_map_path=type_map_path
+                str(safe_dir), canonical=canonical, type_map_path=type_map_path
             )
             return result
+        except PermissionError as e:
+            return f"Error: {e}"
         except NotADirectoryError as e:
             return f"Error: {e}"
         except Exception as e:

@@ -8,15 +8,16 @@ version = "1.7.0"
 description = "Bidirectional ORM schema converter — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic, JSON Schema, GraphQL SDL, EF Core (C#), and Scala case classes with zero-loss roundtripping"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
+license = {file = "LICENSE"}
 authors = [{name = "Revenue Holdings"}]
-keywords = ["schema", "orm", "prisma", "drizzle", "typeorm", "django", "sql", "converter", "migration"]
+keywords = ["schema", "orm", "prisma", "drizzle", "typeorm", "django", "sql", "converter", "migration", "alembic", "graphql", "json-schema", "ef-core", "scala", "code-generation"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Topic :: Database",
     "Topic :: Software Development :: Code Generators",
     "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -48,13 +49,15 @@ schemaforge = "schemaforge.cli:main"
 Homepage = "https://github.com/Coding-Dev-Tools/schemaforge"
 Repository = "https://github.com/Coding-Dev-Tools/schemaforge"
 "Issue Tracker" = "https://github.com/Coding-Dev-Tools/schemaforge/issues"
+Documentation = "https://github.com/Coding-Dev-Tools/schemaforge#readme"
+Changelog = "https://github.com/Coding-Dev-Tools/schemaforge/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
-
 [tool.setuptools.package-data]
 "*" = ["py.typed"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 

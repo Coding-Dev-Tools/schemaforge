@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import click
+import json
 import sys
 from pathlib import Path
 
@@ -35,11 +36,17 @@ def main() -> None:
     """SchemaForge — bidirectional ORM schema converter.
 
     Convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy models,
-    Alembic migrations, JSON Schema, and GraphQL SDL with zero-loss roundtripping.
+    Alembic migrations, JSON Schema, and GraphQL SDL with high-fidelity
+    roundtripping (foreign-key/relationship constraints are not yet preserved).
     """
 
 
 @main.command()
+@click.argument(
+    "input_arg",
+    required=False,
+    type=click.Path(exists=True, readable=True),
+)
 @click.option(
     "--from",
     "from_fmt",
@@ -47,16 +54,13 @@ def main() -> None:
     type=click.Choice(_FORMATS),
     help="Source format",
 )
-@click.option(
-    "--to", "to_fmt", required=True, type=click.Choice(_FORMATS), help="Target format"
-)
+@click.option("--to", "to_fmt", required=True, type=click.Choice(_FORMATS), help="Target format")
 @click.option(
     "--input",
     "-i",
-    "input_path",
-    required=True,
+    "input_opt",
     type=click.Path(exists=True, readable=True),
-    help="Input file path",
+    help="Input file path (alternative to the positional INPUT_ARG)",
 )
 @click.option(
     "--output",
@@ -72,13 +76,27 @@ def main() -> None:
     help="Custom type mapping config file (.yaml or .json)",
 )
 def convert(
+    input_arg: str | None,
     from_fmt: str,
     to_fmt: str,
-    input_path: str,
+    input_opt: str | None,
     output_path: str | None,
     type_map_path: str | None,
 ) -> None:
-    """Convert schema between formats."""
+    """Convert schema between formats.
+
+    The input file may be given either as a positional argument
+    (``schemaforge convert schema.sql --from sql --to prisma``) or via
+    ``--input``/``-i`` — the two are interchangeable.
+    """
+    input_path = input_arg or input_opt
+    if not input_path:
+        click.echo(
+            "Error: no input file given. Pass a path argument or use --input/-i.",
+            err=True,
+        )
+        sys.exit(1)
+
     # Load custom type mapping if specified
     type_config: TypeConfig | None = None
     if type_map_path:
@@ -157,15 +175,50 @@ def check(directory: str, canonical: str, type_map_path: str | None) -> None:
     consistency across format representations.
     """
     try:
-        result = check_directory(
-            directory, canonical=canonical, type_map_path=type_map_path
-        )
+        result = check_directory(directory, canonical=canonical, type_map_path=type_map_path)
         click.echo(result)
         if "FAIL" in result and "PASS" not in result:
             sys.exit(1)
     except (NotADirectoryError, ValueError, FileNotFoundError) as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
+
+
+@main.command()
+@click.argument("input_path", type=click.Path(exists=True, readable=True))
+@click.option("--verbose", "-v", is_flag=True, help="Show detailed detection info")
+def detect(input_path: str, verbose: bool) -> None:
+    """Detect the schema format of a file from its extension.
+
+    Prints the bare format identifier (e.g. ``prisma``) on success, or
+    ``unknown`` if the extension is not recognized. The plain output is meant
+    to be consumed directly (the VS Code extension reads it as the source
+    format for a follow-up convert).
+    """
+    fmt = detect_format(input_path)
+    if verbose:
+        ext = Path(input_path).suffix.lower() or "(none)"
+        click.echo(f"file: {input_path}")
+        click.echo(f"extension: {ext}")
+        click.echo(f"format: {fmt if fmt else 'unknown'}")
+        click.echo("method: file extension")
+    else:
+        click.echo(fmt if fmt else "unknown")
+
+
+@main.command()
+@click.option("--json", "as_json", is_flag=True, help="Output the format list as a JSON array")
+def formats(as_json: bool) -> None:
+    """List all supported schema formats.
+
+    With ``--json`` prints a JSON array of format identifiers (consumed by the
+    VS Code extension); otherwise prints one format identifier per line.
+    """
+    if as_json:
+        click.echo(json.dumps(_FORMATS))
+    else:
+        for fmt in _FORMATS:
+            click.echo(fmt)
 
 
 # Register the MCP server subcommand
