@@ -1,4 +1,5 @@
 """Tests for SchemaForge schema diffing (diff.py)."""
+
 from __future__ import annotations
 
 import sys
@@ -16,7 +17,9 @@ def _col(name: str, col_type: ColumnType = ColumnType.STRING, **kwargs) -> Colum
     return Column(name=name, type=col_type, **kwargs)
 
 
-def _table(name: str, columns: list[Column] | None = None, indexes: list[Index] | None = None) -> Table:
+def _table(
+    name: str, columns: list[Column] | None = None, indexes: list[Index] | None = None
+) -> Table:
     return Table(name=name, columns=columns or [], indexes=indexes or [])
 
 
@@ -30,18 +33,24 @@ class TestDiffTables:
 
     def test_added_column(self):
         ta = _table("users", [_col("id", ColumnType.INTEGER, primary_key=True)])
-        tb = _table("users", [
-            _col("id", ColumnType.INTEGER, primary_key=True),
-            _col("email", ColumnType.STRING),
-        ])
+        tb = _table(
+            "users",
+            [
+                _col("id", ColumnType.INTEGER, primary_key=True),
+                _col("email", ColumnType.STRING),
+            ],
+        )
         diffs = _diff_tables(ta, tb)
         assert any('+ column "email"' in d for d in diffs)
 
     def test_removed_column(self):
-        ta = _table("users", [
-            _col("id", ColumnType.INTEGER, primary_key=True),
-            _col("email", ColumnType.STRING),
-        ])
+        ta = _table(
+            "users",
+            [
+                _col("id", ColumnType.INTEGER, primary_key=True),
+                _col("email", ColumnType.STRING),
+            ],
+        )
         tb = _table("users", [_col("id", ColumnType.INTEGER, primary_key=True)])
         diffs = _diff_tables(ta, tb)
         assert any('- column "email"' in d for d in diffs)
@@ -89,29 +98,45 @@ class TestDiffTables:
     def test_added_index(self):
         """Added index should appear in diff output."""
         ta = _table("users", [_col("email", ColumnType.STRING)], indexes=[])
-        tb = _table("users", [_col("email", ColumnType.STRING)], indexes=[
-            Index(name="idx_email", columns=["email"]),
-        ])
+        tb = _table(
+            "users",
+            [_col("email", ColumnType.STRING)],
+            indexes=[
+                Index(name="idx_email", columns=["email"]),
+            ],
+        )
         diffs = _diff_tables(ta, tb)
         assert any('+ index "idx_email"' in d for d in diffs)
 
     def test_removed_index(self):
         """Removed index should appear in diff output."""
-        ta = _table("users", [_col("email", ColumnType.STRING)], indexes=[
-            Index(name="idx_email", columns=["email"]),
-        ])
+        ta = _table(
+            "users",
+            [_col("email", ColumnType.STRING)],
+            indexes=[
+                Index(name="idx_email", columns=["email"]),
+            ],
+        )
         tb = _table("users", [_col("email", ColumnType.STRING)], indexes=[])
         diffs = _diff_tables(ta, tb)
         assert any('- index "idx_email"' in d for d in diffs)
 
     def test_no_index_diff_for_unnamed(self):
         """Indexes with empty names should not produce spurious diffs."""
-        ta = _table("users", [_col("email", ColumnType.STRING)], indexes=[
-            Index(name="", columns=["email"]),
-        ])
-        tb = _table("users", [_col("email", ColumnType.STRING)], indexes=[
-            Index(name="", columns=["email"]),
-        ])
+        ta = _table(
+            "users",
+            [_col("email", ColumnType.STRING)],
+            indexes=[
+                Index(name="", columns=["email"]),
+            ],
+        )
+        tb = _table(
+            "users",
+            [_col("email", ColumnType.STRING)],
+            indexes=[
+                Index(name="", columns=["email"]),
+            ],
+        )
         diffs = _diff_tables(ta, tb)
         assert not any("index" in d for d in diffs)
 

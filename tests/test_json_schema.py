@@ -1,4 +1,5 @@
 """Tests for JSON Schema parser and generator."""
+
 from __future__ import annotations
 
 import json
@@ -209,12 +210,17 @@ def test_generate_simple_schema():
     """Generate JSON Schema from Schema IR with one table."""
     from schemaforge.ir import ColumnType, Schema, Table
 
-    schema = Schema(tables=[
-        Table(name="User", columns=[
-            Column(name="id", type=ColumnType.INTEGER, nullable=False),
-            Column(name="name", type=ColumnType.STRING, nullable=True),
-        ])
-    ])
+    schema = Schema(
+        tables=[
+            Table(
+                name="User",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER, nullable=False),
+                    Column(name="name", type=ColumnType.STRING, nullable=True),
+                ],
+            )
+        ]
+    )
     gen = JSONSchemaGenerator()
     output = gen.generate(schema)
     parsed = json.loads(output)
@@ -229,13 +235,18 @@ def test_generate_required_fields():
     """Non-nullable columns appear in required array."""
     from schemaforge.ir import ColumnType, Schema, Table
 
-    schema = Schema(tables=[
-        Table(name="User", columns=[
-            Column(name="id", type=ColumnType.INTEGER, nullable=False),
-            Column(name="name", type=ColumnType.STRING, nullable=True),
-            Column(name="email", type=ColumnType.STRING, nullable=False),
-        ])
-    ])
+    schema = Schema(
+        tables=[
+            Table(
+                name="User",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER, nullable=False),
+                    Column(name="name", type=ColumnType.STRING, nullable=True),
+                    Column(name="email", type=ColumnType.STRING, nullable=False),
+                ],
+            )
+        ]
+    )
     gen = JSONSchemaGenerator()
     output = gen.generate(schema)
     parsed = json.loads(output)
@@ -249,12 +260,20 @@ def test_generate_enum():
     """ENUM column produces enum array in JSON Schema."""
     from schemaforge.ir import ColumnType, Schema, Table
 
-    schema = Schema(tables=[
-        Table(name="Item", columns=[
-            Column(name="status", type=ColumnType.ENUM,
-                   type_args={"values": ["a", "b", "c"]}),
-        ])
-    ])
+    schema = Schema(
+        tables=[
+            Table(
+                name="Item",
+                columns=[
+                    Column(
+                        name="status",
+                        type=ColumnType.ENUM,
+                        type_args={"values": ["a", "b", "c"]},
+                    ),
+                ],
+            )
+        ]
+    )
     gen = JSONSchemaGenerator()
     output = gen.generate(schema)
     parsed = json.loads(output)
@@ -266,12 +285,18 @@ def test_generate_max_length():
     """STRING with length becomes maxLength."""
     from schemaforge.ir import ColumnType, Schema, Table
 
-    schema = Schema(tables=[
-        Table(name="Item", columns=[
-            Column(name="name", type=ColumnType.STRING,
-                   type_args={"length": 100}),
-        ])
-    ])
+    schema = Schema(
+        tables=[
+            Table(
+                name="Item",
+                columns=[
+                    Column(
+                        name="name", type=ColumnType.STRING, type_args={"length": 100}
+                    ),
+                ],
+            )
+        ]
+    )
     gen = JSONSchemaGenerator()
     output = gen.generate(schema)
     parsed = json.loads(output)
@@ -283,12 +308,17 @@ def test_generate_defaults():
     """Column defaults appear in JSON Schema properties."""
     from schemaforge.ir import ColumnType, Schema, Table
 
-    schema = Schema(tables=[
-        Table(name="Item", columns=[
-            Column(name="active", type=ColumnType.BOOLEAN, default=True),
-            Column(name="count", type=ColumnType.INTEGER, default=0),
-        ])
-    ])
+    schema = Schema(
+        tables=[
+            Table(
+                name="Item",
+                columns=[
+                    Column(name="active", type=ColumnType.BOOLEAN, default=True),
+                    Column(name="count", type=ColumnType.INTEGER, default=0),
+                ],
+            )
+        ]
+    )
     gen = JSONSchemaGenerator()
     output = gen.generate(schema)
     parsed = json.loads(output)
@@ -301,11 +331,16 @@ def test_generate_datetime_format():
     """DATETIME column gets string with date-time format."""
     from schemaforge.ir import ColumnType, Schema, Table
 
-    schema = Schema(tables=[
-        Table(name="Item", columns=[
-            Column(name="created", type=ColumnType.DATETIME),
-        ])
-    ])
+    schema = Schema(
+        tables=[
+            Table(
+                name="Item",
+                columns=[
+                    Column(name="created", type=ColumnType.DATETIME),
+                ],
+            )
+        ]
+    )
     gen = JSONSchemaGenerator()
     output = gen.generate(schema)
     parsed = json.loads(output)
@@ -318,11 +353,16 @@ def test_generate_single_table_root_ref():
     """Single table produces a $ref to its definition."""
     from schemaforge.ir import ColumnType, Schema, Table
 
-    schema = Schema(tables=[
-        Table(name="User", columns=[
-            Column(name="id", type=ColumnType.INTEGER),
-        ])
-    ])
+    schema = Schema(
+        tables=[
+            Table(
+                name="User",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER),
+                ],
+            )
+        ]
+    )
     gen = JSONSchemaGenerator()
     output = gen.generate(schema)
     parsed = json.loads(output)

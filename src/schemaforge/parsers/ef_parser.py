@@ -3,6 +3,7 @@
 Parses POCO entity classes with data annotations from C# source files
 into the internal schema representation.
 """
+
 from __future__ import annotations
 
 import contextlib
@@ -14,20 +15,20 @@ from ..ir import Column, ColumnType, Schema, Table
 # Regex: extract class declaration and body
 _CLASS_RE = re.compile(
     r'(?:\[Table\((?:"([^"]+)"|name:\s*"([^"]+)"(?:,\s*Schema\s*=\s*"([^"]+)")?)\)\])?\s*'
-    r'(?:public\s+)?(?:partial\s+)?class\s+(\w+)(?:\s*:\s*\w+)?\s*\{',
+    r"(?:public\s+)?(?:partial\s+)?class\s+(\w+)(?:\s*:\s*\w+)?\s*\{",
     re.MULTILINE,
 )
 
 # Regex: extract property annotations (one annotation line per property)
-_ANNOTATION_RE = re.compile(r'\[(\w+)(?:\(([^)]*)\))?\]')
+_ANNOTATION_RE = re.compile(r"\[(\w+)(?:\(([^)]*)\))?\]")
 
 # Regex: property declaration
 _PROPERTY_RE = re.compile(
-    r'(?:public\s+)?'
-    r'(?P<type>[\w?<>[\]]+)\s+'  # Type: string, int?, List<int>
-    r'(?P<name>\w+)\s*'
-    r'\{\s*get;\s*set;\s*\}'
-    r'(?:\s*=\s*[^;]+;)?'  # Optional default
+    r"(?:public\s+)?"
+    r"(?P<type>[\w?<>[\]]+)\s+"  # Type: string, int?, List<int>
+    r"(?P<name>\w+)\s*"
+    r"\{\s*get;\s*set;\s*\}"
+    r"(?:\s*=\s*[^;]+;)?"  # Optional default
 )
 
 # Map C# types to ColumnType
@@ -122,9 +123,7 @@ class EntityFrameworkParser:
                 # Collect annotation lines
                 if stripped.startswith("["):
                     for ann in _ANNOTATION_RE.finditer(stripped):
-                        current_annotations.append(
-                            (ann.group(1), ann.group(2) or "")
-                        )
+                        current_annotations.append((ann.group(1), ann.group(2) or ""))
                     continue
 
                 # Skip non-property lines
@@ -136,9 +135,7 @@ class EntityFrameworkParser:
                 cs_type = prop_m.group("type")
                 prop_name = prop_m.group("name")
 
-                col = self._property_to_column(
-                    prop_name, cs_type, current_annotations
-                )
+                col = self._property_to_column(prop_name, cs_type, current_annotations)
                 if col:
                     table.columns.append(col)
 
@@ -187,7 +184,9 @@ class EntityFrameworkParser:
                 if ann_args and "=" not in ann_args:
                     pass  # Column name override — skip for now
             elif ann_name == "Index":
-                is_unique = "Unique" in ann_args or "IsUnique=true" in ann_args.replace(" ", "")
+                is_unique = "Unique" in ann_args or "IsUnique=true" in ann_args.replace(
+                    " ", ""
+                )
             elif ann_name == "Table":
                 pass  # Already handled at class level
 

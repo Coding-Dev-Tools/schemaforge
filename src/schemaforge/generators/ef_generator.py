@@ -1,4 +1,5 @@
 """Generator: SchemaForge IR → C# Entity Framework Core entity classes."""
+
 from __future__ import annotations
 
 from ..ir import Column, ColumnType, Schema
@@ -81,7 +82,7 @@ class EntityFrameworkGenerator:
         if col.type == ColumnType.DECIMAL:
             p = col.type_args.get("precision", 10)
             s = col.type_args.get("scale", 2)
-            annotations.append(f"[Column(TypeName = \"decimal({p},{s})\")]")
+            annotations.append(f'[Column(TypeName = "decimal({p},{s})")]')
 
         if col.unique and not col.primary_key:
             # EF Index attribute

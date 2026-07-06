@@ -1,4 +1,5 @@
 """Tests for SchemaForge schema consistency checker (check.py)."""
+
 from __future__ import annotations
 
 import sys
@@ -10,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from schemaforge.check import check_directory, detect_format
 
 # ── detect_format tests ──
+
 
 def test_detect_format_sql():
     assert detect_format("schema.sql") == "sql"
@@ -111,6 +113,7 @@ def test_check_directory_consistent_files():
 def test_check_directory_not_a_directory():
     """Non-directory path should raise NotADirectoryError."""
     import pytest
+
     with tempfile.NamedTemporaryFile() as f, pytest.raises(NotADirectoryError):
         check_directory(f.name)
 

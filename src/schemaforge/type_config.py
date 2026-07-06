@@ -3,6 +3,7 @@
 Allows users to override default type mappings between ColumnTypes
 and format-specific type strings via YAML or JSON configuration files.
 """
+
 from __future__ import annotations
 
 import json
@@ -82,9 +83,7 @@ class TypeConfig:
         result = re.sub(r"\{[^}]+\}", "", result)
         return result
 
-    def get_custom_type(
-        self, custom_type_name: str, fmt: str
-    ) -> str | None:
+    def get_custom_type(self, custom_type_name: str, fmt: str) -> str | None:
         """Resolve a custom type name to a format-specific type string.
 
         Custom types are overrides keyed by type name (e.g. 'JSONB', 'HSTORE')

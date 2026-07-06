@@ -1,4 +1,5 @@
 """Generator: SchemaForge IR → TypeORM entity schema."""
+
 from __future__ import annotations
 
 from ..ir import Column, ColumnType, Schema
@@ -52,9 +53,7 @@ class TypeORMGenerator:
         imports = []
         if schema.tables:
             imports.append("Entity")
-        has_pk = any(
-            any(c.primary_key for c in t.columns) for t in schema.tables
-        )
+        has_pk = any(any(c.primary_key for c in t.columns) for t in schema.tables)
         if has_pk:
             imports.append("PrimaryGeneratedColumn")
         # Actually just always import Column since most tables have non-PK columns
@@ -70,12 +69,12 @@ class TypeORMGenerator:
             imports.append("Unique")
 
         if len(imports) == 1 and imports[0] == "Entity":
-            parts[0] = 'import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";'
+            parts[0] = (
+                'import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";'
+            )
         else:
             parts[0] = (
-                'import { '
-                + ", ".join(sorted(set(imports)))
-                + ' } from "typeorm";'
+                "import { " + ", ".join(sorted(set(imports))) + ' } from "typeorm";'
             )
 
         entities: list[str] = []
@@ -93,12 +92,10 @@ class TypeORMGenerator:
         lines.append("@Entity()")
 
         # Uniqueness constraints
-        unique_cols = [
-            c for c in table.columns if c.unique and not c.primary_key
-        ]
+        unique_cols = [c for c in table.columns if c.unique and not c.primary_key]
         if unique_cols:
             col_names = ", ".join(f'"{c.name}"' for c in unique_cols)
-            lines.append(f'@Unique({col_names})')
+            lines.append(f"@Unique({col_names})")
 
         # Class declaration
         lines.append(f"export class {table.name} {{")
@@ -124,7 +121,9 @@ class TypeORMGenerator:
         options: dict[str, str] = {}
 
         # Determine TypeORM type
-        col_type = resolve_type(col, self._TYPE_MAP, fmt="typeorm", type_config=self._type_config)
+        col_type = resolve_type(
+            col, self._TYPE_MAP, fmt="typeorm", type_config=self._type_config
+        )
 
         # Primary key handling
         if col.primary_key:
@@ -157,7 +156,7 @@ class TypeORMGenerator:
                     options["default"] = str(col.default).lower()
                 elif isinstance(col.default, str) and col.default.startswith("fn:"):
                     fn_name = col.default[3:]
-                    options["default"] = f"() => \"{fn_name}\""
+                    options["default"] = f'() => "{fn_name}"'
                 elif isinstance(col.default, str):
                     options["default"] = f'"{col.default}"'
                 elif isinstance(col.default, int | float):

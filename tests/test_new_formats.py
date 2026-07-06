@@ -1,4 +1,5 @@
 """Tests for SchemaForge — TypeORM, Django, and SQLAlchemy parsers/generators."""
+
 from __future__ import annotations
 
 import pytest
@@ -97,6 +98,7 @@ class Product(models.Model):
 # TypeORM Parser Tests
 # ═══════════════════════════════════════════════
 
+
 def test_typeorm_parse_simple():
     parser = TypeORMParser()
     schema = parser.parse(SIMPLE_TYPEORM)
@@ -164,6 +166,7 @@ def test_typeorm_generate_complex():
 # ═══════════════════════════════════════════════
 # Django Parser Tests
 # ═══════════════════════════════════════════════
+
 
 def test_django_parse_simple():
     parser = DjangoParser()
@@ -237,6 +240,7 @@ def test_django_generate_complex():
 # ═══════════════════════════════════════════════
 # Roundtrip Tests
 # ═══════════════════════════════════════════════
+
 
 def test_typeorm_to_sql_roundtrip():
     """Parse TypeORM, convert to SQL, check elements survive."""
@@ -376,6 +380,7 @@ class Event(Base):
 # SQLAlchemy Parser Tests
 # ═══════════════════════════════════════════════
 
+
 def test_sqlalchemy_parse_simple():
     parser = SQLAlchemyParser()
     schema = parser.parse(SIMPLE_SQLALCHEMY)
@@ -481,6 +486,7 @@ def test_sqlalchemy_date_time_types():
 # SQLAlchemy Roundtrip Tests
 # ═══════════════════════════════════════════════
 
+
 def test_sqlalchemy_to_sql_roundtrip():
     """Parse SQLAlchemy, convert to SQL, check elements survive."""
     sql = convert_schema(SIMPLE_SQLALCHEMY, "sqlalchemy", "sql")
@@ -516,7 +522,12 @@ def test_sqlalchemy_to_typeorm_roundtrip():
 def test_sqlalchemy_to_drizzle_roundtrip():
     """Cross-format: SQLAlchemy -> Drizzle."""
     drizzle = convert_schema(SIMPLE_SQLALCHEMY, "sqlalchemy", "drizzle")
-    assert "export" in drizzle or "pgTable" in drizzle or "sqliteTable" in drizzle or "defineTable" in drizzle
+    assert (
+        "export" in drizzle
+        or "pgTable" in drizzle
+        or "sqliteTable" in drizzle
+        or "defineTable" in drizzle
+    )
     assert "users" in drizzle.lower()
 
 
@@ -556,7 +567,7 @@ def test_alembic_generate_simple():
     output = gen.generate(schema)
 
     # Core structure checks
-    assert "\"\"\"" in output  # docstring
+    assert '"""' in output  # docstring
     assert "Revision ID:" in output
     assert "revision = 'initial'" in output
     assert "down_revision = None" in output
@@ -684,11 +695,16 @@ def test_alembic_custom_revision():
     from schemaforge.generators.alembic_generator import AlembicGenerator
     from schemaforge.ir import Column, ColumnType, Schema, Table
 
-    schema = Schema(tables=[
-        Table(name="items", columns=[
-            Column(name="id", type=ColumnType.INTEGER, primary_key=True),
-        ])
-    ])
+    schema = Schema(
+        tables=[
+            Table(
+                name="items",
+                columns=[
+                    Column(name="id", type=ColumnType.INTEGER, primary_key=True),
+                ],
+            )
+        ]
+    )
 
     gen = AlembicGenerator()
     output = gen.generate(

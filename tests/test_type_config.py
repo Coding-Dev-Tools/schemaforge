@@ -1,4 +1,5 @@
 """Tests for SchemaForge custom type mapping configuration (type_config.py)."""
+
 from __future__ import annotations
 
 import json
@@ -15,6 +16,7 @@ from schemaforge.ir import Column, ColumnType
 from schemaforge.type_config import EMPTY_CONFIG, TypeConfig
 
 # ── Basic TypeConfig Tests ──
+
 
 def test_empty_config_returns_none():
     """Empty TypeConfig returns None for all lookups."""
@@ -58,7 +60,9 @@ def test_config_with_length_placeholder():
 def test_config_with_precision_scale():
     """TypeConfig replaces {precision} and {scale} placeholders."""
     config = TypeConfig({"sql": {"DECIMAL": "DECIMAL({precision},{scale})"}})
-    col = Column(name="price", type=ColumnType.DECIMAL, type_args={"precision": 12, "scale": 4})
+    col = Column(
+        name="price", type=ColumnType.DECIMAL, type_args={"precision": 12, "scale": 4}
+    )
     result = config.get_override(col, "sql")
     assert result == "DECIMAL(12,4)"
 
@@ -66,7 +70,9 @@ def test_config_with_precision_scale():
 def test_config_with_enum_values():
     """TypeConfig replaces {values} placeholder."""
     config = TypeConfig({"sql": {"ENUM": "ENUM({values})"}})
-    col = Column(name="size", type=ColumnType.ENUM, type_args={"values": ["S", "M", "L"]})
+    col = Column(
+        name="size", type=ColumnType.ENUM, type_args={"values": ["S", "M", "L"]}
+    )
     result = config.get_override(col, "sql")
     assert result == "ENUM('S', 'M', 'L')"
 
@@ -80,6 +86,7 @@ def test_config_unresolved_placeholder_removed():
 
 
 # ── File Loading Tests ──
+
 
 def test_load_from_json():
     """TypeConfig can be loaded from a JSON file."""
@@ -119,7 +126,11 @@ def test_load_from_yaml_without_pyyaml():
         f.write("overrides:\n  sql:\n    INTEGER: BIGINT\n")
         tmp_path = f.name
     try:
-        _orig_import = __builtins__["__import__"] if isinstance(__builtins__, dict) else __builtins__.__import__
+        _orig_import = (
+            __builtins__["__import__"]
+            if isinstance(__builtins__, dict)
+            else __builtins__.__import__
+        )
 
         def _mock_import(name, *args, **kw):
             if name == "yaml":
@@ -181,6 +192,7 @@ def test_file_not_found():
 
 # ── Merge Tests ──
 
+
 def test_merge_two_configs():
     """Merging configs combines overrides (other takes precedence)."""
     base = TypeConfig({"sql": {"INTEGER": "INT", "STRING": "TEXT"}})
@@ -191,7 +203,7 @@ def test_merge_two_configs():
     col_str = Column(name="name", type=ColumnType.STRING)
 
     assert merged.get_override(col_int, "sql") == "BIGINT"  # Overridden
-    assert merged.get_override(col_str, "sql") == "TEXT"     # Preserved
+    assert merged.get_override(col_str, "sql") == "TEXT"  # Preserved
 
 
 def test_merge_different_formats():
@@ -206,6 +218,7 @@ def test_merge_different_formats():
 
 
 # ── Integration Tests ──
+
 
 def test_type_config_in_convert_sql_to_prisma():
     """TypeConfig overrides applied through convert_schema API."""

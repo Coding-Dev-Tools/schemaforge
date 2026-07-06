@@ -3,6 +3,7 @@
 All formats convert to/from this common IR, enabling lossless roundtripping
 between any supported format pair.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -12,6 +13,7 @@ from typing import Any
 
 class ColumnType(Enum):
     """Supported column data types mapped across ORMs."""
+
     STRING = "string"
     INTEGER = "integer"
     FLOAT = "float"
@@ -31,6 +33,7 @@ class ColumnType(Enum):
 @dataclass
 class Column:
     """A single column/field in a schema."""
+
     name: str
     type: ColumnType
     type_args: dict[str, Any] = field(default_factory=dict)
@@ -47,6 +50,7 @@ class Column:
 @dataclass
 class Index:
     """A database index."""
+
     name: str = ""
     columns: list[str] = field(default_factory=list)
     unique: bool = False
@@ -55,6 +59,7 @@ class Index:
 @dataclass
 class Table:
     """A single table/model/collection in the schema."""
+
     name: str
     columns: list[Column] = field(default_factory=list)
     indexes: list[Index] = field(default_factory=list)
@@ -66,6 +71,7 @@ class Table:
 @dataclass
 class EnumType:
     """A named enum type (database enum or ORM enum)."""
+
     name: str
     values: list[str] = field(default_factory=list)
 
@@ -73,5 +79,6 @@ class EnumType:
 @dataclass
 class Schema:
     """Complete schema — the IR all formats translate to/from."""
+
     tables: list[Table] = field(default_factory=list)
     enums: list[EnumType] = field(default_factory=list)

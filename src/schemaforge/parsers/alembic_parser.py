@@ -4,6 +4,7 @@ Parsing Alembic migrations back to IR is complex (requires AST analysis).
 This parser is a placeholder — it raises NotImplementedError.
 The AlembicGenerator is the primary use case (IR → migration).
 """
+
 from __future__ import annotations
 
 from ..ir import Schema

@@ -1,4 +1,5 @@
 """Tests for SchemaForge — GraphQL SDL parser and generator."""
+
 from __future__ import annotations
 
 import pytest
@@ -217,18 +218,29 @@ class TestGraphQLGenerator:
                 Table(
                     name="User",
                     columns=[
-                        Column(name="id", type=ColumnType.STRING,
-                               nullable=False, primary_key=True),
-                        Column(name="name", type=ColumnType.STRING,
-                               nullable=False),
-                        Column(name="email", type=ColumnType.STRING,
-                               nullable=False, unique=True),
-                        Column(name="age", type=ColumnType.INTEGER,
-                               nullable=True),
-                        Column(name="role", type=ColumnType.CUSTOM,
-                               nullable=False, custom_type="Role"),
-                        Column(name="createdAt", type=ColumnType.DATETIME,
-                               nullable=False),
+                        Column(
+                            name="id",
+                            type=ColumnType.STRING,
+                            nullable=False,
+                            primary_key=True,
+                        ),
+                        Column(name="name", type=ColumnType.STRING, nullable=False),
+                        Column(
+                            name="email",
+                            type=ColumnType.STRING,
+                            nullable=False,
+                            unique=True,
+                        ),
+                        Column(name="age", type=ColumnType.INTEGER, nullable=True),
+                        Column(
+                            name="role",
+                            type=ColumnType.CUSTOM,
+                            nullable=False,
+                            custom_type="Role",
+                        ),
+                        Column(
+                            name="createdAt", type=ColumnType.DATETIME, nullable=False
+                        ),
                     ],
                 )
             ],
@@ -258,12 +270,14 @@ class TestGraphQLGenerator:
                 Table(
                     name="Product",
                     columns=[
-                        Column(name="id", type=ColumnType.STRING,
-                               nullable=False, primary_key=True),
-                        Column(name="tags", type=ColumnType.STRING,
-                               nullable=True),
-                        Column(name="price", type=ColumnType.FLOAT,
-                               nullable=True),
+                        Column(
+                            name="id",
+                            type=ColumnType.STRING,
+                            nullable=False,
+                            primary_key=True,
+                        ),
+                        Column(name="tags", type=ColumnType.STRING, nullable=True),
+                        Column(name="price", type=ColumnType.FLOAT, nullable=True),
                     ],
                 )
             ],
@@ -284,10 +298,18 @@ class TestGraphQLGenerator:
                 Table(
                     name="Item",
                     columns=[
-                        Column(name="id", type=ColumnType.STRING,
-                               nullable=False, primary_key=True),
-                        Column(name="status", type=ColumnType.CUSTOM,
-                               nullable=False, custom_type="Status"),
+                        Column(
+                            name="id",
+                            type=ColumnType.STRING,
+                            nullable=False,
+                            primary_key=True,
+                        ),
+                        Column(
+                            name="status",
+                            type=ColumnType.CUSTOM,
+                            nullable=False,
+                            custom_type="Status",
+                        ),
                     ],
                 )
             ],
@@ -347,10 +369,18 @@ class TestGraphQLRoundtrip:
                 Table(
                     name="Item",
                     columns=[
-                        Column(name="id", type=ColumnType.STRING,
-                               nullable=False, primary_key=True),
-                        Column(name="status", type=ColumnType.CUSTOM,
-                               nullable=False, custom_type="Status"),
+                        Column(
+                            name="id",
+                            type=ColumnType.STRING,
+                            nullable=False,
+                            primary_key=True,
+                        ),
+                        Column(
+                            name="status",
+                            type=ColumnType.CUSTOM,
+                            nullable=False,
+                            custom_type="Status",
+                        ),
                     ],
                 )
             ],
@@ -378,9 +408,7 @@ class TestGraphQLRoundtrip:
 
 class TestGraphQLCrossFormat:
     def test_graphql_to_sql(self):
-        result = convert_schema(
-            GRAPHQL_SIMPLE_ROUNDTRIP, "graphql", "sql"
-        )
+        result = convert_schema(GRAPHQL_SIMPLE_ROUNDTRIP, "graphql", "sql")
         assert "CREATE TABLE" in result
         assert "Item" in result
         assert "id" in result and "name" in result and "price" in result
@@ -450,9 +478,7 @@ model User {
 
 
 def test_graphql_fixture_file():
-    fixture_path = (
-        Path(__file__).parent.parent / "fixtures" / "sample.graphql"
-    )
+    fixture_path = Path(__file__).parent.parent / "fixtures" / "sample.graphql"
     if not fixture_path.exists():
         pytest.skip("Fixture file not found")
     text = fixture_path.read_text(encoding="utf-8")

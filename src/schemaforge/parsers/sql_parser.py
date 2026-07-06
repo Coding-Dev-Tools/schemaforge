@@ -1,4 +1,5 @@
 """Parser for SQL DDL into SchemaForge IR."""
+
 from __future__ import annotations
 
 import contextlib
@@ -13,11 +14,22 @@ class SQLParser:
 
     # SQL function keywords that should be stored as fn: prefixed defaults
     _SQL_FN_KEYWORDS: set[str] = {
-        "CURRENT_TIMESTAMP", "CURRENT_DATE", "CURRENT_TIME",
-        "LOCALTIMESTAMP", "LOCALTIME",
-        "NOW", "RANDOM", "GEN_RANDOM_UUID", "UUID",
-        "RAND", "CURDATE", "CURTIME", "SYSDATE",
-        "UTC_TIMESTAMP", "UTC_DATE", "UTC_TIME",
+        "CURRENT_TIMESTAMP",
+        "CURRENT_DATE",
+        "CURRENT_TIME",
+        "LOCALTIMESTAMP",
+        "LOCALTIME",
+        "NOW",
+        "RANDOM",
+        "GEN_RANDOM_UUID",
+        "UUID",
+        "RAND",
+        "CURDATE",
+        "CURTIME",
+        "SYSDATE",
+        "UTC_TIMESTAMP",
+        "UTC_DATE",
+        "UTC_TIME",
     }
 
     def parse(self, text: str) -> Schema:
@@ -58,13 +70,13 @@ class SQLParser:
             ch = text[i]
             if in_string:
                 current += ch
-                if ch == string_char and (i == 0 or text[i-1] != '\\'):
+                if ch == string_char and (i == 0 or text[i - 1] != "\\"):
                     in_string = False
             elif ch in ("'", '"'):
                 in_string = True
                 string_char = ch
                 current += ch
-            elif ch == ';':
+            elif ch == ";":
                 statements.append(current.strip())
                 current = ""
             else:
@@ -79,11 +91,12 @@ class SQLParser:
         """Parse a CREATE TABLE statement."""
         # Extract table name — support quoted/backtick identifiers
         m = re.match(
-            r'CREATE\s+(?:TEMPORARY\s+)?(?:OR\s+REPLACE\s+)?'
-            r'TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?'
+            r"CREATE\s+(?:TEMPORARY\s+)?(?:OR\s+REPLACE\s+)?"
+            r"TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?"
             r'(?:`(\w+)`\.|"(\w+)"\.|(\w+)\.)?'
             r'`?"?([\w-]+)"?`?',
-            stmt, re.IGNORECASE
+            stmt,
+            re.IGNORECASE,
         )
         if not m:
             return None
@@ -97,11 +110,11 @@ class SQLParser:
         paren_depth = 0
         start = -1
         for i, ch in enumerate(stmt):
-            if ch == '(':
+            if ch == "(":
                 if paren_depth == 0:
                     start = i + 1
                 paren_depth += 1
-            elif ch == ')':
+            elif ch == ")":
                 paren_depth -= 1
                 if paren_depth == 0 and start >= 0:
                     body = stmt[start:i]
@@ -111,7 +124,7 @@ class SQLParser:
             return None
 
         # Extract MySQL table options after the closing paren (e.g. ENGINE=InnoDB AUTO_INCREMENT=1)
-        table_options = self._parse_table_options(stmt[i+1:])
+        table_options = self._parse_table_options(stmt[i + 1 :])
 
         table = Table(name=table_name, options=table_options)
         # Split body into lines/definitions
@@ -150,13 +163,13 @@ class SQLParser:
         current = ""
         paren_depth = 0
         for ch in body:
-            if ch == '(':
+            if ch == "(":
                 paren_depth += 1
                 current += ch
-            elif ch == ')':
+            elif ch == ")":
                 paren_depth -= 1
                 current += ch
-            elif ch == ',' and paren_depth == 0:
+            elif ch == "," and paren_depth == 0:
                 defs.append(current.strip())
                 current = ""
             else:
@@ -200,17 +213,28 @@ class SQLParser:
         """Parse a column definition."""
         # Skip table constraints
         upper = defn.upper()
-        if (
-            any(kw in upper for kw in [
-                "PRIMARY KEY", "FOREIGN KEY", "INDEX",
-                "KEY", "CHECK", "UNIQUE", "CONSTRAINT",
-            ])
-            and (
-                not defn.split()[0].isidentifier()
-                or defn.split()[0].upper() in (
-                    "PRIMARY", "FOREIGN", "INDEX",
-                    "KEY", "CHECK", "UNIQUE", "CONSTRAINT",
-                )
+        if any(
+            kw in upper
+            for kw in [
+                "PRIMARY KEY",
+                "FOREIGN KEY",
+                "INDEX",
+                "KEY",
+                "CHECK",
+                "UNIQUE",
+                "CONSTRAINT",
+            ]
+        ) and (
+            not defn.split()[0].isidentifier()
+            or defn.split()[0].upper()
+            in (
+                "PRIMARY",
+                "FOREIGN",
+                "INDEX",
+                "KEY",
+                "CHECK",
+                "UNIQUE",
+                "CONSTRAINT",
             )
         ):
             return None
@@ -221,7 +245,11 @@ class SQLParser:
             return None
 
         col_name = tokens[0]
-        if col_name.startswith('"') or col_name.startswith('`') or col_name.startswith('['):
+        if (
+            col_name.startswith('"')
+            or col_name.startswith("`")
+            or col_name.startswith("[")
+        ):
             col_name = col_name.strip('"`[]')
 
         # Find the type (skip quoted name)
@@ -229,21 +257,27 @@ class SQLParser:
         type_raw = tokens[type_start] if type_start < len(tokens) else "TEXT"
 
         # Handle type with parameters that may span multiple tokens (e.g. ENUM('a', 'b', 'c'))
-        if type_raw.startswith(('ENUM(', 'enum(')) or (
-            '(' in type_raw and ')' not in type_raw and type_start + 1 < len(tokens)
+        if type_raw.startswith(("ENUM(", "enum(")) or (
+            "(" in type_raw and ")" not in type_raw and type_start + 1 < len(tokens)
         ):
-            while ')' not in type_raw and type_start + 1 < len(tokens):
+            while ")" not in type_raw and type_start + 1 < len(tokens):
                 type_start += 1
                 type_raw += " " + tokens[type_start]
 
-        type_name = type_raw.split('(')[0].upper() if '(' in type_raw else type_raw.upper()
+        type_name = (
+            type_raw.split("(")[0].upper() if "(" in type_raw else type_raw.upper()
+        )
 
         col_type = self._TYPE_MAP.get(type_name, ColumnType.CUSTOM)
 
         # Extract type args
         type_args: dict[str, Any] = {}
-        if '(' in type_raw:
-            args_str = type_raw[type_raw.index('(')+1:type_raw.index(')')] if ')' in type_raw else ""
+        if "(" in type_raw:
+            args_str = (
+                type_raw[type_raw.index("(") + 1 : type_raw.index(")")]
+                if ")" in type_raw
+                else ""
+            )
             if type_name == "ENUM":
                 # Inline ENUM('a','b','c') — extract values via regex to handle multi-token args
                 type_args["values"] = re.findall(r"'([^']*)'", args_str)
@@ -251,7 +285,7 @@ class SQLParser:
                 with contextlib.suppress(ValueError):
                     type_args["length"] = int(args_str)
             elif type_name in ("DECIMAL", "NUMERIC"):
-                parts = args_str.split(',')
+                parts = args_str.split(",")
                 if len(parts) >= 1:
                     with contextlib.suppress(ValueError):
                         type_args["precision"] = int(parts[0])
@@ -260,7 +294,9 @@ class SQLParser:
                         type_args["scale"] = int(parts[1])
 
         # Parse constraints
-        constraints = " ".join(tokens[type_start+1:]) if type_start + 1 < len(tokens) else ""
+        constraints = (
+            " ".join(tokens[type_start + 1 :]) if type_start + 1 < len(tokens) else ""
+        )
 
         is_pk = "PRIMARY KEY" in constraints.upper()
         is_not_null = "NOT NULL" in constraints.upper()
@@ -293,7 +329,9 @@ class SQLParser:
                 is_fn = (
                     upper_val in self._SQL_FN_KEYWORDS
                     or upper_val.rstrip("()") in self._SQL_FN_KEYWORDS
-                    or re.match(r'^\w+\(', val)  # Any function call: nextval(), now(), etc.
+                    or re.match(
+                        r"^\w+\(", val
+                    )  # Any function call: nextval(), now(), etc.
                 )
                 if is_fn:
                     col.default = f"fn:{val}"
@@ -318,18 +356,17 @@ class SQLParser:
 
     def _parse_index_definition(self, defn: str) -> Index | None:
         """Parse an index definition."""
-        m = re.search(r'(?:INDEX|KEY)\s+(\w+)\s*\(([^)]+)\)', defn, re.IGNORECASE)
+        m = re.search(r"(?:INDEX|KEY)\s+(\w+)\s*\(([^)]+)\)", defn, re.IGNORECASE)
         if m:
             name = m.group(1)
-            columns = [c.strip().strip('"`[]') for c in m.group(2).split(',')]
+            columns = [c.strip().strip('"`[]') for c in m.group(2).split(",")]
             return Index(name=name, columns=columns, unique="UNIQUE" in defn.upper())
         return None
 
     def _parse_create_enum(self, stmt: str) -> EnumType | None:
         """Parse a CREATE TYPE ... AS ENUM statement."""
         m = re.match(
-            r"CREATE\s+TYPE\s+(\w+)\s+AS\s+ENUM\s*\(([^)]+)\)",
-            stmt, re.IGNORECASE
+            r"CREATE\s+TYPE\s+(\w+)\s+AS\s+ENUM\s*\(([^)]+)\)", stmt, re.IGNORECASE
         )
         if m:
             name = m.group(1)
@@ -353,23 +390,29 @@ class SQLParser:
         i = 0
         while i < len(text):
             # Skip whitespace
-            while i < len(text) and text[i] in (' ', '\t', '\n', '\r'):
+            while i < len(text) and text[i] in (" ", "\t", "\n", "\r"):
                 i += 1
             if i >= len(text):
                 break
 
             # Check for "DEFAULT CHARSET" or "DEFAULT COLLATE" two-word keys
             remaining = text[i:]
-            default_m = re.match(r'DEFAULT\s+(CHARSET|CHARACTER\s+SET|COLLATE)\s*=\s*', remaining, re.IGNORECASE)
+            default_m = re.match(
+                r"DEFAULT\s+(CHARSET|CHARACTER\s+SET|COLLATE)\s*=\s*",
+                remaining,
+                re.IGNORECASE,
+            )
             if default_m:
                 key = f"DEFAULT {default_m.group(1).upper()}"
                 val_start = i + default_m.end()
             else:
                 # Single-word key: ENGINE, AUTO_INCREMENT, ROW_FORMAT, etc.
-                key_m = re.match(r'(\w+)\s*=\s*', remaining)
+                key_m = re.match(r"(\w+)\s*=\s*", remaining)
                 if not key_m:
                     # Try COMMENT 'xxx' (no equals)
-                    comment_m = re.match(r"COMMENT\s+'([^']*)'", remaining, re.IGNORECASE)
+                    comment_m = re.match(
+                        r"COMMENT\s+'([^']*)'", remaining, re.IGNORECASE
+                    )
                     if comment_m:
                         options["COMMENT"] = comment_m.group(1)
                         i += comment_m.end()
@@ -390,7 +433,7 @@ class SQLParser:
                     break
             else:
                 # Unquoted value — grab until next space, semicolon, or end
-                val_end = re.match(r'([^\s;]+)', val_rest)
+                val_end = re.match(r"([^\s;]+)", val_rest)
                 if val_end:
                     options[key] = val_end.group(1)
                     i = val_start + val_end.end()

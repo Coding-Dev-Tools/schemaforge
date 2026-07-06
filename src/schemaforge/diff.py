@@ -2,6 +2,7 @@
 
 Uses the IR directly to compare schemas structurally.
 """
+
 from __future__ import annotations
 
 from .convert import _registry
@@ -66,13 +67,21 @@ def diff_schemas(text_a: str, text_b: str, fmt: str) -> str:
 
     # Determine if any differences were found
     has_table_diffs = any(
-        bool(_diff_tables(
-            next(t for t in schema_a.tables if t.name == name),
-            next(t for t in schema_b.tables if t.name == name),
-        ))
+        bool(
+            _diff_tables(
+                next(t for t in schema_a.tables if t.name == name),
+                next(t for t in schema_b.tables if t.name == name),
+            )
+        )
         for name in common
     )
-    if not added and not removed and not has_table_diffs and not enum_added and not enum_removed:
+    if (
+        not added
+        and not removed
+        and not has_table_diffs
+        and not enum_added
+        and not enum_removed
+    ):
         lines.append("No differences found.")
 
     return "\n".join(lines)

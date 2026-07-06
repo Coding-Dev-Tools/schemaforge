@@ -3,6 +3,7 @@
 Generates Scala case classes suitable for use with Doobie, Quill,
 or Slick. Handles Option[T] for nullable columns.
 """
+
 from __future__ import annotations
 
 from ..ir import Column, ColumnType, Schema

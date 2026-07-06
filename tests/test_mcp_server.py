@@ -1,4 +1,5 @@
 """Tests for SchemaForge MCP server (mcp_server.py)."""
+
 from __future__ import annotations
 
 import sys
@@ -103,7 +104,7 @@ def test_diff_tool():
 
 
 def test_formats_tool():
-    """Formats tool should list all supported formats."""
+    """Formats tool should list all supported formats, including ef and scala."""
     s = create_server()
     tool = s._tool_manager._tools["formats"]
     result = tool.fn()
@@ -111,6 +112,8 @@ def test_formats_tool():
     assert "prisma" in result
     assert "graphql" in result
     assert "json_schema" in result
+    assert "ef" in result
+    assert "scala" in result
     assert all(f in result for f in _FORMATS)
 
 

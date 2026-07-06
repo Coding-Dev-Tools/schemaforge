@@ -1,4 +1,5 @@
 """Tests for SchemaForge base generator utilities (_base.py)."""
+
 from __future__ import annotations
 
 import sys
@@ -17,6 +18,7 @@ from schemaforge.ir import Column, ColumnType
 from schemaforge.parsers.sql_parser import SQLParser
 
 # ── resolve_type tests ──
+
 
 def test_resolve_type_normal():
     """resolve_type returns the mapped type for known ColumnTypes."""
@@ -48,6 +50,7 @@ def test_resolve_type_unknown():
 
 # ── build_type_string tests ──
 
+
 def test_build_type_string_simple():
     """build_type_string returns base type for simple columns."""
     col = Column(name="id", type=ColumnType.INTEGER)
@@ -58,32 +61,41 @@ def test_build_type_string_simple():
 def test_build_type_string_string_with_length():
     """build_type_string adds length for STRING."""
     col = Column(name="name", type=ColumnType.STRING, type_args={"length": 100})
-    result = build_type_string(col, {ColumnType.STRING: "String"},
-                               string_fmt="{}({})", string_default="String")
+    result = build_type_string(
+        col, {ColumnType.STRING: "String"}, string_fmt="{}({})", string_default="String"
+    )
     assert result == "String(100)"
 
 
 def test_build_type_string_string_no_length():
     """build_type_string returns base for STRING without length."""
     col = Column(name="name", type=ColumnType.STRING)
-    result = build_type_string(col, {ColumnType.STRING: "String"},
-                               string_fmt="{}({})", string_default="String")
+    result = build_type_string(
+        col, {ColumnType.STRING: "String"}, string_fmt="{}({})", string_default="String"
+    )
     assert result == "String"
 
 
 def test_build_type_string_decimal():
     """build_type_string adds precision/scale for DECIMAL."""
-    col = Column(name="price", type=ColumnType.DECIMAL, type_args={"precision": 12, "scale": 4})
-    result = build_type_string(col, {ColumnType.DECIMAL: "DECIMAL"},
-                               decimal_fmt="{}({},{})", decimal_default="DECIMAL")
+    col = Column(
+        name="price", type=ColumnType.DECIMAL, type_args={"precision": 12, "scale": 4}
+    )
+    result = build_type_string(
+        col,
+        {ColumnType.DECIMAL: "DECIMAL"},
+        decimal_fmt="{}({},{})",
+        decimal_default="DECIMAL",
+    )
     assert result == "DECIMAL(12,4)"
 
 
 def test_build_type_string_enum():
     """build_type_string formats inline ENUM values."""
-    col = Column(name="size", type=ColumnType.ENUM, type_args={"values": ["S", "M", "L"]})
-    result = build_type_string(col, {ColumnType.ENUM: "Enum"},
-                               enum_fmt="Enum({})")
+    col = Column(
+        name="size", type=ColumnType.ENUM, type_args={"values": ["S", "M", "L"]}
+    )
+    result = build_type_string(col, {ColumnType.ENUM: "Enum"}, enum_fmt="Enum({})")
     assert result == "Enum('S', 'M', 'L')"
 
 
@@ -97,8 +109,12 @@ def test_build_type_string_custom():
 def test_build_type_string_sql_varchar():
     """build_type_string produces VARCHAR with length when type_map has VARCHAR."""
     col = Column(name="name", type=ColumnType.STRING, type_args={"length": 255})
-    result = build_type_string(col, {ColumnType.STRING: "VARCHAR"},
-                               string_fmt="{}({})", string_default="VARCHAR")
+    result = build_type_string(
+        col,
+        {ColumnType.STRING: "VARCHAR"},
+        string_fmt="{}({})",
+        string_default="VARCHAR",
+    )
     assert result == "VARCHAR(255)"
 
 
@@ -118,6 +134,7 @@ def test_build_type_string_with_fn_default():
 
 
 # ── resolve_fn_default tests ──
+
 
 def test_resolve_fn_default_now():
     """resolve_fn_default maps CURRENT_TIMESTAMP to now()."""
@@ -186,6 +203,7 @@ def test_resolve_fn_default_all_mapped_fns():
 
 # ── format_literal_default tests ──
 
+
 def test_format_literal_default_bool():
     """format_literal_default formats boolean defaults."""
     col = Column(name="active", type=ColumnType.BOOLEAN, default=True)
@@ -229,6 +247,7 @@ def test_format_literal_default_fn():
 
 
 # ── FN_DEFAULT_MAP constants ──
+
 
 def test_fn_default_map_has_expected_keys():
     """FN_DEFAULT_MAP should have the core SQL function constants."""
