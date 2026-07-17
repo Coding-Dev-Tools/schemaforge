@@ -73,7 +73,7 @@ def check_directory(
             failures.append(f"  FAIL {name}: {e}")
 
     if not converted:
-        return "No files could be converted to {}\n{}".format(
+        return "FAIL: No files could be converted to {}\n{}".format(
             canonical, "\n".join(failures)
         )
 
@@ -109,10 +109,18 @@ def check_directory(
         lines.append("")
         for m in mismatches:
             lines.append(m)
-        lines.append("FAIL: Schema files are not equivalent")
+
+    # Deterministic exit-status lines. The CLI keys its process exit code off
+    # these. A conversion failure must fail the check even when there is no
+    # pairwise mismatch -- previously the "Mismatches: 0" report with no PASS
+    # line let CI report green while a schema silently failed to parse.
+    if mismatches or failures:
+        if mismatches:
+            lines.append("FAIL: Schema files are not equivalent")
+        if failures:
+            lines.append(f"FAIL: {len(failures)} file(s) failed to convert")
     else:
         lines.append("  Mismatches: 0")
-        if not failures:
-            lines.append("PASS: All schema files are equivalent")
+        lines.append("PASS: All schema files are equivalent")
 
     return "\n".join(lines)

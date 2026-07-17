@@ -177,7 +177,7 @@ def check(directory: str, canonical: str, type_map_path: str | None) -> None:
     try:
         result = check_directory(directory, canonical=canonical, type_map_path=type_map_path)
         click.echo(result)
-        if "FAIL" in result and "PASS" not in result:
+        if "FAIL:" in result:
             sys.exit(1)
     except (NotADirectoryError, ValueError, FileNotFoundError) as e:
         click.echo(f"Error: {e}", err=True)

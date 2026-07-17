@@ -509,10 +509,35 @@ class TestCheckCommand:
         finally:
             Path(f_path).unlink(missing_ok=True)
 
+    def test_check_cli_exits_nonzero_on_conversion_failure(self):
+        """Regression: a schema that fails to parse must make `check` exit non-zero.
+
+        Previously the CLI only failed on mismatches, so a parse failure with no
+        pairwise mismatch reported "Mismatches: 0" and exited 0 (silent green).
+        """
+        runner = CliRunner()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            Path(tmpdir, "schema.sql").write_text(SAMPLE_SQL)
+            Path(tmpdir, "broken.json").write_text("{ this is not valid json ,,, }")
+
+            result = runner.invoke(main, ["check", "--dir", tmpdir])
+            assert result.exit_code != 0
+            assert "FAIL:" in result.output
+
+    def test_check_cli_exits_zero_when_all_equivalent(self):
+        """Two identical schema files are trivially equivalent -> exit 0 with PASS."""
+        runner = CliRunner()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            Path(tmpdir, "a.sql").write_text(SAMPLE_SQL)
+            Path(tmpdir, "b.sql").write_text(SAMPLE_SQL)
+
+            result = runner.invoke(main, ["check", "--dir", tmpdir])
+            assert result.exit_code == 0
+            assert "PASS: All schema files are equivalent" in result.output
+
 
 # ═══════════════════════════════════════════════════════════════
 #  mcp command
-# ═══════════════════════════════════════════════════════════════
 
 
 class TestMcpCommand:

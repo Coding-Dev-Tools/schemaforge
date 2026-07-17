@@ -138,3 +138,20 @@ def test_check_directory_canonical_format():
 
         result = check_directory(tmpdir, canonical="prisma")
         assert "compared via prisma" in result
+
+
+def test_check_directory_conversion_failure_reports_fail():
+    """A file that fails to parse must produce a FAIL line (not a silent PASS).
+
+    Regression guard: previously a conversion failure with no pairwise mismatch
+    yielded "Mismatches: 0" and no PASS/FAIL line, so the CLI exited 0 (green)
+    while a schema silently failed to parse.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        Path(tmpdir, "schema.sql").write_text(SAMPLE_SQL)
+        Path(tmpdir, "broken.json").write_text("{ this is not valid json ,,, }")
+
+        result = check_directory(tmpdir)
+        assert "Conversion failures: 1" in result
+        assert "FAIL: 1 file(s) failed to convert" in result
+        assert "PASS:" not in result
