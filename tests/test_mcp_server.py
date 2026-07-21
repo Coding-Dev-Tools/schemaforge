@@ -5,7 +5,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+pytest.importorskip("mcp", reason="mcp is an optional dependency")
 
 from schemaforge.mcp_server import _FORMATS, create_server
 
