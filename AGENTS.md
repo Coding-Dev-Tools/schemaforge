@@ -1,7 +1,7 @@
 # SchemaForge
 
 ## Purpose
-Bidirectional ORM schema converter — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic migrations, JSON Schema, GraphQL SDL, EF Core (C#), and Scala case classes. 11 formats, 110 direction pairs.
+Bidirectional ORM schema converter — convert between SQL DDL, Prisma, Drizzle, TypeORM, Django, SQLAlchemy, Alembic migrations, JSON Schema, GraphQL SDL, EF Core (C#), and Scala case classes. 11 formats, 100 direction pairs.
 
 ## Build & Test Commands
 - Install: `pip install -e .` or `pip install git+https://github.com/Coding-Dev-Tools/schemaforge.git`
