@@ -74,3 +74,8 @@ fixtures/generated/
 
 # Added by release-prep
 node_modules
+
+# Cron/audit scratch artifacts
+_audit_reqs.txt
+nul
+package-lock.json
