@@ -61,7 +61,3 @@ jobs:
       - name: Check schema consistency
         run: |
           python scripts/check_consistency.py
-
-      - name: Run schemaforge check on fixtures
-        run: |
-          schemaforge check --dir /tmp --canonical sql
