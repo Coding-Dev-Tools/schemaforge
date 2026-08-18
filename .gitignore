@@ -79,3 +79,4 @@ node_modules
 _audit_reqs.txt
 nul
 package-lock.json
+work-log.jsonl
