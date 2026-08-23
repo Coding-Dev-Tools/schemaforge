@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import re
+import warnings
 from typing import Any
 
 from ..ir import Column, ColumnType, EnumType, Index, Schema, Table
@@ -146,10 +147,17 @@ class SQLParser:
                     table.indexes.append(idx)
             elif upper.startswith("PRIMARY KEY"):
                 pass  # PK handled via column constraints
-            elif upper.startswith("CONSTRAINT"):
-                pass  # Foreign keys, etc.
-            elif upper.startswith("FOREIGN KEY") or upper.startswith("CHECK"):
-                pass
+            elif upper.startswith("CONSTRAINT") or upper.startswith(
+                "FOREIGN KEY"
+            ) or upper.startswith("CHECK"):
+                # Silent drops here are a correctness trap: schemas that differ
+                # only in FK/CHECK constraints would compare as equivalent.
+                # Surface the loss instead of swallowing it.
+                warnings.warn(
+                    f"SQL parser: ignored unsupported table constraint in "
+                    f"'{table.name}': {defn[:60]}",
+                    stacklevel=3,
+                )
             else:
                 col = self._parse_column_def(defn)
                 if col:
