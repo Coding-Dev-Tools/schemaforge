@@ -1,0 +1,38 @@
+# SchemaForge Custom Type Mapping Configuration
+# 
+# Override default type mappings per format.
+# Placeholders: {length}, {precision}, {scale}, {values}
+#
+# Usage: schemaforge convert --from sql --to prisma --input schema.sql --type-map schemaforge-types.yaml
+
+overrides:
+  # SQL DDL — use VARCHAR for all strings instead of TEXT fallback
+  sql:
+    STRING: "VARCHAR({length})"
+    UUID: "UUID"
+    DATETIME: "TIMESTAMP"
+
+  # Prisma — custom type annotations
+  prisma:
+    STRING: "String @db.VarChar({length})"
+    UUID: "String @uuid"
+    DECIMAL: "Decimal"
+    DATETIME: "DateTime @db.Timestamp"
+
+  # SQLAlchemy — use Unicode instead of String
+  sqlalchemy:
+    STRING: "Unicode({length})"
+    UUID: "Uuid"
+    DATETIME: "DateTime(timezone=True)"
+
+  # Django — custom field types
+  django:
+    STRING: "CharField(max_length={length})"
+    UUID: "UUIDField"
+    DATETIME: "DateTimeField(auto_now_add=True)"
+
+  # TypeORM — custom column types
+  typeorm:
+    STRING: "varchar"
+    UUID: "uuid"
+    DATETIME: "timestamptz"
