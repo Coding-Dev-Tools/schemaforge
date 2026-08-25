@@ -125,5 +125,21 @@ def _diff_tables(ta, tb) -> list[str]:
         diffs.append(f'+ index "{name}"')
     for name in sorted(set(a_idx.keys()) - set(b_idx.keys())):
         diffs.append(f'- index "{name}"')
+    # Same-named indexes can silently drift: an index whose column list or
+    # unique flag changed previously produced NO diff line, so a schema
+    # comparison could report "No differences found" while query plans
+    # diverged. Surface both attribute changes.
+    for name in sorted(a_idx.keys() & b_idx.keys()):
+        ia, ib = a_idx[name], b_idx[name]
+        if ia.columns != ib.columns:
+            diffs.append(
+                f'~ index "{name}": columns=({", ".join(ia.columns)}) '
+                f'-> ({", ".join(ib.columns)})'
+            )
+        if ia.unique != ib.unique:
+            diffs.append(f'~ index "{name}": unique={ia.unique} -> {ib.unique}')
+
+    if ta.comment != tb.comment:
+        diffs.append(f'~ table comment: "{ta.comment}" -> "{tb.comment}"')
 
     return diffs

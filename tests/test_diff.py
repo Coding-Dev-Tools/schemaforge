@@ -254,3 +254,69 @@ class TestDiffSchemas:
     def test_unsupported_format(self):
         result = diff_schemas("x", "y", "badformat")
         assert "Unsupported" in result
+
+
+class TestIndexAndCommentDrift:
+    """Regression: same-named indexes with changed columns/unique and table
+    comment changes previously produced NO diff (silent schema drift)."""
+
+    def test_index_columns_change(self):
+        ta = _table("users", indexes=[Index(name="idx_email", columns=["email"])])
+        tb = _table(
+            "users", indexes=[Index(name="idx_email", columns=["email", "tenant_id"])]
+        )
+        diffs = _diff_tables(ta, tb)
+        assert any('~ index "idx_email": columns=' in d for d in diffs)
+
+    def test_index_unique_change(self):
+        ta = _table("users", indexes=[Index(name="idx_email", columns=["email"])])
+        tb = _table(
+            "users",
+            indexes=[Index(name="idx_email", columns=["email"], unique=True)],
+        )
+        diffs = _diff_tables(ta, tb)
+        assert any('~ index "idx_email": unique=False -> True' in d for d in diffs)
+
+    def test_identical_indexes_still_clean(self):
+        idx = Index(name="idx_email", columns=["email"], unique=True)
+        ta = _table("users", indexes=[idx])
+        tb = _table("users", indexes=[Index(name="idx_email", columns=["email"], unique=True)])
+        assert _diff_tables(ta, tb) == []
+
+    def test_table_comment_change(self):
+        ta = Table(name="users", columns=[], comment="old")
+        tb = Table(name="users", columns=[], comment="new")
+        diffs = _diff_tables(ta, tb)
+        assert any('~ table comment: "old" -> "new"' in d for d in diffs)
+
+    def test_standalone_create_index_unique_drift_end_to_end(self):
+        """Regression: standalone CREATE [UNIQUE] INDEX statements were silently
+        dropped by the SQL parser, so unique-flag drift compared as equivalent."""
+        from schemaforge.diff import diff_schemas
+
+        a = (
+            "CREATE TABLE users ("
+            "id INTEGER PRIMARY KEY, email VARCHAR(255));"
+            "CREATE INDEX idx_email ON users (email);"
+        )
+        b = (
+            "CREATE TABLE users ("
+            "id INTEGER PRIMARY KEY, email VARCHAR(255));"
+            "CREATE UNIQUE INDEX idx_email ON users (email);"
+        )
+        out = diff_schemas(a, b, "sql")
+        assert '~ index "idx_email": unique=False -> True' in out
+
+    def test_standalone_create_index_columns_drift_end_to_end(self):
+        from schemaforge.diff import diff_schemas
+
+        a = (
+            "CREATE TABLE users (id INTEGER PRIMARY KEY);\n"
+            "CREATE INDEX idx_t ON users (tenant_id);"
+        )
+        b = (
+            "CREATE TABLE users (id INTEGER PRIMARY KEY);\n"
+            "CREATE INDEX idx_t ON users (tenant_id, region);"
+        )
+        out = diff_schemas(a, b, "sql")
+        assert '~ index "idx_t": columns=' in out
