@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
-import pytest
+import pytest  # noqa: F401
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-pytest.importorskip("mcp", reason="mcp is an optional dependency")
+# Skip if mcp.server.fastmcp is not importable — mcp may be installed
+# but FastMCP could still be unavailable (API changes, partial installs).
+# The mcp_server module catches ImportError and sets FastMCP=None, so
+# we must check the actual import path used by create_server().
+pytest.importorskip("mcp.server.fastmcp", reason="mcp.server.fastmcp is required for MCP server tests")
 
 from schemaforge.mcp_server import _FORMATS, create_server
 

@@ -7,6 +7,7 @@ with each table as a ``$defs`` entry and columns as properties.
 from __future__ import annotations
 
 import json
+import warnings
 from typing import Any
 
 from ..ir import Column, ColumnType, Schema, Table
@@ -130,7 +131,15 @@ class JSONSchemaGenerator:
                         prop = _json.loads(overridden)
                         return self._add_base_annotations(prop, col)
                     except (json.JSONDecodeError, ValueError):
-                        pass
+                        # A malformed override is a silent-failure trap: the
+                        # generator would fall back to a plain type string with
+                        # no indication the JSON override was discarded.
+                        warnings.warn(
+                            f"json_schema generator: type override for column "
+                            f"'{col.name}' looks like JSON but failed to parse; "
+                            f"using it as a plain type instead",
+                            stacklevel=2,
+                        )
                 prop["type"] = overridden
                 return self._add_base_annotations(prop, col)
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import re
+import warnings
 from typing import Any
 
 from ..ir import Column, ColumnType, EnumType, Index, Schema, Table
@@ -55,6 +56,28 @@ class SQLParser:
                 enum_type = self._parse_create_enum(stmt)
                 if enum_type:
                     schema.enums.append(enum_type)
+            elif upper.startswith("CREATE") and " INDEX " in upper:
+                # Standalone CREATE [UNIQUE] INDEX ... ON table (...) statements.
+                # Previously these were silently dropped, so a schema whose only
+                # change was a standalone index compared as equivalent.
+                idx = self._parse_standalone_index(stmt)
+                if idx:
+                    target = next(
+                        (
+                            t
+                            for t in schema.tables
+                            if t.name.lower() == idx[1].lower()
+                        ),
+                        None,
+                    )
+                    if target is None:
+                        warnings.warn(
+                            f"SQL parser: standalone index '{idx[0].name}' "
+                            f"references unknown table '{idx[1]}'",
+                            stacklevel=2,
+                        )
+                    else:
+                        target.indexes.append(idx[0])
 
         return schema
 
@@ -146,10 +169,17 @@ class SQLParser:
                     table.indexes.append(idx)
             elif upper.startswith("PRIMARY KEY"):
                 pass  # PK handled via column constraints
-            elif upper.startswith("CONSTRAINT"):
-                pass  # Foreign keys, etc.
-            elif upper.startswith("FOREIGN KEY") or upper.startswith("CHECK"):
-                pass
+            elif upper.startswith("CONSTRAINT") or upper.startswith(
+                "FOREIGN KEY"
+            ) or upper.startswith("CHECK"):
+                # Silent drops here are a correctness trap: schemas that differ
+                # only in FK/CHECK constraints would compare as equivalent.
+                # Surface the loss instead of swallowing it.
+                warnings.warn(
+                    f"SQL parser: ignored unsupported table constraint in "
+                    f"'{table.name}': {defn[:60]}",
+                    stacklevel=3,
+                )
             else:
                 col = self._parse_column_def(defn)
                 if col:
@@ -362,6 +392,27 @@ class SQLParser:
             columns = [c.strip().strip('"`[]') for c in m.group(2).split(",")]
             return Index(name=name, columns=columns, unique="UNIQUE" in defn.upper())
         return None
+
+    def _parse_standalone_index(self, stmt: str) -> tuple[Index, str] | None:
+        """Parse a standalone ``CREATE [UNIQUE] INDEX name ON table (cols)``.
+
+        Returns (Index, table_name) or None if the statement does not match.
+        """
+        m = re.search(
+            r"CREATE\s+(?:UNIQUE\s+)?INDEX\s+[`\"\[]?(\w+)[`\"\]?]?\s+"
+            r"ON\s+[`\"\[]?(\w+)[`\"\]?]?\s*\(([^)]+)\)",
+            stmt,
+            re.IGNORECASE,
+        )
+        if not m:
+            return None
+        columns = [c.strip().strip('"`[]') for c in m.group(3).split(",")]
+        idx = Index(
+            name=m.group(1),
+            columns=columns,
+            unique="UNIQUE" in m.group(0).upper(),
+        )
+        return idx, m.group(2)
 
     def _parse_create_enum(self, stmt: str) -> EnumType | None:
         """Parse a CREATE TYPE ... AS ENUM statement."""
