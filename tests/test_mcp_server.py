@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import pytest
 import sys
+from click.testing import CliRunner
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 pytest.importorskip("mcp", reason="mcp is an optional dependency")
 
+from schemaforge import mcp_server
 from schemaforge.mcp_server import _FORMATS, create_server
 
 
@@ -149,3 +152,45 @@ def test_convert_tool_alembic_error():
     )
     assert "Error" in result
     assert "generator-only" in result.lower() or "not supported" in result.lower()
+
+
+@pytest.mark.parametrize(
+    ("args", "transport", "host", "port"),
+    [
+        (["--sse"], "sse", "127.0.0.1", 8000),
+        (["--sse", "--host", "localhost", "--port", "8765"], "sse", "localhost", 8765),
+        ([], "stdio", "127.0.0.1", 8000),
+        (["--host", "localhost", "--port", "8765"], "stdio", "127.0.0.1", 8000),
+    ],
+    ids=["default-sse", "custom-sse", "default-stdio", "stdio-ignores-sse-options"],
+)
+def test_mcp_command_transports(args, transport, host, port):
+    """Enforce the installed SDK run signature without starting either transport."""
+    with patch.object(mcp_server.FastMCP, "run", autospec=True) as run_mock:
+        result = CliRunner().invoke(mcp_server.mcp_command, args)
+
+    assert result.exit_code == 0, repr(result.exception)
+    run_mock.assert_called_once()
+    server = run_mock.call_args.args[0]
+    assert run_mock.call_args.kwargs == {"transport": transport}
+    assert server.settings.host == host
+    assert server.settings.port == port
+    assert len(server._tool_manager._tools) == 5
+    if transport == "sse":
+        assert f"Starting SchemaForge MCP server on http://{host}:{port}" in result.output
+
+
+def test_create_server_custom_address():
+    """Configure the address through the installed SDK constructor."""
+    server = create_server(host="localhost", port=8765)
+    assert server.settings.host == "localhost"
+    assert server.settings.port == 8765
+
+
+def test_create_server_without_optional_mcp(monkeypatch):
+    """Missing MCP keeps the same installation error for both factory calls."""
+    monkeypatch.setattr(mcp_server, "FastMCP", None)
+    with pytest.raises(ImportError, match="The 'mcp' package is required"):
+        create_server()
+    with pytest.raises(ImportError, match="The 'mcp' package is required"):
+        create_server(host="localhost", port=8765)

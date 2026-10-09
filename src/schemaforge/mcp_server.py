@@ -73,12 +73,12 @@ _FORMAT_DESCRIPTIONS = {
 }
 
 
-def create_server() -> Any:
+def create_server(*, host: str = "127.0.0.1", port: int = 8000) -> Any:
     """Create and configure the MCP server with all SchemaForge tools."""
     if FastMCP is None:
         raise ImportError("The 'mcp' package is required to run the MCP server.\nInstall it with: pip install mcp")
 
-    server = FastMCP("SchemaForge", log_level="WARNING")
+    server = FastMCP("SchemaForge", log_level="WARNING", host=host, port=port)
 
     @server.tool(
         name="convert",
@@ -236,10 +236,10 @@ def mcp_command(sse: bool, host: str, port: int) -> None:
     By default runs in stdio mode for AI clients (Claude Desktop, Cursor, etc.).
     Use --sse for HTTP transport.
     """
-    server = create_server()
+    server = create_server(host=host, port=port) if sse else create_server()
 
     if sse:
         click.echo(f"Starting SchemaForge MCP server on http://{host}:{port}", err=True)
-        server.run(transport="sse", host=host, port=port)
+        server.run(transport="sse")
     else:
         server.run(transport="stdio")
