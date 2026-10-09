@@ -76,10 +76,7 @@ _FORMAT_DESCRIPTIONS = {
 def create_server() -> Any:
     """Create and configure the MCP server with all SchemaForge tools."""
     if FastMCP is None:
-        raise ImportError(
-            "The 'mcp' package is required to run the MCP server.\n"
-            "Install it with: pip install mcp"
-        )
+        raise ImportError("The 'mcp' package is required to run the MCP server.\nInstall it with: pip install mcp")
 
     server = FastMCP("SchemaForge", log_level="WARNING")
 
@@ -117,9 +114,7 @@ def create_server() -> Any:
                 return f"Error loading type map: {e}"
 
         try:
-            result = convert_schema(
-                schema_text, from_format, to_format, type_config=type_config
-            )
+            result = convert_schema(schema_text, from_format, to_format, type_config=type_config)
             return result
         except ValueError as e:
             return f"Error: {e}"
@@ -151,11 +146,7 @@ def create_server() -> Any:
 
         try:
             result = diff_schemas(schema_a, schema_b, format)
-            return (
-                result
-                if result.strip()
-                else "No differences found — schemas are equivalent."
-            )
+            return result if result.strip() else "No differences found — schemas are equivalent."
         except Exception as e:
             return f"Error: {e}"
 
@@ -178,9 +169,7 @@ def create_server() -> Any:
         """
         try:
             safe_dir = _confined_directory(directory)
-            result = check_directory(
-                str(safe_dir), canonical=canonical, type_map_path=type_map_path
-            )
+            result = check_directory(str(safe_dir), canonical=canonical, type_map_path=type_map_path)
             return result
         except PermissionError as e:
             return f"Error: {e}"

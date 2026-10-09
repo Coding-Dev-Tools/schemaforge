@@ -245,11 +245,7 @@ class SQLParser:
             return None
 
         col_name = tokens[0]
-        if (
-            col_name.startswith('"')
-            or col_name.startswith("`")
-            or col_name.startswith("[")
-        ):
+        if col_name.startswith('"') or col_name.startswith("`") or col_name.startswith("["):
             col_name = col_name.strip('"`[]')
 
         # Find the type (skip quoted name)
@@ -264,20 +260,14 @@ class SQLParser:
                 type_start += 1
                 type_raw += " " + tokens[type_start]
 
-        type_name = (
-            type_raw.split("(")[0].upper() if "(" in type_raw else type_raw.upper()
-        )
+        type_name = type_raw.split("(")[0].upper() if "(" in type_raw else type_raw.upper()
 
         col_type = self._TYPE_MAP.get(type_name, ColumnType.CUSTOM)
 
         # Extract type args
         type_args: dict[str, Any] = {}
         if "(" in type_raw:
-            args_str = (
-                type_raw[type_raw.index("(") + 1 : type_raw.index(")")]
-                if ")" in type_raw
-                else ""
-            )
+            args_str = type_raw[type_raw.index("(") + 1 : type_raw.index(")")] if ")" in type_raw else ""
             if type_name == "ENUM":
                 # Inline ENUM('a','b','c') — extract values via regex to handle multi-token args
                 type_args["values"] = re.findall(r"'([^']*)'", args_str)
@@ -294,9 +284,7 @@ class SQLParser:
                         type_args["scale"] = int(parts[1])
 
         # Parse constraints
-        constraints = (
-            " ".join(tokens[type_start + 1 :]) if type_start + 1 < len(tokens) else ""
-        )
+        constraints = " ".join(tokens[type_start + 1 :]) if type_start + 1 < len(tokens) else ""
 
         is_pk = "PRIMARY KEY" in constraints.upper()
         is_not_null = "NOT NULL" in constraints.upper()
@@ -329,9 +317,7 @@ class SQLParser:
                 is_fn = (
                     upper_val in self._SQL_FN_KEYWORDS
                     or upper_val.rstrip("()") in self._SQL_FN_KEYWORDS
-                    or re.match(
-                        r"^\w+\(", val
-                    )  # Any function call: nextval(), now(), etc.
+                    or re.match(r"^\w+\(", val)  # Any function call: nextval(), now(), etc.
                 )
                 if is_fn:
                     col.default = f"fn:{val}"
@@ -365,9 +351,7 @@ class SQLParser:
 
     def _parse_create_enum(self, stmt: str) -> EnumType | None:
         """Parse a CREATE TYPE ... AS ENUM statement."""
-        m = re.match(
-            r"CREATE\s+TYPE\s+(\w+)\s+AS\s+ENUM\s*\(([^)]+)\)", stmt, re.IGNORECASE
-        )
+        m = re.match(r"CREATE\s+TYPE\s+(\w+)\s+AS\s+ENUM\s*\(([^)]+)\)", stmt, re.IGNORECASE)
         if m:
             name = m.group(1)
             values = re.findall(r"'([^']*)'", m.group(2))
@@ -410,9 +394,7 @@ class SQLParser:
                 key_m = re.match(r"(\w+)\s*=\s*", remaining)
                 if not key_m:
                     # Try COMMENT 'xxx' (no equals)
-                    comment_m = re.match(
-                        r"COMMENT\s+'([^']*)'", remaining, re.IGNORECASE
-                    )
+                    comment_m = re.match(r"COMMENT\s+'([^']*)'", remaining, re.IGNORECASE)
                     if comment_m:
                         options["COMMENT"] = comment_m.group(1)
                         i += comment_m.end()

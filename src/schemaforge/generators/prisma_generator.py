@@ -34,10 +34,7 @@ class PrismaGenerator:
         """Generate Prisma schema from IR."""
         parts: list[str] = []
         parts.append('generator client {\n  provider = "prisma-client-js"\n}')
-        parts.append(
-            'datasource db {\n  provider = "postgresql"\n'
-            '  url      = env("DATABASE_URL")\n}'
-        )
+        parts.append('datasource db {\n  provider = "postgresql"\n  url      = env("DATABASE_URL")\n}')
 
         # Generate enums
         for enum_type in schema.enums:
@@ -65,9 +62,7 @@ class PrismaGenerator:
 
     def _field_def(self, col: Column) -> str:
         """Generate a Prisma field definition."""
-        prisma_type = resolve_type(
-            col, self._TYPE_MAP, fmt="prisma", type_config=self._type_config
-        )
+        prisma_type = resolve_type(col, self._TYPE_MAP, fmt="prisma", type_config=self._type_config)
 
         # Handle String with length (Prisma uses @db.VarChar) — skip if overridden
         if (

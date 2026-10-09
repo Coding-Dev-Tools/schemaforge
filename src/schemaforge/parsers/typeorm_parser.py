@@ -92,9 +92,9 @@ class TypeORMParser:
             for line in text.split("\n"):
                 stripped = line.strip()
                 # Detect @Entity, @ViewEntity, or bare class extends pattern
-                if (
-                    stripped.startswith("@") or stripped.startswith("export class")
-                ) and (stripped.startswith("export class") or "class " in stripped):
+                if (stripped.startswith("@") or stripped.startswith("export class")) and (
+                    stripped.startswith("export class") or "class " in stripped
+                ):
                     in_class = True
                     current = line + "\n"
                     brace_depth = 0
@@ -174,18 +174,12 @@ class TypeORMParser:
                     field_line = next_line
                     break
 
-                if decorator_text.startswith(
-                    "@PrimaryGeneratedColumn"
-                ) or decorator_text.startswith("@PrimaryColumn"):
-                    col = self._parse_column_with_decorator(
-                        decorator_text, field_line, is_pk=True
-                    )
+                if decorator_text.startswith("@PrimaryGeneratedColumn") or decorator_text.startswith("@PrimaryColumn"):
+                    col = self._parse_column_with_decorator(decorator_text, field_line, is_pk=True)
                     if col:
                         table.columns.append(col)
                 elif decorator_text.startswith("@Column"):
-                    col = self._parse_column_with_decorator(
-                        decorator_text, field_line, is_pk=False
-                    )
+                    col = self._parse_column_with_decorator(decorator_text, field_line, is_pk=False)
                     if col:
                         table.columns.append(col)
                 elif decorator_text.startswith("@Index"):
@@ -197,9 +191,7 @@ class TypeORMParser:
 
         return table
 
-    def _parse_column_with_decorator(
-        self, decorator: str, field_line: str, is_pk: bool
-    ) -> Column | None:
+    def _parse_column_with_decorator(self, decorator: str, field_line: str, is_pk: bool) -> Column | None:
         """Parse a @Column or @PrimaryGeneratedColumn decorator + field."""
         if not field_line:
             return None

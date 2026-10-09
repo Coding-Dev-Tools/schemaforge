@@ -73,9 +73,7 @@ class AlembicGenerator:
             lines.append("# ### enum type definitions ###")
             for enum_type in schema.enums:
                 values = ", ".join(f"'{v}'" for v in enum_type.values)
-                lines.append(
-                    f'op.execute("CREATE TYPE {enum_type.name} AS ENUM ({values})")'
-                )
+                lines.append(f'op.execute("CREATE TYPE {enum_type.name} AS ENUM ({values})")')
             lines.append("")
 
         lines.append("# revision identifiers, used by Alembic.")
@@ -107,9 +105,7 @@ class AlembicGenerator:
             for table in reversed(schema.tables):
                 for idx in reversed(table.indexes):
                     idx_name = idx.name or f"idx_{'_'.join(idx.columns)}"
-                    lines.append(
-                        f"    op.drop_index('{idx_name}', table_name='{table.name}')"
-                    )
+                    lines.append(f"    op.drop_index('{idx_name}', table_name='{table.name}')")
             for table in reversed(schema.tables):
                 lines.append(f"    op.drop_table('{table.name}')")
             for enum_type in reversed(schema.enums):
@@ -139,14 +135,9 @@ class AlembicGenerator:
             col_list = ", ".join(f"'{c}'" for c in idx.columns)
             idx_name = idx.name or f"idx_{'_'.join(idx.columns)}"
             if idx.unique:
-                index_lines.append(
-                    f"    op.create_unique_constraint('{idx_name}', "
-                    f"'{table.name}', [{col_list}])"
-                )
+                index_lines.append(f"    op.create_unique_constraint('{idx_name}', '{table.name}', [{col_list}])")
             else:
-                index_lines.append(
-                    f"    op.create_index('{idx_name}', '{table.name}', [{col_list}])"
-                )
+                index_lines.append(f"    op.create_index('{idx_name}', '{table.name}', [{col_list}])")
 
         return table_lines, index_lines
 
@@ -176,16 +167,12 @@ class AlembicGenerator:
             kwargs.append("unique=True")
 
         # fn: defaults (server_default)
-        fn_default = resolve_fn_default(
-            col, fn_wrapper="sa.func.{}", expr_fallback="sa.text('{}')"
-        )
+        fn_default = resolve_fn_default(col, fn_wrapper="sa.func.{}", expr_fallback="sa.text('{}')")
         if fn_default:
             kwargs.append(f"server_default={fn_default}")
 
         # Literal defaults
-        if col.default is not None and not (
-            isinstance(col.default, str) and col.default.startswith("fn:")
-        ):
+        if col.default is not None and not (isinstance(col.default, str) and col.default.startswith("fn:")):
             lit = format_literal_default(col)
             kwargs.append(f"server_default={lit}")
 

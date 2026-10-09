@@ -184,9 +184,7 @@ class EntityFrameworkParser:
                 if ann_args and "=" not in ann_args:
                     pass  # Column name override — skip for now
             elif ann_name == "Index":
-                is_unique = "Unique" in ann_args or "IsUnique=true" in ann_args.replace(
-                    " ", ""
-                )
+                is_unique = "Unique" in ann_args or "IsUnique=true" in ann_args.replace(" ", "")
             elif ann_name == "Table":
                 pass  # Already handled at class level
 

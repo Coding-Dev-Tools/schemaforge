@@ -772,6 +772,7 @@ class TestFormatsCommand:
         result = runner.invoke(main, ["formats", "--json"])
         assert result.exit_code == 0
         import json
+
         parsed = json.loads(result.output.strip())
         assert isinstance(parsed, list)
         assert "sql" in parsed

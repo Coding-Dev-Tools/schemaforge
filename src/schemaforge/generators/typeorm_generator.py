@@ -61,21 +61,14 @@ class TypeORMGenerator:
         has_index = any(t.indexes for t in schema.tables)
         if has_index:
             imports.append("Index")
-        has_unique = any(
-            any(c.unique and not c.primary_key for c in t.columns)
-            for t in schema.tables
-        )
+        has_unique = any(any(c.unique and not c.primary_key for c in t.columns) for t in schema.tables)
         if has_unique:
             imports.append("Unique")
 
         if len(imports) == 1 and imports[0] == "Entity":
-            parts[0] = (
-                'import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";'
-            )
+            parts[0] = 'import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";'
         else:
-            parts[0] = (
-                "import { " + ", ".join(sorted(set(imports))) + ' } from "typeorm";'
-            )
+            parts[0] = "import { " + ", ".join(sorted(set(imports))) + ' } from "typeorm";'
 
         entities: list[str] = []
         for table in schema.tables:
@@ -121,9 +114,7 @@ class TypeORMGenerator:
         options: dict[str, str] = {}
 
         # Determine TypeORM type
-        col_type = resolve_type(
-            col, self._TYPE_MAP, fmt="typeorm", type_config=self._type_config
-        )
+        col_type = resolve_type(col, self._TYPE_MAP, fmt="typeorm", type_config=self._type_config)
 
         # Primary key handling
         if col.primary_key:

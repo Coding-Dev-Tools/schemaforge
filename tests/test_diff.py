@@ -17,9 +17,7 @@ def _col(name: str, col_type: ColumnType = ColumnType.STRING, **kwargs) -> Colum
     return Column(name=name, type=col_type, **kwargs)
 
 
-def _table(
-    name: str, columns: list[Column] | None = None, indexes: list[Index] | None = None
-) -> Table:
+def _table(name: str, columns: list[Column] | None = None, indexes: list[Index] | None = None) -> Table:
     return Table(name=name, columns=columns or [], indexes=indexes or [])
 
 

@@ -60,9 +60,7 @@ def test_config_with_length_placeholder():
 def test_config_with_precision_scale():
     """TypeConfig replaces {precision} and {scale} placeholders."""
     config = TypeConfig({"sql": {"DECIMAL": "DECIMAL({precision},{scale})"}})
-    col = Column(
-        name="price", type=ColumnType.DECIMAL, type_args={"precision": 12, "scale": 4}
-    )
+    col = Column(name="price", type=ColumnType.DECIMAL, type_args={"precision": 12, "scale": 4})
     result = config.get_override(col, "sql")
     assert result == "DECIMAL(12,4)"
 
@@ -70,9 +68,7 @@ def test_config_with_precision_scale():
 def test_config_with_enum_values():
     """TypeConfig replaces {values} placeholder."""
     config = TypeConfig({"sql": {"ENUM": "ENUM({values})"}})
-    col = Column(
-        name="size", type=ColumnType.ENUM, type_args={"values": ["S", "M", "L"]}
-    )
+    col = Column(name="size", type=ColumnType.ENUM, type_args={"values": ["S", "M", "L"]})
     result = config.get_override(col, "sql")
     assert result == "ENUM('S', 'M', 'L')"
 
@@ -126,11 +122,7 @@ def test_load_from_yaml_without_pyyaml():
         f.write("overrides:\n  sql:\n    INTEGER: BIGINT\n")
         tmp_path = f.name
     try:
-        _orig_import = (
-            __builtins__["__import__"]
-            if isinstance(__builtins__, dict)
-            else __builtins__.__import__
-        )
+        _orig_import = __builtins__["__import__"] if isinstance(__builtins__, dict) else __builtins__.__import__
 
         def _mock_import(name, *args, **kw):
             if name == "yaml":
