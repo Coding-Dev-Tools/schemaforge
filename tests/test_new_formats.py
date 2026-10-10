@@ -704,13 +704,13 @@ def test_alembic_custom_revision():
     gen = AlembicGenerator()
     output = gen.generate(
         schema,
-        revision_id="abc123def456",
+        revision_id="testrevision",
         down_revision="prev_rev",
         message="Add items table",
     )
 
     assert "Add items table" in output
-    assert "revision = 'abc123def456'" in output
+    assert "revision = 'testrevision'" in output
     assert "down_revision = 'prev_rev'" in output
 
 
