@@ -46,9 +46,7 @@ class TypeConfig:
         """
         self._overrides: dict[str, dict[str, str]] = overrides or {}
 
-    def get_override(
-        self, col: Column, fmt: str, type_args: dict[str, Any] | None = None
-    ) -> str | None:
+    def get_override(self, col: Column, fmt: str, type_args: dict[str, Any] | None = None) -> str | None:
         """Resolve a custom type override for a column in a format.
 
         Args:
@@ -74,9 +72,7 @@ class TypeConfig:
         if args:
             for arg_key, arg_val in args.items():
                 if isinstance(arg_val, list):
-                    result = result.replace(
-                        "{" + arg_key + "}", ", ".join(f"'{v}'" for v in arg_val)
-                    )
+                    result = result.replace("{" + arg_key + "}", ", ".join(f"'{v}'" for v in arg_val))
                 else:
                     result = result.replace("{" + arg_key + "}", str(arg_val))
         # Remove any remaining unresolved placeholders
@@ -121,8 +117,7 @@ class TypeConfig:
             raise FileNotFoundError(f"Type config not found: {path}")
         if path.suffix.lower() not in _CONFIG_EXTENSIONS:
             raise ValueError(
-                f"Unsupported config format: {path.suffix}. "
-                f"Supported: {', '.join(sorted(_CONFIG_EXTENSIONS))}"
+                f"Unsupported config format: {path.suffix}. Supported: {', '.join(sorted(_CONFIG_EXTENSIONS))}"
             )
 
         raw: dict[str, Any] = {}
@@ -131,8 +126,7 @@ class TypeConfig:
                 import yaml  # type: ignore[import-untyped]
             except ImportError:
                 raise ImportError(
-                    "PyYAML is required for YAML type config files. "
-                    "Install it with: pip install pyyaml"
+                    "PyYAML is required for YAML type config files. Install it with: pip install pyyaml"
                 ) from None
             with open(path) as f:
                 raw = yaml.safe_load(f) or {}

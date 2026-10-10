@@ -67,12 +67,7 @@ class PrismaParser:
         for line in lines:
             # Skip decorators, comments, and block-level attributes
             stripped = line.strip()
-            if (
-                not stripped
-                or stripped.startswith("@@")
-                or stripped.startswith("//")
-                or stripped.startswith("#")
-            ):
+            if not stripped or stripped.startswith("@@") or stripped.startswith("//") or stripped.startswith("#"):
                 continue
 
             # Parse field: name type [modifiers...]
@@ -97,9 +92,7 @@ class PrismaParser:
             type_args = {}
             if col_type == ColumnType.STRING and "@db.VarChar" in constraints:
                 # Only capture length if explicitly constrained
-                db_match = __import__("re").search(
-                    r"@db\.VarChar\((\d+)\)", constraints
-                )
+                db_match = __import__("re").search(r"@db\.VarChar\((\d+)\)", constraints)
                 if db_match:
                     type_args["length"] = int(db_match.group(1))
 

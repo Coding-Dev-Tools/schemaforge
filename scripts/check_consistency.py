@@ -1,4 +1,5 @@
 """Schema consistency check script for CI/CD pipelines."""
+
 import os
 import sys
 

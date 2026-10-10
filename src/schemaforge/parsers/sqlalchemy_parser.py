@@ -101,11 +101,7 @@ class SQLAlchemyParser:
                     continue
                 # Check if any base looks like a declarative base
                 bases = [b.strip() for b in base_name.split(",")]
-                is_model = any(
-                    b in ("Base", "DeclarativeBase", "DeclarativeMeta")
-                    or b.endswith("Base")
-                    for b in bases
-                )
+                is_model = any(b in ("Base", "DeclarativeBase", "DeclarativeMeta") or b.endswith("Base") for b in bases)
                 if not is_model:
                     i += 1
                     continue
@@ -113,11 +109,7 @@ class SQLAlchemyParser:
                 model_name = model_multi.group(1)
                 base_list = model_multi.group(2)
                 bases = [b.strip() for b in base_list.split(",")]
-                is_model = any(
-                    b in ("Base", "DeclarativeBase", "DeclarativeMeta")
-                    or b.endswith("Base")
-                    for b in bases
-                )
+                is_model = any(b in ("Base", "DeclarativeBase", "DeclarativeMeta") or b.endswith("Base") for b in bases)
                 if not is_model:
                     i += 1
                     continue
@@ -343,9 +335,7 @@ class SQLAlchemyParser:
             value = kv_match.group(2).strip()
 
             # Strip quotes from string values
-            if (value.startswith('"') and value.endswith('"')) or (
-                value.startswith("'") and value.endswith("'")
-            ):
+            if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
                 kwargs[key] = value[1:-1]
             elif value.lower() in ("true", "false"):
                 kwargs[key] = value.lower()

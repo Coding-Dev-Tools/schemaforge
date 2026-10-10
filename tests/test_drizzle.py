@@ -136,9 +136,7 @@ class TestDrizzleGenerator:
 
         schema = Schema()
         table = Table(name="users")
-        table.columns.append(
-            Column(name="id", type=ColumnType.INTEGER, primary_key=True)
-        )
+        table.columns.append(Column(name="id", type=ColumnType.INTEGER, primary_key=True))
         table.columns.append(
             Column(
                 name="name",
@@ -147,9 +145,7 @@ class TestDrizzleGenerator:
                 type_args={"length": 255},
             )
         )
-        table.columns.append(
-            Column(name="email", type=ColumnType.TEXT, nullable=False, unique=True)
-        )
+        table.columns.append(Column(name="email", type=ColumnType.TEXT, nullable=False, unique=True))
         schema.tables.append(table)
 
         gen = DrizzleGenerator(dialect="pg")
@@ -169,9 +165,7 @@ class TestDrizzleGenerator:
         schema = Schema()
         schema.enums.append(EnumType(name="role", values=["admin", "user"]))
         table = Table(name="users")
-        table.columns.append(
-            Column(name="id", type=ColumnType.INTEGER, primary_key=True)
-        )
+        table.columns.append(Column(name="id", type=ColumnType.INTEGER, primary_key=True))
         schema.tables.append(table)
 
         gen = DrizzleGenerator(dialect="pg")
@@ -186,9 +180,7 @@ class TestDrizzleGenerator:
 
         schema = Schema()
         table = Table(name="products")
-        table.columns.append(
-            Column(name="id", type=ColumnType.INTEGER, primary_key=True)
-        )
+        table.columns.append(Column(name="id", type=ColumnType.INTEGER, primary_key=True))
         schema.tables.append(table)
 
         gen = DrizzleGenerator(dialect="mysql")
@@ -202,9 +194,7 @@ class TestDrizzleGenerator:
 
         schema = Schema()
         table = Table(name="logs")
-        table.columns.append(
-            Column(name="createdAt", type=ColumnType.DATETIME, default="now()")
-        )
+        table.columns.append(Column(name="createdAt", type=ColumnType.DATETIME, default="now()"))
         schema.tables.append(table)
 
         gen = DrizzleGenerator(dialect="pg")
