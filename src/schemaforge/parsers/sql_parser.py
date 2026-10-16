@@ -120,8 +120,10 @@ class SQLParser:
                     body = stmt[start:i]
                     break
 
-        if start < 0:
-            return None
+        else:
+            if start < 0:
+                return None
+            raise ValueError(f"Unclosed column definitions for table '{table_name}'")
 
         # Extract MySQL table options after the closing paren (e.g. ENGINE=InnoDB AUTO_INCREMENT=1)
         table_options = self._parse_table_options(stmt[i + 1 :])

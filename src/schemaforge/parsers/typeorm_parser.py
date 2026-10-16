@@ -295,6 +295,8 @@ class TypeORMParser:
                 if depth == 0 and start >= 0:
                     inner = decorator[start:i].strip()
                     break
+        else:
+            return self._parse_inline_options(decorator)
 
         if not inner:
             return self._parse_inline_options(decorator)
