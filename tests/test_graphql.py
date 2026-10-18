@@ -238,9 +238,7 @@ class TestGraphQLGenerator:
                             nullable=False,
                             custom_type="Role",
                         ),
-                        Column(
-                            name="createdAt", type=ColumnType.DATETIME, nullable=False
-                        ),
+                        Column(name="createdAt", type=ColumnType.DATETIME, nullable=False),
                     ],
                 )
             ],

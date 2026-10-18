@@ -290,9 +290,7 @@ def test_generate_max_length():
             Table(
                 name="Item",
                 columns=[
-                    Column(
-                        name="name", type=ColumnType.STRING, type_args={"length": 100}
-                    ),
+                    Column(name="name", type=ColumnType.STRING, type_args={"length": 100}),
                 ],
             )
         ]

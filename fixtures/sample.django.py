@@ -7,10 +7,10 @@ from django.db import models
 
 
 class UserRole(models.TextChoices):
-    ADMIN = 'admin', 'Admin'
-    EDITOR = 'editor', 'Editor'
-    AUTHOR = 'author', 'Author'
-    SUBSCRIBER = 'subscriber', 'Subscriber'
+    ADMIN = "admin", "Admin"
+    EDITOR = "editor", "Editor"
+    AUTHOR = "author", "Author"
+    SUBSCRIBER = "subscriber", "Subscriber"
 
 
 class User(models.Model):
@@ -26,7 +26,7 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'users'
+        db_table = "users"
 
     def __str__(self):
         return self.name
@@ -38,8 +38,8 @@ class Category(models.Model):
     sort_order = models.IntegerField(default=0)
 
     class Meta:
-        db_table = 'categories'
-        verbose_name_plural = 'categories'
+        db_table = "categories"
+        verbose_name_plural = "categories"
 
     def __str__(self):
         return self.name
@@ -50,19 +50,19 @@ class Post(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     content = models.TextField()
     excerpt = models.TextField(null=True, blank=True, max_length=500)
-    status = models.CharField(max_length=20, default='draft')
+    status = models.CharField(max_length=20, default="draft")
     published_at = models.DateTimeField(null=True, blank=True)
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='posts',
+        related_name="posts",
     )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='posts',
+        related_name="posts",
     )
     view_count = models.IntegerField(default=0)
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
@@ -70,7 +70,7 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'posts'
+        db_table = "posts"
 
     def __str__(self):
         return self.title
