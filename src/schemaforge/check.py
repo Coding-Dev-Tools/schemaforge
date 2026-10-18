@@ -73,9 +73,7 @@ def check_directory(
             failures.append(f"  FAIL {name}: {e}")
 
     if not converted:
-        return "FAIL: No files could be converted to {}\n{}".format(
-            canonical, "\n".join(failures)
-        )
+        return "FAIL: No files could be converted to {}\n{}".format(canonical, "\n".join(failures))
 
     # Compare pairwise
     mismatches: list[str] = []

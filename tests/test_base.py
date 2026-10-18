@@ -61,26 +61,20 @@ def test_build_type_string_simple():
 def test_build_type_string_string_with_length():
     """build_type_string adds length for STRING."""
     col = Column(name="name", type=ColumnType.STRING, type_args={"length": 100})
-    result = build_type_string(
-        col, {ColumnType.STRING: "String"}, string_fmt="{}({})", string_default="String"
-    )
+    result = build_type_string(col, {ColumnType.STRING: "String"}, string_fmt="{}({})", string_default="String")
     assert result == "String(100)"
 
 
 def test_build_type_string_string_no_length():
     """build_type_string returns base for STRING without length."""
     col = Column(name="name", type=ColumnType.STRING)
-    result = build_type_string(
-        col, {ColumnType.STRING: "String"}, string_fmt="{}({})", string_default="String"
-    )
+    result = build_type_string(col, {ColumnType.STRING: "String"}, string_fmt="{}({})", string_default="String")
     assert result == "String"
 
 
 def test_build_type_string_decimal():
     """build_type_string adds precision/scale for DECIMAL."""
-    col = Column(
-        name="price", type=ColumnType.DECIMAL, type_args={"precision": 12, "scale": 4}
-    )
+    col = Column(name="price", type=ColumnType.DECIMAL, type_args={"precision": 12, "scale": 4})
     result = build_type_string(
         col,
         {ColumnType.DECIMAL: "DECIMAL"},
@@ -92,9 +86,7 @@ def test_build_type_string_decimal():
 
 def test_build_type_string_enum():
     """build_type_string formats inline ENUM values."""
-    col = Column(
-        name="size", type=ColumnType.ENUM, type_args={"values": ["S", "M", "L"]}
-    )
+    col = Column(name="size", type=ColumnType.ENUM, type_args={"values": ["S", "M", "L"]})
     result = build_type_string(col, {ColumnType.ENUM: "Enum"}, enum_fmt="Enum({})")
     assert result == "Enum('S', 'M', 'L')"
 

@@ -522,12 +522,7 @@ def test_sqlalchemy_to_typeorm_roundtrip():
 def test_sqlalchemy_to_drizzle_roundtrip():
     """Cross-format: SQLAlchemy -> Drizzle."""
     drizzle = convert_schema(SIMPLE_SQLALCHEMY, "sqlalchemy", "drizzle")
-    assert (
-        "export" in drizzle
-        or "pgTable" in drizzle
-        or "sqliteTable" in drizzle
-        or "defineTable" in drizzle
-    )
+    assert "export" in drizzle or "pgTable" in drizzle or "sqliteTable" in drizzle or "defineTable" in drizzle
     assert "users" in drizzle.lower()
 
 
@@ -709,13 +704,13 @@ def test_alembic_custom_revision():
     gen = AlembicGenerator()
     output = gen.generate(
         schema,
-        revision_id="abc123def456",
+        revision_id="testrevision",
         down_revision="prev_rev",
         message="Add items table",
     )
 
     assert "Add items table" in output
-    assert "revision = 'abc123def456'" in output
+    assert "revision = 'testrevision'" in output
     assert "down_revision = 'prev_rev'" in output
 
 

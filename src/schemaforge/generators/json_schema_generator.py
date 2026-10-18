@@ -163,9 +163,7 @@ class JSONSchemaGenerator:
 
         return self._add_base_annotations(prop, col)
 
-    def _add_base_annotations(
-        self, prop: dict[str, Any], col: Column
-    ) -> dict[str, Any]:
+    def _add_base_annotations(self, prop: dict[str, Any], col: Column) -> dict[str, Any]:
         """Add common annotations (description, default, comment) to a property."""
         if col.comment:
             prop["description"] = col.comment

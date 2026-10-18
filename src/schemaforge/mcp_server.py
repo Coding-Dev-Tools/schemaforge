@@ -24,24 +24,27 @@ except ImportError:
     FastMCP = None  # type: ignore
 
 
-def _confined_directory(directory: str) -> Path:
-    """Resolve *directory* and confirm it stays within the allowed root.
+def _confined_path(path: str, *, kind: str = "Path") -> Path:
+    """Resolve *path* and confirm it stays within the allowed root.
 
-    The ``check`` tool iterates and reads files under the given directory. To
-    keep an AI agent (or, in SSE mode, a remote caller) from reading arbitrary
-    locations on the host, requests are confined to a root — the
+    MCP directory checks and type-map reads are confined to a root - the
     ``SCHEMAFORGE_MCP_ROOT`` environment variable if set, otherwise the current
-    working directory the server was launched in. Escaping the root raises
-    ``PermissionError``.
+    working directory. Canonical resolution follows links before validation.
+    Escaping the root raises ``PermissionError``.
     """
     root = Path(os.environ.get("SCHEMAFORGE_MCP_ROOT", Path.cwd())).resolve()
-    target = Path(directory).resolve()
+    target = Path(path).resolve()
     if target != root and not target.is_relative_to(root):
         raise PermissionError(
-            f"Directory '{directory}' is outside the allowed root '{root}'. "
+            f"{kind} '{path}' is outside the allowed root '{root}'. "
             f"Set SCHEMAFORGE_MCP_ROOT to permit a different base directory."
         )
     return target
+
+
+def _confined_directory(directory: str) -> Path:
+    """Resolve a check directory within the allowed MCP root."""
+    return _confined_path(directory, kind="Directory")
 
 
 # All supported formats
@@ -73,15 +76,12 @@ _FORMAT_DESCRIPTIONS = {
 }
 
 
-def create_server() -> Any:
+def create_server(*, host: str = "127.0.0.1", port: int = 8000) -> Any:
     """Create and configure the MCP server with all SchemaForge tools."""
     if FastMCP is None:
-        raise ImportError(
-            "The 'mcp' package is required to run the MCP server.\n"
-            "Install it with: pip install mcp"
-        )
+        raise ImportError("The 'mcp' package is required to run the MCP server.\nInstall it with: pip install mcp")
 
-    server = FastMCP("SchemaForge", log_level="WARNING")
+    server = FastMCP("SchemaForge", log_level="WARNING", host=host, port=port)
 
     @server.tool(
         name="convert",
@@ -102,7 +102,7 @@ def create_server() -> Any:
             from_format: Source format (sql, prisma, drizzle, typeorm, django,
                         sqlalchemy, alembic, json_schema, graphql, ef, scala).
             to_format: Target format (same options as from_format).
-            type_map_path: Optional path to a YAML/JSON type mapping config file.
+            type_map_path: Optional YAML/JSON type map within the allowed MCP root.
         """
         if from_format not in _FORMATS:
             return f"Error: Unsupported source format '{from_format}'. Supported: {', '.join(_FORMATS)}"
@@ -112,14 +112,12 @@ def create_server() -> Any:
         type_config: TypeConfig | None = None
         if type_map_path:
             try:
-                type_config = TypeConfig.from_file(type_map_path)
-            except (FileNotFoundError, ValueError) as e:
+                type_config = TypeConfig.from_file(_confined_path(type_map_path, kind="Type map"))
+            except (FileNotFoundError, PermissionError, ValueError) as e:
                 return f"Error loading type map: {e}"
 
         try:
-            result = convert_schema(
-                schema_text, from_format, to_format, type_config=type_config
-            )
+            result = convert_schema(schema_text, from_format, to_format, type_config=type_config)
             return result
         except ValueError as e:
             return f"Error: {e}"
@@ -151,11 +149,7 @@ def create_server() -> Any:
 
         try:
             result = diff_schemas(schema_a, schema_b, format)
-            return (
-                result
-                if result.strip()
-                else "No differences found — schemas are equivalent."
-            )
+            return result if result.strip() else "No differences found — schemas are equivalent."
         except Exception as e:
             return f"Error: {e}"
 
@@ -174,13 +168,12 @@ def create_server() -> Any:
         Args:
             directory: Path to directory containing schema files.
             canonical: Canonical format for comparison (default: sql).
-            type_map_path: Optional path to a YAML/JSON type mapping config file.
+            type_map_path: Optional YAML/JSON type map within the allowed MCP root.
         """
         try:
             safe_dir = _confined_directory(directory)
-            result = check_directory(
-                str(safe_dir), canonical=canonical, type_map_path=type_map_path
-            )
+            safe_type_map = str(_confined_path(type_map_path, kind="Type map")) if type_map_path else None
+            result = check_directory(str(safe_dir), canonical=canonical, type_map_path=safe_type_map)
             return result
         except PermissionError as e:
             return f"Error: {e}"
@@ -247,10 +240,10 @@ def mcp_command(sse: bool, host: str, port: int) -> None:
     By default runs in stdio mode for AI clients (Claude Desktop, Cursor, etc.).
     Use --sse for HTTP transport.
     """
-    server = create_server()
+    server = create_server(host=host, port=port) if sse else create_server()
 
     if sse:
         click.echo(f"Starting SchemaForge MCP server on http://{host}:{port}", err=True)
-        server.run(transport="sse", host=host, port=port)
+        server.run(transport="sse")
     else:
         server.run(transport="stdio")
