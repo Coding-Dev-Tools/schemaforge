@@ -313,9 +313,7 @@ def test_prisma_generate_complex():
                 name="Item",
                 columns=[
                     Column(name="id", type=ColumnType.INTEGER, primary_key=True),
-                    Column(
-                        name="name", type=ColumnType.STRING, type_args={"length": 100}
-                    ),
+                    Column(name="name", type=ColumnType.STRING, type_args={"length": 100}),
                     Column(
                         name="price",
                         type=ColumnType.DECIMAL,
@@ -521,9 +519,7 @@ def test_sql_fn_default_generates_without_quotes():
                         type=ColumnType.DATETIME,
                         default="fn:CURRENT_TIMESTAMP",
                     ),
-                    Column(
-                        name="updated_at", type=ColumnType.DATETIME, default="fn:NOW()"
-                    ),
+                    Column(name="updated_at", type=ColumnType.DATETIME, default="fn:NOW()"),
                     Column(
                         name="token",
                         type=ColumnType.UUID,

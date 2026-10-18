@@ -27,9 +27,7 @@ _TYPE_TO_DRIZZLE: dict[ColumnType, str] = {
 class DrizzleGenerator:
     """Generate Drizzle ORM TypeScript schema from Schema IR."""
 
-    def __init__(
-        self, dialect: str = "pg", type_config: TypeConfig | None = None
-    ) -> None:
+    def __init__(self, dialect: str = "pg", type_config: TypeConfig | None = None) -> None:
         """Initialize with dialect and optional custom type overrides.
 
         Args:
@@ -81,11 +79,7 @@ class DrizzleGenerator:
                 type_imports.add(drizzle_type)
 
                 # Add serial for primary keys with integer type
-                if (
-                    col.primary_key
-                    and col.type == ColumnType.INTEGER
-                    and not col.default
-                ):
+                if col.primary_key and col.type == ColumnType.INTEGER and not col.default:
                     type_imports.add("serial")
                     type_imports.discard("integer")
 

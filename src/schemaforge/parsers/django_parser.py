@@ -122,9 +122,7 @@ class DjangoParser:
             field_class = field_m.group(2)
 
             # Extract args between the outermost parens
-            args_start = stripped.index(
-                "(", stripped.index(field_class) + len(field_class)
-            )
+            args_start = stripped.index("(", stripped.index(field_class) + len(field_class))
             paren_depth = 0
             args_end = len(stripped)
             for j, ch in enumerate(stripped[args_start:]):
