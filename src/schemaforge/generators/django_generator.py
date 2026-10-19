@@ -69,10 +69,7 @@ class DjangoGenerator:
                     # Unique on single column is already handled via field option
                     pass
                 else:
-                    lines.append(
-                        f"    {col} = models.{'IntegerField' if col else 'CharField'}("
-                        f"db_index=True)"
-                    )
+                    lines.append(f"    {col} = models.{'IntegerField' if col else 'CharField'}(db_index=True)")
 
         # Unique constraints (multi-column)
         unique_sets: list[list[str]] = []
@@ -103,9 +100,7 @@ class DjangoGenerator:
 
     def _field_def(self, col: Column) -> str:
         """Generate a Django model field definition."""
-        django_field = resolve_type(
-            col, self._FIELD_MAP, fmt="django", type_config=self._type_config
-        )
+        django_field = resolve_type(col, self._FIELD_MAP, fmt="django", type_config=self._type_config)
         if not django_field.endswith("Field"):
             django_field = django_field + "Field"
 

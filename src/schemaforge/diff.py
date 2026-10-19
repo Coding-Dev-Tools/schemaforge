@@ -75,13 +75,7 @@ def diff_schemas(text_a: str, text_b: str, fmt: str) -> str:
         )
         for name in common
     )
-    if (
-        not added
-        and not removed
-        and not has_table_diffs
-        and not enum_added
-        and not enum_removed
-    ):
+    if not added and not removed and not has_table_diffs and not enum_added and not enum_removed:
         lines.append("No differences found.")
 
     return "\n".join(lines)

@@ -85,9 +85,7 @@ class DrizzleParser:
             m.group(1)
             enum_name = m.group(2)
             values_str = m.group(3)
-            values = [
-                v.strip().strip("'\"") for v in values_str.split(",") if v.strip()
-            ]
+            values = [v.strip().strip("'\"") for v in values_str.split(",") if v.strip()]
             schema.enums.append(EnumType(name=enum_name, values=values))
 
         for m in table_pattern.finditer(text):
